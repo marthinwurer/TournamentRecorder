@@ -1,0 +1,76 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{verbatim}
+\usepackage{array}
+\usepackage{parskip}
+\setlength\parskip{\baselineskip}
+\setlength\parindent{0pt}
+
+\begin{document}
+\title{Tournament Game Recorder}
+\author{Team Tangent Tally & Richard Ditullio & William Frey & Jonathan Lo & Benjamin Maitland }
+\date{\today}
+
+\maketitle
+\newpage
+
+\section{Overview}
+This application allows Tournament coordinators to record and track tournament data for a typical \textit{Magic: the Gathering} tournament match pairing and player game recording.
+
+\section{Introduction}
+This section will discuss generic and detailed information about \textit{Magic the Gathering} tournaments. The following definitions and acronyms will be utilized later in the document.
+\subsection{Tournament Overview}
+Explain how a tournament works
+\subsection{Acronyms}
+Define any acronyms
+\subsection{Definitions}
+
+\begin{center}
+\begin{tabular}{|m{4cm}|m{11cm}|}
+    \hline
+    \textbf{Terms} & \textbf{Definitions} \\
+    \hline
+    Match Pairing & The pairing between two explicit players\\
+    \hline
+    Match Score & The points given to the winner and loser, or in cases of a draw, the two inclusive players.\\
+    \hline
+    Tournament & A collection of rounds, declaring a single winner.\\
+    \hline
+    Rounds & A collection of matches, declaring a number of winners calculated from the number of matches.\\
+    \hline
+    Matches & A series of games between two players. A winner and loser is defined at the end of the match, unless of cases of a draw. Matches contain three games.\\
+    \hline
+    Match Winner & The first player that is first to win two out of three games in a match.\\
+    \hline
+    Game & A single play of a \textit{Magic the Gathering} game.\\
+    \hline
+    Bye & A match with one player. The player is automatically declared the winner.\\
+    \hline
+    Player Standing & A measurement of a player's comparative score amongst other players.\\
+    \hline
+\end{tabular}
+\label{table:1}
+\end{center}
+
+\section{Software Requirements}
+\begin{itemize}
+\item The application shall be executable from a Windows or Linux operating system.
+\item The application shall be implemented using Python 3.5.
+\item The application shall be utilizing MySQL Database.
+\item The application shall implement an interface for users to interact.
+\item The application shall be testable, either automated or manual.
+\item The application shall maintain and record relevant tournament data.
+\item The application shall implement algorithms for required logic.
+\end{itemize}
+
+\section{Software Design}
+
+\section{Software Implementation}
+
+\section{Appendix}
+\subsection{Reference Documentation}
+\subsection{Tables}
+\listoftables
+
+\end{document}
