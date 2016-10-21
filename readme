@@ -1,0 +1,7 @@
+To begin using the virtual environment, it needs to be activated:
+$ source venv/bin/activate
+
+export FLASK_APP=server.py
+
+If you are done working in the virtual environment for the moment, you can deactivate it:
+$ deactivate
