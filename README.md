@@ -28,3 +28,12 @@ To start the server, export the path to the server python file, and then run it.
 To run the client, modify the connection address, and then run the client.
 
     $ python ./src/client.py
+
+
+##########################
+Troubleshooting
+
+If there are issues installing the mysql python app, run:
+
+    $ sudo apt-get install libmysqlclient-dev
+
