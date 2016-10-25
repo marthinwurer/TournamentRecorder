@@ -90,3 +90,6 @@ ENV/
 
 #pycharm BS
 .idea/
+
+#vim stuff
+*.swp
