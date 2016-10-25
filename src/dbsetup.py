@@ -31,6 +31,7 @@ def main():
         curs.execute("""CREATE TABLE tournament(
                             id int NOT NULL AUTO_INCREMENT,
                             name varchar(20),
+                            max_rounds int,
                             start_date date,
                             end_date date,
                             PRIMARY KEY (id)
