@@ -15,6 +15,11 @@ If you are done working in the virtual environment for the moment, you can deact
 
     $ deactivate
 
+The headers needed for the mysql database bindings to work are obtained by:
+
+    $ sudo apt-get install libmysqlclient-dev
+    $ sudo apt-get install python3-dev
+
 To install all of the required libraries, activate the virtual environment, then run:
 
     $ pip install -r requirements.txt
@@ -29,11 +34,4 @@ To run the client, modify the connection address, and then run the client.
 
     $ python ./src/client.py
 
-
-##########################
-Troubleshooting
-
-If there are issues installing the mysql python app, run:
-
-    $ sudo apt-get install libmysqlclient-dev
 

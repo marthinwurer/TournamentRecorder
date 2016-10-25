@@ -1,26 +1,49 @@
+"""
+This python program runs a simple shell to query the database remotely.
+"""
 import requests
 
-r = requests.get("http://localhost:5000/listdogs/")
-print( r.text )
+import tr_api
+
+def concat_end(lst, start_index):
+    total = None
+    for i in range( start_index, len(lst)):
+        if total == None:
+            total = lst[i]
+        else:
+            total = total + " " + lst[i]
+    return total
 
 
 def main():
-    r = requests.get("http://localhost:5000/listdogs/")
-    print( r.text )
     while True: # no do while in python :(
+        result = None
         command = input(">")
         if len(command) == 0:
             continue
         command = command.split()
-        if command[0].lower() == 'a':
-            r = requests.get("http://localhost:5000/adddog/" + command[1])
-        elif command[0].lower() == 'l':
-            r = requests.get("http://localhost:5000/listdogs/")
-        if command[0].lower() == 'd':
-            r = requests.get("http://localhost:5000/removedog/" + command[1])
-        elif command[0].lower() == 'q':
-            return
-        print(r.text)
+
+        try:
+            if command[0].lower() == 'ap':
+                # concatenate the command strings after a certain point together so
+                # that first and last names can be added. 
+                name = concat_end(command, 2)
+                if name == None:
+                    raise IndexError("No name")
+                result = tr_api.addPlayer(command[1], name)
+            elif command[0].lower() == 'lp':
+                result = tr_api.listPlayers()
+            elif command[0].lower() == 'exit':
+                return
+
+            else:
+                print("Invalid command")
+                continue
+        except IndexError:
+            print("Invalid number of parameters")
+            continue
+
+        print( result)
 
 
 
