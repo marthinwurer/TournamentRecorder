@@ -5,15 +5,22 @@ Author: Benjamin Maitland
 """
 import requests
 
+server_name = 'localhost:5000'
+#server_name = 'ttdbserver.student.rit.edu:5000'
+
 #r = requests.post('http://localhost:5000/tr-api/',
 #        json={'key':'value'})
 #print( r.json())
+def sendRequest(function, params):
+    r = requests.post('http://' + server_name + '/tr-api/' + function, 
+            json=params)
+    return r.json()
 
 def addPlayer(p_id, t_id):
-    pass
+    return sendRequest('addPlayer', {'p_id': p_id, 't_id': t_id})
 
 def createPlayer(DCI, name):
-    pass
+    return sendRequest('createPlayer', {'DCI': DCI, 'name': name})
 
 def createTournament(name, max_rounds):
     pass
@@ -28,7 +35,7 @@ def getPlayer(p_id):
     pass
 
 def listPlayers():
-    pass
+    return sendRequest('listPlayers', {})
 
 def listTournaments(sort_on, filter_types):
     pass

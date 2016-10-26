@@ -24,13 +24,13 @@ def main():
         command = command.split()
 
         try:
-            if command[0].lower() == 'ap':
+            if command[0].lower() == 'cp':
                 # concatenate the command strings after a certain point together so
                 # that first and last names can be added. 
                 name = concat_end(command, 2)
                 if name == None:
                     raise IndexError("No name")
-                result = tr_api.addPlayer(command[1], name)
+                result = tr_api.createPlayer(int(command[1]), name)
             elif command[0].lower() == 'lp':
                 result = tr_api.listPlayers()
             elif command[0].lower() == 'exit':
