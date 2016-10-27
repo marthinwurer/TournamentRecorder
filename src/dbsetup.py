@@ -20,7 +20,7 @@ def main():
         curs.execute('USE TournamentRecorder;')
         db.commit()
         curs.execute("""CREATE TABLE player(
-                            id int NOT NULL,
+                            id bigint NOT NULL,
                             name varchar(30),
                             wins int,
                             losses int,
@@ -50,7 +50,7 @@ def main():
         curs.execute("""CREATE TABLE tournament_player(
                             id int NOT NULL AUTO_INCREMENT,
                             t_id int NOT NULL,
-                            p_id int NOT NULL,
+                            p_id bigint NOT NULL,
                             dropped int,
                             PRIMARY KEY (id),
                             FOREIGN KEY(t_id) REFERENCES tournament(id),
@@ -68,8 +68,8 @@ def main():
                             draws int,
                             PRIMARY KEY (id),
                             FOREIGN KEY(r_id) REFERENCES round(id),
-                            FOREIGN KEY(p1_id) REFERENCES player(id),
-                            FOREIGN KEY(p2_id) REFERENCES player(id)
+                            FOREIGN KEY(p1_id) REFERENCES tournament_player(id),
+                            FOREIGN KEY(p2_id) REFERENCES tournament_player(id)
                             );""")
         db.commit()
 
