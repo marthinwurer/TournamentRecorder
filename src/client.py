@@ -2,6 +2,7 @@
 This python program runs a simple shell to query the database remotely.
 """
 import requests
+import json
 
 import tr_api
 
@@ -128,8 +129,7 @@ def main():
 
 def table_print(result):
     if isinstance(result, dict):
-        print(result['rows'])
-        print("My Outcome: ", result['outcome'])
+        print(json.dumps(result["rows"], sort_keys=True, indent=4))
 
     else:
         print("API return Error")
