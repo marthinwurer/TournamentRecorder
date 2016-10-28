@@ -17,46 +17,49 @@ def sendRequest(function, params):
     return r.json()
 
 def addPlayer(p_id, t_id):
-    return sendRequest('addPlayer', {'p_id': p_id, 't_id': t_id})
+    return sendRequest('addplayer', {'p_id': p_id, 't_id': t_id})
 
 def createPlayer(DCI, name):
     return sendRequest('createPlayer', {'DCI': DCI, 'name': name})
 
 def createTournament(name, max_rounds):
-    pass
+    return sendRequest('createTournament', {'name': name, 'max_rouds': max_rouds})
 
 def finishRound(r_id):
-    pass
+    return sendRequest('finishRound', {'r_id': r_id})
 
 def generatePairings(t_id):
-    pass
+    return sendRequest('generatePairings', {'t_id': t_id})
 
 def getPlayer(p_id):
-    pass
+    return sendRequest('getPlayer', {'p_id': p_id})
 
 def listPlayers():
     return sendRequest('listPlayers', {})
 
 def listTournaments(sort_on, filter_types):
-    pass
+    return sendRequest('listTournaments', {'sort_on': sort_on, 'filter_types': filter_types})
 
 def listTournamentPlayers(t_id):
-    pass
+    return sendRequest('listTournamentPlayers', {'t_id': t_id})
 
 def matchList(r_id):
-    pass
+    return sendRequest('matchList', {'r_id': r_id})
 
 def removePlayer(p_id, t_id):
-    pass
+    return sendRequest('removePlayer', {'p_id': p_id, 't_id': t_id})
 
 def roundList(t_id):
-    pass
+    return sendRequest('roundList', {'t_id': t_id})
 
 def searchPlayers(partial_name):
-    pass
+    return sendRequest('searchPlayers', {'partial_name': partial_name})
 
 def setMatchResults(m_id, p1_wins, p2_wins, draws):
-    pass
+    return sendRequest('setMatchResults', {'m_id': m_id, 'p1_wins': p1_wins, 
+                                            'p2_wins': p2_wins, 'draws': draws})
 
 def startTournament(t_id):
-    pass
+    return sendRequest('startTournament', {'t_id': t_id})
+
+

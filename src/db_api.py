@@ -4,13 +4,15 @@ The flask server will do all of the checking and then it will call the
 funcitons in this file, and then return the results to the caller. 
 """
 import MySQLdb
+import MySQLdb.cursors
 import json
 
-db = MySQLdb.connect("localhost", "root", "root", "TournamentRecorder")
+db = MySQLdb.connect("localhost", "root", "root", "TournamentRecorder",
+                        cursorclass=MySQLdb.cursors.DictCursor)
 
 
 def addPlayer(p_id, t_id):
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     curs.execute("""INSERT INTO tournament_player
                         (t_id, p_id) VALUES
                         (%s  , %s  ); """, [p_id, t_id])
@@ -19,7 +21,7 @@ def addPlayer(p_id, t_id):
 
 
 def createPlayer(DCI, name):
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     curs.execute("""INSERT INTO player
                         (id, name) VALUES
                         (%s  , %s  ); """, [DCI, name])
@@ -27,7 +29,7 @@ def createPlayer(DCI, name):
     return '{"outcome":true}'
 
 def createTournament(name, max_rounds):
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     curs.execute("""INSERT INTO tournament
                         (name, max_rounds) VALUES
                         (%s  , %s  ); """, [name, max_rounds])
@@ -35,7 +37,7 @@ def createTournament(name, max_rounds):
     return '{"outcome":true}'
 
 def finishRound(r_id):
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     curs.execute("""UPDATE round
                         SET end_date=NOW()
                         WHERE id=%s; """, [r_id])
@@ -52,7 +54,7 @@ def generatePairings(t_id):
     print( len(playerList))
 
     # create a round
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     #get the previous round's number
     curs.execute("""SELECT MAX(number) AS max FROM round
                         WHERE t_id = %s; """, [t_id])
@@ -84,7 +86,7 @@ def generatePairings(t_id):
 
 
 def getPlayer(p_id):
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     curs.execute("""SELECT id, name FROM player
                         WHERE id=%s; """, [p_id])
     db.commit()
@@ -94,7 +96,7 @@ def getPlayer(p_id):
     return json.dumps(result)
 
 def listPlayers():
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     curs.execute("""SELECT id, name FROM player; """, [])
     db.commit()
     
@@ -124,7 +126,7 @@ def listTournaments(sort_on, filter_types):
     return json.dumps(output)
 
 def listTournamentPlayersHelper(t_id):
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     curs.execute("""SELECT tp.id, tp.p_id, (
                             SELECT name FROM player AS p WHERE p.id=tp.p_id
                             ) AS name
@@ -144,7 +146,7 @@ def listTournamentPlayers(t_id):
     return json.dumps(output)
 
 def matchList(r_id):
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     curs.execute("""SELECT table_number, p1_id, p2_id, p1_wins, p2_wins, draws
                         FROM t_match
                         WHERE r_id = %s; """, [r_id])
@@ -162,7 +164,7 @@ def removePlayer(p_id, t_id):
         Only do this if the player has no outstanding match results
 
     """
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     
     # get the player's tp_id
     curs.execute("""SELECT id FROM tournament_player 
@@ -186,7 +188,7 @@ def removePlayer(p_id, t_id):
 
 
 def roundList(t_id):
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     curs.execute("""SELECT id, number, start_date, end_date
                         FROM t_match
                         WHERE r_id = %s; """, [t_id])
@@ -200,7 +202,7 @@ def roundList(t_id):
     return json.dumps(output)
 
 def searchPlayers(partial_name):
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     curs.execute("""SELECT id, name FROM player
                         WHERE name LIKE '%%s%'; """, [partial_name])
     db.commit()
@@ -210,7 +212,7 @@ def searchPlayers(partial_name):
     return json.dumps(result)
 
 def setMatchResults(m_id, p1_wins, p2_wins, draws):
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     curs.execute("""UPDATE t_match
                         SET p1_wins = %s, p2_wins = %s, draws = %s
                         WHERE m_id = %s; """, [p1_wins, p2_wins, draws, m_id])
@@ -222,7 +224,7 @@ def setMatchResults(m_id, p1_wins, p2_wins, draws):
 
 
 def startTournament(t_id):
-    curs = db.cursor(DictCursor)
+    curs = db.cursor()
     curs.execute("""UPDATE tournament
                         SET start_date = CURDATE()
                         WHERE id = %s; """, [t_id])
