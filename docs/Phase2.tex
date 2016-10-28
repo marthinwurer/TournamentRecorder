@@ -208,17 +208,17 @@
             \hline
             \texttt{r\_id} & \texttt{INTEGER} & FOREIGN KEY & Reference to \texttt{round(id)}.\\
             \hline
-            \texttt{p1\_id} & \texttt{INTEGER} & FOREIGN KEY & Reference to \texttt{tournament_player(id)}.\\
+            \texttt{p1\_id} & \texttt{INTEGER} & FOREIGN KEY & Reference to \texttt{tournament\_player(id)}.\\
             \hline
-            Player 2 & INT & FOREIGN KEY & Reference to TOURNAMENT PLAYERS.\\
+            \texttt{p2\_id} & \texttt{INTEGER} & FOREIGN KEY & Reference to \texttt{tournament\_player(id)}.\\
             \hline
-            Table Number & INT & PROVIDED & assigned table number for the match.\\
+            \texttt{table\_number} & \texttt{INTEGER} & PROVIDED & assigned table number for the match.\\
             \hline
-            P1 Wins & INT & PROVIDED & player 1 wins.\\
+            \texttt{p1\_wins} & \texttt{INTEGER} & PROVIDED & player 1 wins.\\
             \hline
-            P2 Wins & INT & PROVIDED & player 2 wins.\\
+            \texttt{p2\_wins} & \texttt{INTEGER} & PROVIDED & player 2 wins.\\
             \hline
-            Draws & INT & PROVIDED & number of draws in the match.\\
+            \texttt{draws} & \texttt{INTEGER} & PROVIDED & number of draws in the match.\\
             \hline
         \end{tabulary}
         \caption{Database Table: \texttt{t\_matches}}
