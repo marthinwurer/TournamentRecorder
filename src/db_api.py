@@ -6,10 +6,22 @@ funcitons in this file, and then return the results to the caller.
 import MySQLdb
 import MySQLdb.cursors
 import json
+from datetime import datetime
 
 db = MySQLdb.connect("localhost", "root", "root", "TournamentRecorder",
                         cursorclass=MySQLdb.cursors.DictCursor)
 
+
+def json_serial(obj):
+    """
+    JSON serializer for objects not serializable by default json code
+    Taken from http://stackoverflow.com/a/22238613/3000741
+    """
+
+    if isinstance(obj, datetime):
+        serial = obj.isoformat()
+        return serial
+    raise TypeError ("Type not serializable")
 
 def addPlayer(p_id, t_id):
     curs = db.cursor()
@@ -68,8 +80,8 @@ def generatePairings(t_id):
 
     #insert it
     curs.execute("""INSERT INTO round
-                        (t_id, number) VALUES
-                        (%s  , %s  ); """, [t_id, num])
+                        (t_id, number, start_date) VALUES
+                        (%s  , %s  , NOW()); """, [t_id, num])
 
     # get its id
     curs.execute("""SELECT id FROM round
@@ -137,7 +149,7 @@ def listTournaments(sort_on, filter_types):
     #add the outcome variable
     output = {'outcome': True, 'rows': result}
     
-    return json.dumps(output)
+    return json.dumps(output, default=json_serial)
 
 def listTournamentPlayersHelper(t_id):
     curs = db.cursor()
@@ -213,7 +225,7 @@ def roundList(t_id):
     #add the outcome variable
     output = {'outcome': True, 'rows': result}
     
-    return json.dumps(output)
+    return json.dumps(output, default=json_serial)
 
 def searchPlayers(partial_name):
     curs = db.cursor()
@@ -242,7 +254,8 @@ def startTournament(t_id):
     curs.execute("""UPDATE tournament
                         SET start_date = CURDATE()
                         WHERE id = %s; """, [t_id])
+    result = generatePairings(t_id)
     db.commit()
 
-    return generatePairings(t_id)
+    return result
 
