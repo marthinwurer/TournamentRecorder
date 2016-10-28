@@ -173,7 +173,7 @@ def listTournamentPlayers(t_id):
 
 def matchList(r_id):
     curs = db.cursor()
-    curs.execute("""SELECT table_number, p1_id, p2_id, p1_wins, p2_wins, draws
+    curs.execute("""SELECT id, table_number, p1_id, p2_id, p1_wins, p2_wins, draws
                         FROM t_match
                         WHERE r_id = %s; """, [r_id])
     db.commit()
@@ -241,7 +241,7 @@ def setMatchResults(m_id, p1_wins, p2_wins, draws):
     curs = db.cursor()
     curs.execute("""UPDATE t_match
                         SET p1_wins = %s, p2_wins = %s, draws = %s
-                        WHERE m_id = %s; """, [p1_wins, p2_wins, draws, m_id])
+                        WHERE id = %s; """, [p1_wins, p2_wins, draws, m_id])
     db.commit()
 
     result = {}

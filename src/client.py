@@ -80,7 +80,7 @@ def main():
                 result = tr_api.startTournament(int(command[1]))
             elif command[0].lower() == 'smr':
                 result = tr_api.setMatchResults(
-                        int(command[1]), int(command[1]), int(command[1]), int(command[1]))
+                        int(command[1]), int(command[2]), int(command[3]), int(command[4]))
 
 
             elif command[0].lower() == 'smr':
