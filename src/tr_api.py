@@ -4,13 +4,14 @@ as well as translating the server's responses.
 Author: Benjamin Maitland
 """
 import requests
+import json
 
-server_name = 'localhost:5000'
-#server_name = 'ttdbserver.student.rit.edu:5000'
+config = {}
+with open("config.json") as file:
+    config = json.load(file)
 
-#r = requests.post('http://localhost:5000/tr-api/',
-#        json={'key':'value'})
-#print( r.json())
+server_name = config['clientserver']
+
 def sendRequest(function, params):
     r = requests.post('http://' + server_name + '/tr-api/' + function, 
             json=params)

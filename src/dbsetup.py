@@ -5,7 +5,7 @@ Author: Benjamin Maitland
 import MySQLdb
 import json
 
-config = ""
+config = {}
 with open("config.json") as file:
     config = json.load(file)
 

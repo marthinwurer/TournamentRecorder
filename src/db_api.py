@@ -8,7 +8,7 @@ import MySQLdb.cursors
 import json
 from datetime import datetime
 
-config = ""
+config = {}
 with open("config.json") as file:
     config = json.load(file)
 
