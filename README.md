@@ -1,7 +1,17 @@
 # TournamentRecorder
-The first step for installation is to download the client from the git repo.
+The first step for installation is to download the client from the git repo. If you can see this message locally, you're good.
 
-Once that is done, a python virtal environment must be set up. This is done with virtualenv. Installation instructions are [here](https://virtualenv.pypa.io/en/stable/installation/).
+At the moment, the server only runs on Ubuntu Linux. This has been tested on 14.04 and 16.04 lts. If you cannot get the server running, you can connect to one at:
+    
+    ttdbserver.student.rit.edu
+
+The client runs on both windows and linux.
+
+The server will need a MySQL server running. On Ubuntu, this can be installed with:
+    
+    $ sudo apt install mysql-server
+
+To run both the server and client, a python virtal environment must be set up. This is done with virtualenv. Installation instructions are [here](https://virtualenv.pypa.io/en/stable/installation/).
 
 Once virtualenv is set up, you can then create the virtual environment.
 
@@ -12,7 +22,8 @@ To begin using the virtual environment, it needs to be activated:
     $ source venv/bin/activate
 	
 	For Window Users:
-	virtualenv provides a .bat script to activate the virtualenv. A Windows User will run the following instead:
+	virtualenv provides a .bat script to activate the virtualenv. A Windows User
+	will run the following instead:
 	
 	$ venv/Scripts/activate
 
@@ -21,11 +32,12 @@ If you are done working in the virtual environment for the moment, you can deact
     $ deactivate
 	
 	For Window Users:
-	virtualenv provides a .bat script to activate the virtualenv. A Windows User will run the following instead:
+	virtualenv provides a .bat script to activate the virtualenv. A Windows User
+	will run the following instead:
 	
 	$ venv/Scripts/deactivate
 
-The headers needed for the mysql database bindings to work are obtained by:
+The headers needed for all libraries to work are obtained by:
 
     $ sudo apt-get install libmysqlclient-dev
     $ sudo apt-get install python3-dev
@@ -35,10 +47,24 @@ To install all of the required libraries, activate the virtual environment, then
     $ pip install -r requirements.txt
 	
 	This commands downloads all the requirement packages listed in requirements.txt
-	For Windows users, the referenced mysql-client in the file does not play well. Thus you may delete it if is
-	  an issue 
+	For Windows users, the referenced mysql-client in the file does not play well.
+	Thus you may delete it if is an issue 
 
-Configure the server by modifying the database hostname, username, and password in the server file.
+Configure the client and server by creating a config.json file. A default one is:
+
+    {
+      "dbserver": "localhost:5000",
+      "dbusername": "root",
+      "dbpassword": "root",
+      "clientserver": "ttdbserver.student.rit.edu:5000"
+    }
+
+dbserver is the database server, dbusername and password are the username and password, and clientserver is the server that the client will attempt to connect to.
+
+To first set up the database, run
+    
+    $ python ./src/dbsetup.py
+
 To start the server, export the path to the server python file, and then run it.
 
     $ export FLASK_APP=./src/server.py
