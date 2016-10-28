@@ -14,10 +14,34 @@ def recieve(function):
         json = request.get_json()
         if function == 'addPlayer':
             return addPlayer(json['p_id'], json['t_id'])
-        elif function == 'listPlayers':
-            return listPlayers()
         elif function == 'createPlayer':
             return createPlayer(json['DCI'], json['name'])
+        elif function == 'createTournament':
+            return createTournament(json['name'], json['max_rounds'])
+        elif function == 'finishRound':
+            return finishRound(json['r_id'])
+        elif function == 'generatePairings':
+            return generatePairings(json['t_id'])
+        elif function == 'getPlayer':
+            return getPlayer(json['p_id'])
+        elif function == 'listPlayers':
+            return listPlayers()
+        elif function == 'listTournaments':
+            return listTournaments(json['sort_on'], json['filter_types'])
+        elif function == 'listTournamentPlayers':
+            return listTournamentPlayers(json['t_id'])
+        elif function == 'matchList':
+            return matchList(json['r_id'])
+        elif function == 'removePlayer':
+            return removePlayer(json['p_id'], json['t_id'])
+        elif function == 'roundList':
+            return roundList(json['t_id'])
+        elif function == 'searchPlayers':
+            return searchPlayers(json['partial_name'])
+        elif function == 'setMatchResults':
+            return setMatchResults(json['m_id'], json['p1_wins'], json['p2_wins'], json['draws'])
+        elif function == 'startTournament':
+            return startTournament(json['t_id'])
         else:
             print(function + "not found")
 
