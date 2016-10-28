@@ -96,7 +96,7 @@ def main():
                         int(command[1]), int(command[2]), int(command[3]), int(command[4]))
 
 
-            elif command[0].lower() == 'smr':
+            elif command[0].lower() == 'help':
                 print_help()
                 continue
 
