@@ -8,7 +8,13 @@ import MySQLdb.cursors
 import json
 from datetime import datetime
 
-db = MySQLdb.connect("localhost", "root", "root", "TournamentRecorder",
+config = ""
+with open("config.json") as file:
+    config = json.load(file)
+
+
+db = MySQLdb.connect(config['dbserver'], config['dbusername'],
+                        config['dbpassword'], "TournamentRecorder",
                         cursorclass=MySQLdb.cursors.DictCursor)
 
 

@@ -3,8 +3,17 @@ This file sets up the database for the main client
 Author: Benjamin Maitland
 """
 import MySQLdb
+import json
 
-db = MySQLdb.connect("localhost", "root", "root")
+config = ""
+with open("config.json") as file:
+    config = json.load(file)
+
+
+db = MySQLdb.connect(config['dbserver'], config['dbusername'],
+                        config['dbpassword'], "TournamentRecorder",
+                        cursorclass=MySQLdb.cursors.DictCursor)
+
 
 
 
