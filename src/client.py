@@ -58,29 +58,41 @@ def main():
                 result = tr_api.searchPlayers(name)
             elif command[0].lower() == 'ap':
                 result = tr_api.addPlayer(int(command[1]),int(command[2]))
+                print(result)
             elif command[0].lower() == 'rp':
                 result = tr_api.removePlayer(int(command[1]),int(command[2]))
+                print(result)
             elif command[0].lower() == 'lp':
                 result = tr_api.listPlayers()
+                table_print(result)
             elif command[0].lower() == 'lt':
                 result = tr_api.listTournaments(None, None)
+                table_print(result)
             elif command[0].lower() == 'ltp':
                 result = tr_api.listTournamentPlayers(int(command[1]))
+                table_print(result)
             elif command[0].lower() == 'fr':
                 result = tr_api.finishRound(int(command[1]))
+                print(result)
             elif command[0].lower() == 'genpairings':
                 result = tr_api.generatePairings(int(command[1]))
+                print(result)
             elif command[0].lower() == 'gp':
                 result = tr_api.getPlayer(int(command[1]))
+                table_print(result)
             elif command[0].lower() == 'lm':
                 result = tr_api.matchList(int(command[1]))
+                table_print(result)
             elif command[0].lower() == 'lr':
                 result = tr_api.roundList(int(command[1]))
+                table_print(result)
             elif command[0].lower() == 'st':
                 result = tr_api.startTournament(int(command[1]))
+                print(result)
             elif command[0].lower() == 'smr':
                 result = tr_api.setMatchResults(
                         int(command[1]), int(command[2]), int(command[3]), int(command[4]))
+                print(result)
 
 
             elif command[0].lower() == 'smr':
@@ -99,9 +111,15 @@ def main():
             print("Invalid number of parameters")
             continue
 
-        print( result)
 
 
+def table_print(result):
+    if isinstance(result, dict):
+        print(result['rows'])
+        print("My Outcome: ", result['outcome'])
+
+    else:
+        print("API return Error")
 
 
 if __name__ == "__main__":
