@@ -275,7 +275,7 @@
             \hline
             \texttt{t\_id} & \texttt{INTEGER} & FOREIGN KEY & Reference to \texttt{tournament(id)}.\\
             \hline
-            \texttt{p\_id} & \texttt{INTEGER} & FOREIGN KEY & Reference to \texttt{player(id)}.\\
+            \texttt{p\_id} & \texttt{BIGINT} & FOREIGN KEY & Reference to \texttt{player(id)}.\\
             \hline
             \texttt{dropped} & \texttt{INTEGER} & GENERATED & indicates whether they drop a tournament.\\
             \hline
