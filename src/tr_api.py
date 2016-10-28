@@ -17,13 +17,13 @@ def sendRequest(function, params):
     return r.json()
 
 def addPlayer(p_id, t_id):
-    return sendRequest('addplayer', {'p_id': p_id, 't_id': t_id})
+    return sendRequest('addPlayer', {'p_id': p_id, 't_id': t_id})
 
 def createPlayer(DCI, name):
     return sendRequest('createPlayer', {'DCI': DCI, 'name': name})
 
 def createTournament(name, max_rounds):
-    return sendRequest('createTournament', {'name': name, 'max_rouds': max_rouds})
+    return sendRequest('createTournament', {'name': name, 'max_rounds': max_rounds})
 
 def finishRound(r_id):
     return sendRequest('finishRound', {'r_id': r_id})

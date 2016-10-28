@@ -14,7 +14,7 @@ db = MySQLdb.connect("localhost", "root", "root", "TournamentRecorder",
 def addPlayer(p_id, t_id):
     curs = db.cursor()
     curs.execute("""INSERT INTO tournament_player
-                        (t_id, p_id) VALUES
+                        (p_id, t_id) VALUES
                         (%s  , %s  ); """, [p_id, t_id])
     db.commit()
     return '{"outcome":true}'
@@ -51,7 +51,7 @@ def generatePairings(t_id):
     """
     # get a list of players
     playerList = listTournamentPlayersHelper(t_id)
-    print( len(playerList))
+    print( playerList)
 
     # create a round
     curs = db.cursor()
@@ -60,12 +60,22 @@ def generatePairings(t_id):
                         WHERE t_id = %s; """, [t_id])
     previous = curs.fetchone()['max']
 
+    if previous == None:
+        previous = 0
+
+    num = previous + 1
+
 
     #insert it
     curs.execute("""INSERT INTO round
                         (t_id, number) VALUES
-                        (%s  , %s  ); """, [t_id, previous + 1])
-    db.commit()
+                        (%s  , %s  ); """, [t_id, num])
+
+    # get its id
+    curs.execute("""SELECT id FROM round
+                        WHERE t_id = %s AND number = %s; """, [t_id, num])
+    r_id = curs.fetchone()['id']
+
     
     for ii in range(0, len(playerList), 2):
         first = playerList[ii]['id']
@@ -74,10 +84,14 @@ def generatePairings(t_id):
         else:
             second = 'NULL'
 
+        table_num = ii // 2 + 1
+
         curs.execute("""INSERT INTO t_match
-                            (name, max_rounds) VALUES
-                            (%s  , %s  ); """, [name, max_rounds])
-        db.commit()
+                            (r_id, p1_id, p2_id, table_number) VALUES
+                            (%s  , %s , %s , %s ); """, [r_id, first, second, table_num])
+
+    # only commit once everything is done
+    db.commit()
 
     result = {}
     result['outcome'] = True
@@ -131,7 +145,7 @@ def listTournamentPlayersHelper(t_id):
                             SELECT name FROM player AS p WHERE p.id=tp.p_id
                             ) AS name
                         FROM tournament_player AS tp
-                        WHERE pt.t_id=%s; """, [t_id])
+                        WHERE tp.t_id=%s; """, [t_id])
     db.commit()
     
     result = curs.fetchall()
@@ -190,8 +204,8 @@ def removePlayer(p_id, t_id):
 def roundList(t_id):
     curs = db.cursor()
     curs.execute("""SELECT id, number, start_date, end_date
-                        FROM t_match
-                        WHERE r_id = %s; """, [t_id])
+                        FROM round
+                        WHERE t_id = %s; """, [t_id])
     db.commit()
     
     result = curs.fetchall()
@@ -204,7 +218,7 @@ def roundList(t_id):
 def searchPlayers(partial_name):
     curs = db.cursor()
     curs.execute("""SELECT id, name FROM player
-                        WHERE name LIKE '%%s%'; """, [partial_name])
+                        WHERE name LIKE "%%s%"; """, [partial_name])
     db.commit()
     
     result = curs.fetchone()
