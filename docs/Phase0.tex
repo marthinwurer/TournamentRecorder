@@ -1,0 +1,111 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{verbatim}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+
+\setlength\parskip{\baselineskip}
+\setlength\parindent{0pt}
+\newcommand{\mtg}{\textit{Magic$\colon$ the Gathering\textsuperscript{TM}} }
+
+\begin{document}
+    \title{\mtg Tournament Recorder}
+    \author{Team Tangent Tally \\ Benjamin Maitland \\ Jonathan Lo \\ Richard Ditullio \\ William Frey}
+    \date{\today}
+    
+    \begin{titlepage}
+        \maketitle
+    \end{titlepage}
+    
+    \section{Overview}
+    This application allows Tournament coordinators to record and track tournament data for a typical \mtg tournament.
+    
+    \subsection{Team Tangent Tally Members}
+    \begin{center}
+        \begin{tabular}{|l|l|}
+            \hline
+            \textbf{Roles} & \textbf{Name}\\
+            \hline
+            Team Leader & Benjamin Maitland\\
+            \hline
+            Design Engineer & Jonathan Lo\\
+            \hline
+            Test Engineer & Richard Ditullio\\
+            \hline
+            UI Engineer & William Frey\\
+            \hline
+        \end{tabular}
+    \end{center}
+    
+    \section{Introduction}
+    This section will discuss generic and detailed information about \mtg tournaments. The following definitions will be utilized later in the document.
+    \subsection{Tournament Overview}
+    \mtg tournaments are run as a multiple round Swiss tournament with a cut to a single elimination top 8. Pairing for each round is determined by player's current standings, where players with similar standings are paired to play against each other. At the end of a certain number of rounds, usually determined by the tournament's size, the top eight players by standing take part in a single-elimination finals bracket. 
+    
+    
+    \subsection{Definitions}
+    
+    \begin{center}
+        \begin{tabular}{|m{4cm}|m{11cm}|}
+            \hline
+            \textbf{Terms} & \textbf{Definitions} \\
+            \hline
+            Game & A single play of the game \mtg.\\
+            \hline
+            Match & A series of games between two players. A winner and loser are defined at the end of the match, unless in cases of a draw.\\
+            \hline
+            Round & A collection of matches.\\
+            \hline
+            Tournament & A collection of rounds, declaring a single winner.\\
+            \hline
+            Match Winner & The player that is first to win two games in a match.\\
+            \hline
+            Match Pairing & The pairing between two explicit players\\
+            \hline
+            Match Score & The points given to the winner and loser, or in the case of a draw, both players.\\
+            \hline
+            Bye & A match with one player. The player is automatically declared the winner. A player can only play in one bye per tournament.\\
+            \hline
+            Player Standing & A measurement of a player's comparative score amongst other players in the current tournament.\\
+            \hline
+        \end{tabular}
+        \label{table:1}
+    \end{center}
+    
+    \section{Requirements}
+    \subsection{Software Requirements}
+    \begin{itemize}
+        \item The application shall be executable from a Windows or Linux operating system.
+        \item The application shall be implemented using Python 3.5.
+        \item The application shall utilize a MySQL-compatible Database to store, update, and access tournament records.
+        \item The application shall implement the standard \mtg tournament structure and procedures.
+    \end{itemize}
+    
+    \subsection{Software Design Requirements}
+    \begin{itemize}
+        \item The application shall implement an appropriate and usable interface for users.
+        \item The application shall interface with the database, accessing and retrieving live tournament data and records.
+        \begin{itemize}
+            \item The application shall store player information, such as: name, unique identifier, matches, and tournament standings.
+            \item The application shall store tournament information, such as: name, and number of initial players.
+            \item The application shall store tournament round information, such as: matches in the round, and round results.
+            \item The application shall store tournament match information, such as: players involved in each match and match results.
+        \end{itemize}
+        \item The application shall compute the necessary pairings for each round.
+        \item The application shall require users to update necessary data, upon completion of a major state, such as match scores.
+        \item The application shall compute necessary logic utilizing updated data within the database before an explicit state, such as match pairing for the next round.
+        \item The application shall be testable with an automated and/or manual test(s).
+        \item The application shall utilize appropriate design patterns, such as the Model-View-Controller design pattern.
+    \end{itemize}
+    
+    \subsection{Software Architecture Design}
+    \begin{figure}[h]
+        \fbox{\includegraphics[width=\textwidth]{HLR-State_Trans}}
+        \centering
+        \caption{State Transition Diagram}
+    \end{figure}
+    
+\end{document}

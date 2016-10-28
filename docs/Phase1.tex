@@ -1,0 +1,347 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=.70in]{geometry}
+\usepackage{tabulary}
+\usepackage{verbatim}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{lineno}
+\setlength\parskip{\baselineskip}
+\setlength\parindent{0pt}
+\newcommand{\mtg}{\textit{Magic$\colon$ the Gathering\textsuperscript{TM}} }
+
+\linenumbers
+
+\begin{document}
+    \title{\mtg Tournament Recorder}
+    \author{Team Tangent Tally \\ Benjamin Maitland \\ Jonathan Lo \\ Richard Ditullio \\ William Frey}
+    \date{\today}
+    
+    \begin{titlepage}
+        \maketitle
+    \end{titlepage}
+    
+    \section{Overview}
+    This application allows Tournament coordinators to record and track tournament data for a typical \mtg tournament.
+    
+    \subsection{Team Tangent Tally Members}
+    \begin{center}
+        \begin{tabular}{|l|l|}
+            \hline
+            \textbf{Roles} & \textbf{Name}\\
+            \hline
+            Team Leader & Benjamin Maitland\\
+            \hline
+            Design Engineer & Jonathan Lo\\
+            \hline
+            Test Engineer & Richard Ditullio\\
+            \hline
+            UI Engineer & William Frey\\
+            \hline
+        \end{tabular}
+    \end{center}
+        
+    \newpage
+    
+    \section{Introduction}
+    This section will discuss generic and detailed information about \mtg tournaments. The following definitions will be utilized later in the document.
+    \subsection{Tournament Overview}
+    \mtg tournaments are run as a multiple round Swiss tournament with a cut to a single elimination top 8. Pairing for each round is determined by player's current standings, where players with similar standings are paired to play against each other. At the end of a certain number of rounds, usually determined by the tournament's size, the top eight players by standing take part in a single-elimination finals bracket. 
+    
+    
+    \subsection{Definitions}
+    \begin{table*}[h!]
+        \centering
+        \begin{tabulary}{\textwidth}{|p{10em}|p{30em}|}
+            \hline
+            \textbf{Terms} & \textbf{Definitions} \\
+            \hline
+            Game & A single play of the \mtg consisting of one or two players. A game is part of a \textit{Match}. A game results in a single winner.\\
+            \hline
+            Game Winner & A single player that is deemed to be the victor of the game.\\
+            \hline
+            Match & A series of games between at most two players. Matches will result in a winner or loser (in cases of a draw, no losers).\\
+            \hline
+            Match Pairing & A system to define the member(s) of the match. Match Pairings are calculated using the player's standings.\\
+            \hline
+            Match Score & The points given to the winner and loser, or in the case of a draw, both players.\\
+            \hline
+            Match Winner & The player that is first to win two games in a match. A match score of 3 is given to the player.\\
+            \hline
+            Match Loser & The player that was unable to win the match. A match score of 0 is given to the player.\\
+            \hline
+            Bye & A match with one player. The player is automatically declared the winner. A player can only play in one bye per tournament.\\
+            \hline
+            Round & A collection of matches. Rounds are defined as swiss or bracket.\\
+            \hline
+            Swiss Round & A subset of \textit{Round}. A Swiss Round is in which matches do not eliminate individuals from the proceeding rounds.\\
+            \hline 
+            Bracket Round& A subset of \textit{Round}. A Bracket Round is in which matches eliminate individuals from the proceeding rounds.\\
+            \hline
+            Tournament & A collection of rounds, declaring a single winner.\\
+            \hline
+            Player Standing & A measurement of a player's comparative score amongst other players in the current tournament.\\
+            \hline
+            \end{tabulary}
+        \caption{Terminology}
+        \label{table:1}
+    \end{table*}
+    
+    \newpage
+    
+    \section{Software Design}
+    \subsection{General Software Design}
+    \begin{figure}[H]
+        \fbox{\includegraphics[width=\textwidth]{HLR-State_Trans}}
+        \centering
+        \caption{State Transition Diagram}
+    \end{figure}
+    \subsection{Database Architecture}
+    \begin{figure}[H]
+        \fbox{\includegraphics[width=\textwidth]{HLR-Database_Struct}}
+        \centering
+        \caption{Database Design}
+    \end{figure}
+    \subsection{Software Architecture}
+     \begin{figure}[H]
+        \fbox{\includegraphics[width=\textwidth]{HLR-UML_Diagram}}
+        \centering
+        \caption{UML Diagram}
+    \end{figure}
+    
+    \newpage
+    
+    \section{Requirements}
+    \subsection{Software Requirements}
+    \begin{itemize}
+        \item The application shall be executable from a Windows or Linux operating system.
+        \item The application shall be implemented using Python 3.5.
+        \item The application shall utilize a MySQL-compatible Database to store, update, and access tournament records.
+        \item The application shall implement the standard \mtg tournament structure and procedures.
+    \end{itemize}
+    
+    \subsection{Software Design Requirements}
+    \begin{itemize}
+        \item The application shall implement an appropriate and usable interface for users.
+        \item The application shall interface with the database, accessing and retrieving live tournament data and records.
+        \item The application shall compute the necessary pairings for each round.
+        \item The application shall require users to update necessary data, upon completion of a major state, such as match scores.
+        \item The application shall compute necessary logic utilizing updated data within the database before an explicit state, such as match pairing for the next round.
+        \item The application shall be testable with an automated and/or manual test(s).
+        \item The application shall utilize appropriate design patterns, such as the Model-View-Controller design pattern.
+    \end{itemize}
+    
+    \newpage
+    
+    \subsection{Software Implementation Requirements}
+    \subsubsection{Database Implementation Requirements}
+    
+    \begin{itemize}
+        \item The application shall store tournament information in the form TABLE 2:\\
+        
+        \begin{table*}[h]
+        \centering
+        \begin{tabulary}{\textwidth}{|p{9em}|p{7em}|p{8em}|p{18em}|}
+            \hline
+            \multicolumn{4}{|l|}{\textbf{Table}: \textbf{\textit{Tournaments}}}\\
+            \hline
+            \textbf{Attribute} & \textbf{Data Type} & \textbf{Descriptor} & \textbf{Comments}\\
+            \hline
+            ID & INT & PRIMARY KEY & An unique identifier generated by the database.\\
+            \hline
+            Name & VARCHAR(20) & PROVIDED & An identifier provided by the user, the name of the tournament.\\
+            \hline
+            Start Date & DATE & PROVIDED & Start date of tournament.\\
+            \hline
+            End Date & DATE & PROVIDED & End date of tournament.\\
+            \hline
+            Number of People & INT & PROVIDED & The number of participants.\\
+            \hline
+            Tournament Winner & INT & FOREIGN KEY & Reference to TOURNAMENT PLAYER,\\
+            \hline
+        \end{tabulary}
+        \caption{Database Table: Tournaments}
+        \label{table:2}
+        \end{table*}
+        
+        The \textbf{Table: Tournament} shall be utilized by:
+        \begin{itemize}
+            \item tracking Tournament information
+            \item providing reference to other tables to link toward
+        \end{itemize}
+        
+        \item The application shall store round information in the form TABLE 3:\\
+        \begin{table*}[h!]
+        \centering
+        \begin{tabulary}{0.9\textwidth}{|p{7em}|p{6em}|p{8em}|p{20em}|}
+            \hline
+            \multicolumn{4}{|l|}{\textbf{Table}: \textbf{\textit{Rounds}}}\\
+            \hline
+            \textbf{Attribute} & \textbf{Data Type} & \textbf{Descriptor} & \textbf{Comments}\\
+            \hline
+            ID & INT & PRIMARY KEY & An unique identifier generated by the database.\\
+            \hline
+            Round Number & INT & GENERATED & An identifier generated by the program, the identifier of the round based on the tournament.\\
+            \hline
+            Start Time & TIME & GENERATED & A time for the round to begin.\\
+            \hline
+            End Time & TIME & GENERATED & A time for the round to end.\\
+            \hline
+            Tournament & INT & FOREIGN KEY & Reference to TOURNAMENT.\\
+            \hline
+            Type & ENUM \{Swiss, Bracket\} & GENERATED & The type of round.\\
+            \hline
+        \end{tabulary}
+        \caption{Database Table: Rounds}
+        \label{table:3}
+        \end{table*}
+        
+        The \textbf{Table: Rounds} shall be utilized by:
+        \begin{itemize}
+            \item tracking Round information
+            \item providing reference to other tables 
+        \end{itemize}
+    
+        \item The application shall store match information in the form TABLE 4:\\
+        \begin{table*}[h]
+        \centering
+        \begin{tabulary}{0.9\textwidth}{|p{7em}|p{6em}|p{8em}|p{20em}|}
+            \hline
+            \multicolumn{4}{|l|}{\textbf{Table}: \textbf{\textit{Matches}}}\\
+            \hline
+            \textbf{Attribute} & \textbf{Data Type} & \textbf{Descriptor} & \textbf{Comments}\\
+            \hline
+            ID & INT & PRIMARY KEY & An unique identifier generated by the database.\\
+            \hline
+            Round Number & INT & FOREIGN KEY & Reference to ROUNDS.\\
+            \hline
+            Player1 & INT & FOREIGN KEY & Reference to TOURNAMENT PLAYERS.\\
+            \hline
+            Player2 & INT & FOREIGN KEY & Reference to TOURNAMENT PLAYERS.\\
+            \hline
+        \end{tabulary}
+        \caption{Database Table: Matches}
+        \label{table:4}
+        \end{table*}
+        
+        The \textbf{Table: Matches} shall be utilized by:
+        \begin{itemize}
+            \item tracking Match information
+            \item providing reference to other tables 
+        \end{itemize}
+        
+        \item The application shall store player information in the form TABLE 5:\\
+        \begin{table*}[h]
+        \centering
+        \begin{tabulary}{0.9\textwidth}{|p{5em}|p{7em}|p{8em}|p{22em}|}
+            \hline
+            \multicolumn{4}{|l|}{\textbf{Table}: \textbf{\textit{Player}}}\\
+            \hline
+            \textbf{Attribute} & \textbf{Data Type} & \textbf{Descriptor} & \textbf{Comments}\\
+            \hline
+            ID & INT & PRIMARY KEY & An unique identifier generated by the database.\\
+            \hline
+            Name & VARCHAR(20) & PROVIDED & A given name of the player.\\
+            \hline
+            Wins & INT & GENERATED & Number of total wins by the player.\\
+            \hline
+            Losses & INT & GENERATED & Number of total losses by the player.\\
+            \hline
+            Draws & INT & GENERATED & Number of total draws by the player.\\
+            \hline
+        \end{tabulary}
+        \caption{Database Table: Player}
+        \label{table:5}
+        \end{table*}
+        
+        The \textbf{Table: Player} shall be utilized by:
+        \begin{itemize}
+            \item tracking Player information
+            \item tracking historical details of a Player entry.
+        \end{itemize}
+        
+        
+        \item The application shall store player tournament information in the form TABLE 6:\\
+        \begin{table*}[h]
+        \centering
+        \begin{tabulary}{0.9\textwidth}{|p{8em}|p{6em}|p{8em}|p{20em}|}
+            \hline
+            \multicolumn{4}{|l|}{\textbf{Table}: \textbf{\textit{Tournament Players}}}\\
+            \hline
+            \textbf{Attribute} & \textbf{Data Type} & \textbf{Descriptor} & \textbf{Comments}\\
+            \hline
+            ID & INT & PRIMARY KEY & An unique identifier generated by the database.\\
+            \hline
+            Tournament ID & INT & FOREIGN KEY & Reference to TOURNAMENT.\\
+            \hline
+            Player ID & INT & FOREIGN KEY & Reference to Player.\\
+            \hline
+            Points & INT & GENERATED & Generated value of points that the player had gained within the tournament.\\
+            \hline
+            Tournament Wins & INT & GENERATED & Incrementing value that indicates wins by the player within the tournament.\\
+            \hline
+            Tournament Losses & INT & GENERATED & Incrementing value that indicates losses by the player within the tournament.\\
+            \hline
+            Tournament Draws & INT & GENERATED & Incrementing value that indicates draws by the player within the tournament.\\
+            \hline
+        \end{tabulary}
+        \caption{Database Table: Tournament Players}
+        \label{table:6}
+        \end{table*}
+        
+        The \textbf{Table: Tournament Players} shall be utilized by:
+        \begin{itemize}
+            \item tracking Tournament Players information.
+            \item tracking historical details of a Tournament Players entry.
+        \end{itemize}
+    \end{itemize}
+    
+    \subsubsection{System Implementation Requirements}
+    
+    \subsubsection{Software Use Case Requirements}
+
+    \begin{itemize}
+        % insert use case tables
+        \item Tournament Use Cases:
+        \begin{itemize}
+            \item The software shall allow a user to see a list of all tournaments.
+            \item The software shall allow a user to create a new tournament.
+            \item The software shall allow a user to view a list of players registered in a tournament.
+            \item The software shall allow a user to register a player for a tournament.
+            \item The software shall allow a user to remove a player from a tournament.
+            \item The software shall allow a user to start a tournament.
+            \item The software shall allow a user to view a list of rounds in a tournament.
+            \item The software shall allow a user to end a tournament.
+            \item The software shall allow a user to view tournaments that have finished.
+        \end{itemize}
+        
+        % insert use case tables
+        
+        \item Round Use Cases:
+        \begin{itemize}
+            \item The software shall allow a user to start a round in a tournament.
+            \item The software shall allow a user to end a round in a tournament.
+            \item The software shall allow a user to generate pairings for a new round in the tournament.
+            \item The software shall allow a user to view a list of matches in a round.
+        \end{itemize}
+        
+        \item Match Use Cases:
+        \begin{itemize}
+            \item The software shall allow a user to report the results of a match.
+            \item The software shall allow a user to change the results of a match.
+            \item The software shall allow a user to view the results of a match.
+        \end{itemize}
+        
+        \item Player Use Cases:
+        \begin{itemize}
+            \item The software shall allow a user to view the information of a player registered in a tournament.
+            \item The software shall allow a user to view a list of all players.
+            \item The software shall allow a user to add a player.
+            \item The software shall allow a user to view the information of a player.
+        \end{itemize}
+
+    \end{itemize}
+    
+\end{document}
