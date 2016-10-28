@@ -155,7 +155,7 @@ def listTournamentPlayersHelper(t_id):
     curs = db.cursor()
     curs.execute("""SELECT tp.id, tp.p_id, (
                             SELECT name FROM player AS p WHERE p.id=tp.p_id
-                            ) AS name
+                            ) AS name, dropped
                         FROM tournament_player AS tp
                         WHERE tp.t_id=%s; """, [t_id])
     db.commit()
@@ -198,9 +198,10 @@ def removePlayer(p_id, t_id):
     tp_id = curs.fetchone()['id']
 
     # check the number of ongoing matches the player is in.
-    curs.execute("""SELECT COUNT(*) AS count FROM t_matches 
-                        WHERE p1_id = %s OR p2_id = %s AND draws IS NULL;""" [tp_id, tp_id])
+    curs.execute("""SELECT COUNT(*) AS count FROM t_match 
+                        WHERE (p1_id = %s OR p2_id = %s) AND draws IS NULL;""", [tp_id, tp_id])
     count = curs.fetchone()['count']
+    print(count)
 
     # if there are no ongoing matches, then remove the plyer. otherwise, report failure
     if count == 0:
@@ -230,12 +231,15 @@ def roundList(t_id):
 def searchPlayers(partial_name):
     curs = db.cursor()
     curs.execute("""SELECT id, name FROM player
-                        WHERE name LIKE "%%s%"; """, [partial_name])
+                        WHERE name LIKE "%%%s%%"; """, [partial_name])
     db.commit()
+
+    result = curs.fetchall()
     
-    result = curs.fetchone()
-    result['outcome'] = True
-    return json.dumps(result)
+    #add the outcome variable
+    output = {'outcome': True, 'rows': result}
+    
+    return json.dumps(output)
 
 def setMatchResults(m_id, p1_wins, p2_wins, draws):
     curs = db.cursor()

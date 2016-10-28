@@ -21,6 +21,19 @@ def print_help():
 """
 ap p_id t_id - add a player with id p_id to the tournament with id t_id
 cp DCI name - create a player with DCI number (id) and name. Name can have spaces.
+ct rounds name - create a new tournament with max number of rounds and name. name can have spaces.
+fr r_id - finish a round with the given ID
+genpairings t_id - generate the pairings for a given round.
+gp p_id - get the information for a given player
+lp - list all players in the system
+lt - list all tournaments in the system
+ltp t_id - list all the players in a given tournament
+ml r_id - list all the matches in a round
+rp p_id t_id - remove a given player from a given tournament
+rl t_id - list the rounds in a tournament
+sp partial_name - Search for a partial name in the list of players
+smr m_id, p1_wins, p2_wins, draws - sets the results of a match, with wins and draws
+st t_id - starts a tournament and generates the pairings for the first round.
 """)
 
 
@@ -95,7 +108,7 @@ def main():
                 print(result)
 
 
-            elif command[0].lower() == 'smr':
+            elif command[0].lower() == 'help':
                 print_help()
                 continue
 
