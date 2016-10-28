@@ -15,6 +15,16 @@ def concat_end(lst, start_index):
     return total
 
 
+def print_help():
+
+    print(
+"""
+ap p_id t_id - add a player with id p_id to the tournament with id t_id
+cp DCI name - create a player with DCI number (id) and name. Name can have spaces.
+""")
+
+
+
 def main():
     
     while True: # no do while in python :(
@@ -68,6 +78,17 @@ def main():
                 result = tr_api.roundList(int(command[1]))
             elif command[0].lower() == 'st':
                 result = tr_api.startTournament(int(command[1]))
+            elif command[0].lower() == 'smr':
+                result = tr_api.setMatchResults(
+                        int(command[1]), int(command[1]), int(command[1]), int(command[1]))
+
+
+            elif command[0].lower() == 'smr':
+                print_help()
+                continue
+
+
+
             elif command[0].lower() == 'exit':
                 return
 
