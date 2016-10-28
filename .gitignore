@@ -96,3 +96,6 @@ ENV/
 src/Tournament GUI V1.py
 src/GUI testing.py
 src/Testing 2.py
+
+# config file
+config.json
