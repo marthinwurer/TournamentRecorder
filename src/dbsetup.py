@@ -3,6 +3,7 @@ This file sets up the database for the main client
 Author: TangentTally
 """
 import MySQLdb
+import MySQLdb.cursors
 import json
 
 config = {}

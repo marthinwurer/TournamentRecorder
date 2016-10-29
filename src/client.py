@@ -29,9 +29,9 @@ gp p_id - get the information for a given player
 lp - list all players in the system
 lt - list all tournaments in the system
 ltp t_id - list all the players in a given tournament
-ml r_id - list all the matches in a round
+lm r_id - list all the matches in a round
 rp p_id t_id - remove a given player from a given tournament
-rl t_id - list the rounds in a tournament
+lr t_id - list the rounds in a tournament
 sp partial_name - Search for a partial name in the list of players
 smr m_id, p1_wins, p2_wins, draws - sets the results of a match, with wins and draws
 st t_id - starts a tournament and generates the pairings for the first round.

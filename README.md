@@ -5,7 +5,7 @@ The first step for installation is to download the client from the git repo. If 
 
 At the moment, the server only runs on Ubuntu Linux. This has been tested on 14.04 and 16.04 lts. If you cannot get the server running, you can connect to one at:
     
-    ttdbserver.student.rit.edu
+    ttdbserver.student.rit.edu:5000
 
 The client runs on both windows and linux.
 
@@ -73,10 +73,6 @@ To start the server, export the path to the server python file, and then run it.
 
     $ export FLASK_APP=./src/server.py
     $ flask run
-
-or run source on our setup script
-
-    $ source setup.sh
 
 To run the client, modify the connection address, and then run the client.
 
