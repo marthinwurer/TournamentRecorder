@@ -122,6 +122,9 @@ def main():
             else:
                 print("Invalid command")
                 continue
+        except ValueError:
+            print("Invalid parameter type")
+            continue
         except IndexError:
             print("Invalid number of parameters")
             continue
