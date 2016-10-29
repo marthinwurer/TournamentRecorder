@@ -57,6 +57,7 @@ def main():
                 if name == None:
                     raise IndexError("No name")
                 result = tr_api.createPlayer(int(command[1]), name)
+                table_print(result)
             elif command[0].lower() == 'ct':
                 # concatenate the command strings after a certain point together so
                 # that first and last names can be added. 
@@ -64,6 +65,7 @@ def main():
                 if name == None:
                     raise IndexError("No name")
                 result = tr_api.createTournament(name, int(command[1]))
+                table_print(result)
             elif command[0].lower() == 'sp':
                 # concatenate the command strings after a certain point together so
                 # that first and last names can be added. 
@@ -71,12 +73,13 @@ def main():
                 if name == None:
                     raise IndexError("No name")
                 result = tr_api.searchPlayers(name)
+                table_print(result)
             elif command[0].lower() == 'ap':
                 result = tr_api.addPlayer(int(command[1]),int(command[2]))
-                print(result)
+                table_print(result)
             elif command[0].lower() == 'rp':
                 result = tr_api.removePlayer(int(command[1]),int(command[2]))
-                print(result)
+                table_print(result)
             elif command[0].lower() == 'lp':
                 result = tr_api.listPlayers()
                 table_print(result)
@@ -88,10 +91,10 @@ def main():
                 table_print(result)
             elif command[0].lower() == 'fr':
                 result = tr_api.finishRound(int(command[1]))
-                print(result)
+                table_print(result)
             elif command[0].lower() == 'genpairings':
                 result = tr_api.generatePairings(int(command[1]))
-                print(result)
+                table_print(result)
             elif command[0].lower() == 'gp':
                 result = tr_api.getPlayer(int(command[1]))
                 player_print(result)
@@ -103,11 +106,11 @@ def main():
                 table_print(result)
             elif command[0].lower() == 'st':
                 result = tr_api.startTournament(int(command[1]))
-                print(result)
+                table_print(result)
             elif command[0].lower() == 'smr':
                 result = tr_api.setMatchResults(
                         int(command[1]), int(command[2]), int(command[3]), int(command[4]))
-                print(result)
+                table_print(result)
 
             elif command[0].lower() == 'help':
                 print_help()
@@ -125,6 +128,8 @@ def main():
 
 
 def table_print(result):
+    print(result)
+    print("")
     # result["rows"] returns list of dicts
     if 'rows' in list(result.keys()):
         keys = list(result['rows'][0].keys())
@@ -252,6 +257,8 @@ def table_print(result):
 
 
 def player_print(result):
+    print(result)
+    print('')
     print(" {:>10} {:>30}".format('ID', 'Name'))
     print('-' * 42)
     print(" {:>10} {:>30}".format(result['id'], result['name']))
