@@ -1,7 +1,7 @@
 """
 This file holds the API for the client side. It does all of the requests, 
 as well as translating the server's responses.
-Author: Benjamin Maitland
+Author: TangentTally
 """
 import requests
 import json

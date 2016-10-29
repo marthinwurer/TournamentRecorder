@@ -2,6 +2,7 @@
 This file contains all of the code that will actually talk to the database. 
 The flask server will do all of the checking and then it will call the 
 funcitons in this file, and then return the results to the caller. 
+Author: TangentTally
 """
 import MySQLdb
 import MySQLdb.cursors

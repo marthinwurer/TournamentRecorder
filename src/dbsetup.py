@@ -1,6 +1,6 @@
 """
 This file sets up the database for the main client
-Author: Benjamin Maitland
+Author: TangentTally
 """
 import MySQLdb
 import json

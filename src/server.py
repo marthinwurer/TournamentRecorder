@@ -1,3 +1,8 @@
+"""
+This file is the base flask server. It parses HTTP requests and then calls the
+correct DB API function.
+Author: TangentTally
+"""
 from flask import Flask, request
 import traceback
 

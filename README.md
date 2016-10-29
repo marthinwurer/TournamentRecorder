@@ -1,4 +1,6 @@
 # TournamentRecorder
+By Team TangentTally
+
 The first step for installation is to download the client from the git repo. If you can see this message locally, you're good.
 
 At the moment, the server only runs on Ubuntu Linux. This has been tested on 14.04 and 16.04 lts. If you cannot get the server running, you can connect to one at:
@@ -53,22 +55,28 @@ To install all of the required libraries, activate the virtual environment, then
 Configure the client and server by creating a config.json file. A default one is:
 
     {
-      "dbserver": "localhost:5000",
+      "dbserver": "localhost",
       "dbusername": "root",
       "dbpassword": "root",
       "clientserver": "ttdbserver.student.rit.edu:5000"
     }
 
-dbserver is the database server, dbusername and password are the username and password, and clientserver is the server that the client will attempt to connect to.
+dbserver is the database server, dbusername and dbpassword are the username and password, and clientserver is the server that the client will attempt to connect to.
 
-To first set up the database, run
+To first set up the database, run:
     
     $ python ./src/dbsetup.py
+
+Our database is normalized to First Normal Form.
 
 To start the server, export the path to the server python file, and then run it.
 
     $ export FLASK_APP=./src/server.py
     $ flask run
+
+or run source on our setup script
+
+    $ source setup.sh
 
 To run the client, modify the connection address, and then run the client.
 
