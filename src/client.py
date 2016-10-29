@@ -1,7 +1,6 @@
 """
 This python program runs a simple shell to query the database remotely.
 """
-import requests
 import json
 
 import tr_api
