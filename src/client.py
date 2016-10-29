@@ -36,6 +36,9 @@ lr t_id - list the rounds in a tournament
 sp partial_name - Search for a partial name in the list of players
 smr m_id, p1_wins, p2_wins, draws - sets the results of a match, with wins and draws
 st t_id - starts a tournament and generates the pairings for the first round.
+
+exit - exits the shell
+help - show this message
 """)
 
 
@@ -133,7 +136,12 @@ def main():
 def table_print(result):
     # result["rows"] returns list of dicts
     if 'rows' in list(result.keys()):
-        keys = list(result['rows'][0].keys())
+        try:
+
+            keys = list(result['rows'][0].keys())
+        except IndexError:
+            print("No results found")
+            return
         values = []
         output = ''
         length = 0
