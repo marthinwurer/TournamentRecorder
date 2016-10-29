@@ -93,7 +93,7 @@ def main():
                 print(result)
             elif command[0].lower() == 'gp':
                 result = tr_api.getPlayer(int(command[1]))
-                table_print(result)
+                player_print(result)
             elif command[0].lower() == 'lm':
                 result = tr_api.matchList(int(command[1]))
                 table_print(result)
@@ -108,12 +108,9 @@ def main():
                         int(command[1]), int(command[2]), int(command[3]), int(command[4]))
                 print(result)
 
-
             elif command[0].lower() == 'help':
                 print_help()
                 continue
-
-
 
             elif command[0].lower() == 'exit':
                 return
@@ -126,13 +123,137 @@ def main():
             continue
 
 
-
 def table_print(result):
-    if isinstance(result, dict):
-        print(json.dumps(result["rows"], sort_keys=True, indent=4))
+    # result["rows"] returns list of dicts
+    if 'rows' in list(result.keys()):
+        keys = list(result['rows'][0].keys())
+        values = []
+        output = ''
+        length = 0
+        value_order = {'id': 0}
+        if 'id' in keys:
+            output = output + " {:>10}"
+            values.append("ID")
+            length += 11
 
-    else:
-        print("API return Error")
+        if 'name' in keys:
+            output = output + " {:>30}"
+            values.append("Name")
+            length += 31
+
+        if 'num_players' in keys:
+            output = output + "  {:>12}"
+            values.append("# of Players")
+            length += 14
+
+        if 'p_id' in keys:  # Know we are printing Tournament Player
+            output = output + " {:>10}"
+            values.append("P_ID")
+            length += 11
+            # Dropped printing
+            output = output + "  {:>7}"
+            values.append("Dropped")
+            length += 9
+
+        if 'table_number' in keys:  # Know we are printing Matches
+            output = output + "  {:>7}"
+            values.append("Table #")
+            length += 9
+            # P1_ID printing
+            output = output + "  {:>5}"
+            values.append("P1_ID")
+            length += 7
+            # P2_ID printing
+            output = output + "  {:>5}"
+            values.append("P2_ID")
+            length += 7
+            # P1_wins printing
+            output = output + "  {:>7}"
+            values.append("P1_wins")
+            length += 9
+            # P2_wins printing
+            output = output + "  {:>7}"
+            values.append("P2_wins")
+            length += 9
+            # Draws printing
+            output = output + "  {:>5}"
+            values.append("Draws")
+            length += 7
+
+        if 'number' in keys:  # Know we are printing Rounds
+            output = output + "  {:>7}"
+            values.append("Round #")
+            length += 9
+            # Start Date printing
+            output = output + " {:>20}"
+            values.append("Start")
+            length += 21
+            # Draws printing
+            output = output + " {:>20}"
+            values.append("End")
+            length += 21
+
+        print(output.format(*values))
+        print('-' * length)
+        values.clear()
+        for row in result['rows']:
+            attributes = list(row.keys())
+            values.append(row['id'])
+
+            if 'table_number' in attributes:
+                values.append(row['table_number'])
+                values.append(row['p1_id'])
+                values.append(row['p2_id'])
+                p1 = row['p1_wins']
+                if row['p1_wins'] is None:
+                    p1 = 0
+                values.append(p1)
+                p2 = row['p2_wins']
+                if row['p2_wins'] is None:
+                    p2 = 0
+                values.append(p2)
+                draw = row['draws']
+                if row['draws'] is None:
+                    draw = 0
+                values.append(draw)
+
+            elif 'number' in attributes:
+                values.append(row['number'])
+                values.append(row['start_date'])
+                end = row['end_date']
+                if row['end_date'] is None:
+                    end = ''
+                values.append(end)
+
+            elif 'p_id' in attributes:
+                values.append(row['name'])
+                values.append(row['p_id'])
+                drop = 1
+                if row['dropped'] is None:
+                    drop = 0
+                values.append(drop)
+
+            elif 'num_players' in attributes:
+                values.append(row['name'])
+                values.append(row['num_players'])
+
+            else:
+                values.append(row['name'])
+
+            print(output.format(*values))
+            values.clear()
+
+    elif 'outcome' in list(result.keys()):
+        if result['outcome']:
+            print('Success')
+        else:
+            print('Fail, Contact Dev')
+
+
+def player_print(result):
+    print(" {:>10} {:>30}".format('ID', 'Name'))
+    print('-' * 42)
+    print(" {:>10} {:>30}".format(result['id'], result['name']))
 
 
 if __name__ == "__main__":
