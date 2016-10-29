@@ -66,11 +66,12 @@ def main():
                 result = tr_api.createTournament(name, int(command[1]))
             elif command[0].lower() == 'sp':
                 # concatenate the command strings after a certain point together so
-                # that first and last names can be added. 
+                # that first and last names can be added.
                 name = concat_end(command, 1)
                 if name == None:
                     raise IndexError("No name")
                 result = tr_api.searchPlayers(name)
+                print(result)
             elif command[0].lower() == 'ap':
                 result = tr_api.addPlayer(int(command[1]),int(command[2]))
                 print(result)

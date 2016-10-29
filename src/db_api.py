@@ -238,7 +238,7 @@ def roundList(t_id):
 def searchPlayers(partial_name):
     curs = db.cursor()
     curs.execute("""SELECT id, name FROM player
-                        WHERE name LIKE "%%%s%%"; """, [partial_name])
+                        WHERE name LIKE %s; """, ['%' + partial_name + '%'])
     db.commit()
 
     result = curs.fetchall()
