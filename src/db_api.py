@@ -2,13 +2,20 @@
 This file contains all of the code that will actually talk to the database. 
 The flask server will do all of the checking and then it will call the 
 funcitons in this file, and then return the results to the caller. 
+Author: TangentTally
 """
 import MySQLdb
 import MySQLdb.cursors
 import json
 from datetime import datetime
 
-db = MySQLdb.connect("localhost", "root", "root", "TournamentRecorder",
+config = {}
+with open("config.json") as file:
+    config = json.load(file)
+
+
+db = MySQLdb.connect(config['dbserver'], config['dbusername'],
+                        config['dbpassword'], "TournamentRecorder",
                         cursorclass=MySQLdb.cursors.DictCursor)
 
 
