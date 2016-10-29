@@ -35,6 +35,9 @@ lr t_id - list the rounds in a tournament
 sp partial_name - Search for a partial name in the list of players
 smr m_id, p1_wins, p2_wins, draws - sets the results of a match, with wins and draws
 st t_id - starts a tournament and generates the pairings for the first round.
+
+exit - exits the shell
+help - show this message
 """)
 
 
@@ -56,6 +59,7 @@ def main():
                 if name == None:
                     raise IndexError("No name")
                 result = tr_api.createPlayer(int(command[1]), name)
+                table_print(result)
             elif command[0].lower() == 'ct':
                 # concatenate the command strings after a certain point together so
                 # that first and last names can be added. 
@@ -63,6 +67,7 @@ def main():
                 if name == None:
                     raise IndexError("No name")
                 result = tr_api.createTournament(name, int(command[1]))
+                table_print(result)
             elif command[0].lower() == 'sp':
                 # concatenate the command strings after a certain point together so
                 # that first and last names can be added. 
@@ -70,12 +75,13 @@ def main():
                 if name == None:
                     raise IndexError("No name")
                 result = tr_api.searchPlayers(name)
+                table_print(result)
             elif command[0].lower() == 'ap':
                 result = tr_api.addPlayer(int(command[1]),int(command[2]))
-                print(result)
+                table_print(result)
             elif command[0].lower() == 'rp':
                 result = tr_api.removePlayer(int(command[1]),int(command[2]))
-                print(result)
+                table_print(result)
             elif command[0].lower() == 'lp':
                 result = tr_api.listPlayers()
                 table_print(result)
@@ -87,10 +93,10 @@ def main():
                 table_print(result)
             elif command[0].lower() == 'fr':
                 result = tr_api.finishRound(int(command[1]))
-                print(result)
+                table_print(result)
             elif command[0].lower() == 'genpairings':
                 result = tr_api.generatePairings(int(command[1]))
-                print(result)
+                table_print(result)
             elif command[0].lower() == 'gp':
                 result = tr_api.getPlayer(int(command[1]))
                 player_print(result)
@@ -102,11 +108,11 @@ def main():
                 table_print(result)
             elif command[0].lower() == 'st':
                 result = tr_api.startTournament(int(command[1]))
-                print(result)
+                table_print(result)
             elif command[0].lower() == 'smr':
                 result = tr_api.setMatchResults(
                         int(command[1]), int(command[2]), int(command[3]), int(command[4]))
-                print(result)
+                table_print(result)
 
             elif command[0].lower() == 'help':
                 print_help()
@@ -118,6 +124,9 @@ def main():
             else:
                 print("Invalid command")
                 continue
+        except ValueError:
+            print("Invalid parameter type")
+            continue
         except IndexError:
             print("Invalid number of parameters")
             continue
@@ -126,7 +135,12 @@ def main():
 def table_print(result):
     # result["rows"] returns list of dicts
     if 'rows' in list(result.keys()):
-        keys = list(result['rows'][0].keys())
+        try:
+
+            keys = list(result['rows'][0].keys())
+        except IndexError:
+            print("No results found")
+            return
         values = []
         output = ''
         length = 0
@@ -206,15 +220,15 @@ def table_print(result):
                 values.append(row['p2_id'])
                 p1 = row['p1_wins']
                 if row['p1_wins'] is None:
-                    p1 = 0
+                    p1 = '-'
                 values.append(p1)
                 p2 = row['p2_wins']
                 if row['p2_wins'] is None:
-                    p2 = 0
+                    p2 = '-'
                 values.append(p2)
                 draw = row['draws']
                 if row['draws'] is None:
-                    draw = 0
+                    draw = '-'
                 values.append(draw)
 
             elif 'number' in attributes:

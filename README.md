@@ -78,4 +78,6 @@ To run the client, modify the connection address, and then run the client.
 
     $ python ./src/client.py
 
+The list of commands for the client can be found by running the command 'help' in the shell. 
 
+Don't worry, our final release will have a GUI client. This is just a proof of concept for our API and server. We stil have some core business logic that needs to be implemented.
