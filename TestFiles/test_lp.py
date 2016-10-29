@@ -1,3 +1,7 @@
+"""
+This file tests the list players (lp) method of the API
+Author: TangentTally
+"""
 import unittest
 import sys
 sys.path.insert(0, '/home/red1717/PycharmProjects/TournamentRecorder/src')
