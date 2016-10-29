@@ -131,8 +131,6 @@ def main():
 
 
 def table_print(result):
-    print(result)
-    print("")
     # result["rows"] returns list of dicts
     if 'rows' in list(result.keys()):
         keys = list(result['rows'][0].keys())
@@ -215,15 +213,15 @@ def table_print(result):
                 values.append(row['p2_id'])
                 p1 = row['p1_wins']
                 if row['p1_wins'] is None:
-                    p1 = 0
+                    p1 = '-'
                 values.append(p1)
                 p2 = row['p2_wins']
                 if row['p2_wins'] is None:
-                    p2 = 0
+                    p2 = '-'
                 values.append(p2)
                 draw = row['draws']
                 if row['draws'] is None:
-                    draw = 0
+                    draw = '-'
                 values.append(draw)
 
             elif 'number' in attributes:
@@ -260,8 +258,6 @@ def table_print(result):
 
 
 def player_print(result):
-    print(result)
-    print('')
     print(" {:>10} {:>30}".format('ID', 'Name'))
     print('-' * 42)
     print(" {:>10} {:>30}".format(result['id'], result['name']))
