@@ -1,47 +1,45 @@
 from tkinter import *
 from tr_api import listPlayers
 
-g_clientRoot = None
+class clientApp ( Tk ) :
+    g_master = None
+    g_menubar = None
 
-menubar_clientRoot = None
-menu_Config = None
+    def __init__  ( self, master ) :
+        global g_master
+        global g_menubar
 
-def action_startClient () :
-    global g_clientRoot
+        self.g_master = master
+        self.g_master.title ( "Tournament Recorder" )
 
-    g_clientRoot = Tk( ) # create the window
-    g_clientRoot.minsize ( 500, 500 )
-    g_clientRoot.geometry ( "500x500")
-    g_clientRoot.title ( "Tournament Recorder" )
+        self.label = Label ( self.g_master, text = "" )
+        self.label.pack ()
 
-    lbl_clientRoot = Label ( g_clientRoot, text = "Recorder Menu" )
-    lbl_clientRoot.pack ()
+        self.g_master.minsize ( 500,500 )
 
-    menubar_clientRoot = Menu ( g_clientRoot )
+        self.g_menubar = Menu (self. g_master )
 
-    menu_Config = Menu ( menubar_clientRoot )
-    menu_Config.add_command ( label = "Exit", command = action_exit )
+        self.g_master.config ( menu = self.g_menubar )
 
-    menu_tourn = Menu ( menubar_clientRoot )
-    # menu_tourn.add_command ( label = "Create Tournament", command = action_createTournament )
-    menu_tourn.add_command ( label = "Create Tournament" )
+        self.action_createMenu ()
 
-    menubar_clientRoot.add_cascade ( label = "Config", menu = menu_Config )
-    menubar_clientRoot.add_cascade ( label = "Tournaments", menu = menu_tourn )
-    menubar_clientRoot.add_cascade ( label = "Players" )
+    def action_createMenu ( self ) :
+        self.menu_file = Menu ( self.g_menubar )
+        self.menu_file.add_command ( label = "Exit", command = self.g_master.quit )
 
-    g_clientRoot.config ( menu = menubar_clientRoot)
+        self.menu_tourn = Menu ( self.g_menubar )
+        self.menu_tourn.add_command ( label = "Create Tournament", command = self.action_createTournament )
+        self.menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
 
-    g_clientRoot.mainloop()
+        self.g_menubar.add_cascade ( label = "File", menu = self.menu_file )
+        self.g_menubar.add_cascade ( label = "Tournaments", menu = self.menu_tourn )
+        # self.g_menubar.add_cascade ( label = "Players", menu = self.menu_players )
+    def action_startTournament ( self ) :
+        print ( "Creating Tournament" )
+    def action_createTournament ( self ) :
+        print ( "Creating Tournament" )
 
-'''
-    action_exitClient ()
-    exits and kills
-'''
-def action_exit ( ) :
-    global g_clientRoot
-
-    g_clientRoot.destroy ()
-    print ( "Exiting client" )
-
-action_startClient ()
+if ( __name__ == "__main__" ) :
+    g_client = Tk ( )
+    g_clientGUI = clientApp ( g_client )
+    g_client.mainloop ()
