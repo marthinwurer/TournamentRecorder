@@ -38,6 +38,7 @@ class clientApp ( Tk ) :
 
         self.g_menubar.add_cascade ( label = "File", menu = self.menu_file )
         self.g_menubar.add_cascade ( label = "Tournaments", menu = self.menu_tourn )
+        # self.g_memubar.add_cascade ( label = "Players", menu = self.menu_players )
 
     def action_listTournaments ( self ) :
         print ( "Listing Tournaments" )
