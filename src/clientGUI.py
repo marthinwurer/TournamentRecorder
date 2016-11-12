@@ -1,5 +1,5 @@
 from tkinter import *
-from tr_api import listPlayers
+import tr_api
 
 class clientApp ( Tk ) :
     g_master = None
@@ -7,7 +7,7 @@ class clientApp ( Tk ) :
 
     def __init__  ( self, master ) :
         global g_master
-        
+
         self.g_master = master
         self.g_master.title ( "Tournament Recorder" )
 
@@ -35,13 +35,14 @@ class clientApp ( Tk ) :
         self.menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
 
         self.menu_players = Menu ( self.g_menubar )
-        self.menu_players.add_command ( label = "List Players", command = self.action_listPlayers )
+        self.menu_players.add_command ( label = "List Player", command = self.action_listPlayers )
         self.menu_players.add_separator ()
-        self.menu_players.add_command ( label = "Create Players", command = self.action_createPlayer )
+        self.menu_players.add_command ( label = "Create Player", command = self.action_createPlayer )
+        self.menu_players.add_command ( label = "Start Player", command = self.action_addPlayer )
 
         self.g_menubar.add_cascade ( label = "File", menu = self.menu_file )
         self.g_menubar.add_cascade ( label = "Tournaments", menu = self.menu_tourn )
-        # self.g_memubar.add_cascade ( label = "Players", menu = self.menu_players )
+        self.g_menubar.add_cascade ( label = "Players", menu = self.menu_players )
 
     def action_listTournaments ( self ) :
         print ( "Listing Tournaments" )
@@ -56,8 +57,10 @@ class clientApp ( Tk ) :
         print ( "Listing Players" )
 
     def action_createPlayer ( self ) :
-        print ( "Creating Player")
+        print ( "Creating Player" )
 
+    def action_addPlayer ( self ) :
+        print ( "Adding Player" )
 
 if ( __name__ == "__main__" ) :
     g_client = Tk ( )
