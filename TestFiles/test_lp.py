@@ -28,5 +28,5 @@ class TestLp(unittest.TestCase):
     def test_player3_id(self):
         self.assertEqual(self.topdict.get('rows')[2].get('id'), 3)
 
-        def test_player1_name(self):
-            self.assertEqual(self.topdict.get('rows')[2].get('name'), 'Will')
+    def test_player3_name(self):
+        self.assertEqual(self.topdict.get('rows')[2].get('name'), 'Will')
