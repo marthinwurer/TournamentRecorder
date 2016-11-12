@@ -6,7 +6,8 @@ class clientApp ( Tk ) :
     g_menubar = None
 
     def __init__  ( self, master ) :
-
+        global g_master
+        
         self.g_master = master
         self.g_master.title ( "Tournament Recorder" )
 
@@ -22,6 +23,8 @@ class clientApp ( Tk ) :
         self.action_createMenu ()
 
     def action_createMenu ( self ) :
+        global g_menubar
+
         self.menu_file = Menu ( self.g_menubar )
         self.menu_file.add_command ( label = "Exit", command = self.g_master.quit )
 
