@@ -4,8 +4,13 @@ import tr_api
 class clientApp ( Tk ) :
     g_master = None
     g_menubar = None
+
+    win_createTourn = None
+
     input_tournName = None
     input_tournMaxRounds = None
+
+    text_createTourn_failMsg = None
 
     def __init__  ( self, master ) :
         global g_master
@@ -66,34 +71,72 @@ class clientApp ( Tk ) :
         print ( "Starting Tournament" )
 
     def action_createTournament ( self ) :
+        '''
+            creates a new to submit tournament data.
+        '''
         print ( "Creating Tournament" )
 
         global input_tournName
         global input_tournMaxRounds
+        global win_createTourn
 
-        win_createTourn = Tk ()
-        win_createTourn.title ( "Tournament Creation" )
-        win_createTourn.minsize ( 200, 100 )
-        createTourn_label = Label ( win_createTourn, text="Create a new Tournament" )
+        global text_createTourn_failMsg
 
-        frame_tournForm = Frame ( win_createTourn )
+        self.win_createTourn = Tk ()
+        self.win_createTourn.title ( "Tournament Creation" )
+        self.win_createTourn.minsize ( 200, 100 )
+        createTourn_label = Label ( self.win_createTourn, text="Create a new Tournament" )
+
+        frame_tournForm = Frame ( self.win_createTourn )
         frame_tournForm.pack ( side = "top" )
 
         Label ( frame_tournForm, text = "Tournament Name" ).grid ( row = 0, sticky = W )
         Label ( frame_tournForm, text = "Max Rounds" ).grid ( row = 1, sticky = W )
-        input_tournName = Entry ( frame_tournForm )
-        input_tournName.grid ( row = 0, column = 1)
-        input_tournMaxRounds = Entry ( frame_tournForm )
-        input_tournMaxRounds.grid ( row = 1, column = 1)
+        self.input_tournName = Entry ( frame_tournForm )
+        self.input_tournName.grid ( row = 0, column = 1)
+        self.input_tournMaxRounds = Entry ( frame_tournForm )
+        self.input_tournMaxRounds.grid ( row = 1, column = 1)
 
-        btn_createTourn_submit = Button ( frame_tournForm, text = "Submit", command = self.event_createTourn_submit ( input_tournName.get (), input_tournMaxRounds.get () ) )
+        btn_createTourn_submit = Button ( frame_tournForm, text = "Submit", command = self.event_createTourn_submit )
+        btn_createTourn_cancel = Button ( frame_tournForm, text = "Cancel", command = self.win_createTourn.destroy )
+
         btn_createTourn_submit.grid ( row = 2, column = 0 )
-        btn_createTourn_cancel = Button ( frame_tournForm, text = "Cancel", command = win_createTourn.destroy )
         btn_createTourn_cancel.grid ( row = 2, column = 1 )
 
-    def event_createTourn_submit ( self, tournName, tournMaxRounds ) :
+        self.text_createTourn_failMsg = StringVar ()
+        lbl_createTourn_fail = Label ( self.win_createTourn, textvariable = self.text_createTourn_failMsg ).pack ()
+
+        self.win_createTourn.bind ( '<Return>', self.event_createTourn_submit )
+        self.win_createTourn.bind ( '<Escape>', self.win_createTourn.destroy )
+
+        self.win_createTourn.mainloop ()
+
+    def event_createTourn_submit ( self ) :
+        '''
+            used to handle creation of tournament
+        '''
         global input_tournName
         global input_tournMaxRounds
+
+        global text_createTourn_failMsg
+
+        tournName = self.input_tournName.get ( )
+        tournMaxRounds = self.input_tournMaxRounds.get ( )
+
+        if ( len ( tournName ) >= 4 and tournMaxRounds.isdigit () ) :
+            print ( "create tournament success" )
+
+            self.win_createTourn.destroy ( )
+        else :
+            print ( "create tournament failed" )
+            if ( len ( tournName ) < 4 ) :
+                self.text_createTourn_failMsg.set ( "tournament name length must be greater that 4" )
+                print ( "Error: tournName length < 4" )
+
+            if ( not tournMaxRounds.isdigit () ) :
+                self.text_createTourn_failMsg.set ( "max rounds must be a number at least 1" )
+                print ( "Error: tourn max rounds < 1" )
+
 
         print ( "tournName: " + tournName )
         print ( "tournMaxRounds: " + tournMaxRounds )
@@ -102,7 +145,12 @@ class clientApp ( Tk ) :
         print ( "Listing Players" )
 
     def action_createPlayer ( self ) :
+        '''
+            creates a new window to submit new player data.
+        '''
         print ( "Creating Player" )
+
+        self.
 
     def action_addPlayer ( self ) :
         self.menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
