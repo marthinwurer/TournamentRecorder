@@ -202,7 +202,41 @@ class clientApp ( Tk ) :
         print ( "tournMaxRounds: " + tournMaxRounds )
 
     def action_listPlayers ( self ) :
+        '''
+            creates a new window to view player data.
+        '''
         print ( "Listing Players" )
+
+        self.win_listPlayer = Tk ()
+        self.win_listPlayer.title ( "Players Viewer" )
+        self.win_listPlayer.minsize ( 600, 400 )
+        lbl_listPlayer = Label ( self.win_listPlayer, text = "Players Viewer" ).pack ()
+
+        frame_playerFind = Frame ( self.win_listPlayer )
+        frame_playerFind.pack ( side = "top" )
+        frame_playerList = Frame ( self.win_listPlayer )
+        frame_playerList.pack ( expand = True, side = "left")
+
+        Label ( frame_playerFind, text = "Search For:" ).grid ( row = 0 )
+        self.input_playerList_searchName = Entry ( frame_playerFind )
+        self.input_playerList_searchName.grid ( row = 0, column = 1 )
+
+        btn_playerFind_find = Button ( frame_playerFind, text = "Find" ).grid ( row = 0, column = 2 )
+        # btn_playerFind_find = Button ( frame_playerFind, text = "Find", command = self.event_createPlayer_submit )
+
+        lbl_playerEntry_id = Label ( frame_playerList, fg = "blue", text = "DCI #" ).grid ( row = 0, column = 0 )
+        lbl_playerEntry_name = Label ( frame_playerList, fg = "blue", text = "Player Name" ).grid ( row = 0, column = 1 )
+        lbl_playerEntry_name = Label ( frame_playerList, fg = "blue", text = "----" ).grid ( row = 0, column = 2 )
+
+        playerList = tr_api.listPlayers ( ) ['rows']
+        row_count = 1
+        for player in playerList :
+            lbl_playerEntry_id = Label ( frame_playerList, text = player["id"] ).grid ( row = int(row_count), column = 0 )
+            lbl_playerEntry_name = Label ( frame_playerList, text = player["name"] ).grid ( row = int(row_count), column = 1 )
+            btn_playerEntry_add = Button ( frame_playerList, text = "Add" )
+            btn_playerEntry_add.grid ( row = row_count, column = 2 )
+            row_count += 1
+
 
     def action_createPlayer ( self ) :
         '''
@@ -210,16 +244,15 @@ class clientApp ( Tk ) :
         '''
         print ( "Creating Player" )
 
-
         global input_playerDCI
         global input_playerName
         global win_createPlayer
 
         global text_createPlayer_failMsg
 
-        self.win_createPlayer = Tk ()                   # create the new window
-        self.win_createPlayer.title ( "Player" )        # set the title of window
-        self.win_createPlayer.minsize ( 200, 100 )      # set the minimum (default) size
+        self.win_createPlayer = Tk ()                       # create the new window
+        self.win_createPlayer.title ( "Create Player" )     # set the title of window
+        self.win_createPlayer.minsize ( 200, 100 )          # set the minimum (default) size
         lbl_createPlayer = Label ( self.win_createPlayer, text="Create a new Player" ).pack ()
 
         frame_playerForm = Frame ( self.win_createPlayer )   # create a frame
