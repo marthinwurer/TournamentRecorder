@@ -15,7 +15,7 @@ with open("config.json") as file:
 
 
 db = MySQLdb.connect(config['dbserver'], config['dbusername'],
-                        config['dbpassword'], "TournamentRecorder",
+                        config['dbpassword'], config['dbname'],
                         cursorclass=MySQLdb.cursors.DictCursor)
 
 
@@ -30,8 +30,35 @@ def json_serial(obj):
         return serial
     raise TypeError ("Type not serializable")
 
-def addPlayer(p_id, t_id):
+
+def tournament_status(t_id):
     curs = db.cursor()
+    curs.execute("""SELECT start_date, end_date
+                        FROM tournament
+                        WHERE id = %s; """, [t_id])
+    result = curs.fetchone()
+    if result['start_date'] == None:
+        return "not started"
+    elif result['end_date'] == None:
+        return "started"
+    else:
+        return "finished"
+
+
+def addPlayer(p_id, t_id):
+    """
+        Add a player to the given tournament. Only works if the tournament has not been 
+        started.
+    """
+    curs = db.cursor()
+
+    # get the status of the current tournament
+    t_status = tournament_status(t_id)
+
+    # if the tournament is started or finsihed, then nothing happens. fail.
+    if t_status != "not started":
+        return '{"outcome":false, "reason": "Tournament started"}'
+
     curs.execute("""INSERT INTO tournament_player
                         (p_id, t_id) VALUES
                         (%s  , %s  ); """, [p_id, t_id])
@@ -47,6 +74,7 @@ def createPlayer(DCI, name):
     db.commit()
     return '{"outcome":true}'
 
+
 def createTournament(name, max_rounds):
     curs = db.cursor()
     curs.execute("""INSERT INTO tournament
@@ -57,33 +85,80 @@ def createTournament(name, max_rounds):
 
 def finishRound(r_id):
     curs = db.cursor()
+
+    # make sure that there is a round to complete
+    curs.execute("""SELECT end_date, t_id, number FROM round
+                        WHERE id = %s; """, [r_id])
+    result = curs.fetchone()
+    if result == None:
+        return '{"outcome":false, "reason":"Round does not exist"}'
+
+    finished = result['end_date']
+    t_id = result['t_id'] # grab this for testing the tournament
+    r_number = result['number']
+    if finished != None:
+        return '{"outcome":false, "reason":"Round already finished"}'
+
+    # then make sure that all matches are complete
+    curs.execute("""SELECT COUNT(*) AS num FROM t_match
+                        WHERE r_id = %s AND draws IS NULL; """, [r_id])
+    num_unfinished = curs.fetchone()['num']
+    if num_unfinished != 0:
+        return '{"outcome":false, "reason":"Unfinished Matches"}'
+
     curs.execute("""UPDATE round
                         SET end_date=NOW()
                         WHERE id=%s; """, [r_id])
+
+    # if the round is the last, finish the tournament
+    # Get the max rounds of the current tournament
+    curs.execute("""SELECT max_rounds 
+                        FROM tournament
+                        WHERE id = %s;""", [t_id])
+    max_rounds = curs.fetchone()['max_rounds']
+    # if the number of rounds is equal to the max rounds, finish the tournament
+    if max_rounds == r_number:
+        curs.execute("""UPDATE tournament
+                            SET end_date=CURDATE()
+                            WHERE id=%s; """, [t_id])
+    
     db.commit()
     return '{"outcome":true}'
 
 def generatePairings(t_id):
     """
-        This is the real complex business logic. For now, just generate a list of players
-        and pair them in order
+        Generate the pairings. 
+        Only works if there are no rounds in progress for the tournament and 
+        the tournament is not finished.
     """
-    # get a list of players
-    playerList = listTournamentPlayersHelper(t_id)
-    print( playerList)
+    curs = db.cursor()
+
+    # get the status of the current tournament
+    t_status = tournament_status(t_id)
+
+    # if the tournament is started or finsihed, then nothing happens. fail.
+    if t_status != "started":
+        return '{"outcome":false, "reason": "Tournament finished"}'
+
+    # check if all the rounds in the tournament are finished. if not, fail
+    curs.execute("""SELECT COUNT(*) AS num FROM round
+                        WHERE t_id = %s AND end_date IS NULL; """, [t_id])
+    num_unfinished = curs.fetchone()['num']
+    if num_unfinished != 0:
+        return '{"outcome":false, "reason":"Unfinsished Rounds"}'
 
     # create a round
-    curs = db.cursor()
     #get the previous round's number
     curs.execute("""SELECT MAX(number) AS max FROM round
                         WHERE t_id = %s; """, [t_id])
-    previous = curs.fetchone()['max']
+    result = curs.fetchone()
+    print(result)
+    previous = result['max']
 
     if previous == None:
         previous = 0
 
     num = previous + 1
-
 
     #insert it
     curs.execute("""INSERT INTO round
@@ -91,23 +166,34 @@ def generatePairings(t_id):
                         (%s  , %s  , NOW()); """, [t_id, num])
 
     # get its id
-    curs.execute("""SELECT id FROM round
-                        WHERE t_id = %s AND number = %s; """, [t_id, num])
+    curs.execute("""SELECT LAST_INSERT_ID() AS id; """, [])
     r_id = curs.fetchone()['id']
 
-    
+    # get a list of players
+    curs.execute("""SELECT id, p_id, standing(id) AS standing
+                        FROM tournament_player
+                        WHERE t_id=%s AND dropped IS NULL
+                        ORDER BY standing DESC; """, [t_id])
+    playerList = curs.fetchall()
+    print( playerList)
+
+    # insert all the matches
     for ii in range(0, len(playerList), 2):
         first = playerList[ii]['id']
+        table_num = ii // 2 + 1
         if ii + 1 < len(playerList):
             second = playerList[ii + 1]['id']
+            curs.execute("""INSERT INTO t_match
+                                (r_id, p1_id, p2_id, table_number) VALUES
+                                (%s  , %s , %s , %s ); """, [r_id, first, second, table_num])
         else:
-            second = 'NULL'
+            second = None
+            curs.execute("""INSERT INTO t_match
+                            (r_id, p1_id, p2_id, table_number, 
+                                p1_wins, p2_wins, draws) VALUES
+                            (%s  , %s , %s , %s, 1, 0, 1 ); """,
+                                [r_id, first, second, table_num])
 
-        table_num = ii // 2 + 1
-
-        curs.execute("""INSERT INTO t_match
-                            (r_id, p1_id, p2_id, table_number) VALUES
-                            (%s  , %s , %s , %s ); """, [r_id, first, second, table_num])
 
     # only commit once everything is done
     db.commit()
@@ -162,7 +248,7 @@ def listTournamentPlayersHelper(t_id):
     curs = db.cursor()
     curs.execute("""SELECT tp.id, tp.p_id, (
                             SELECT name FROM player AS p WHERE p.id=tp.p_id
-                            ) AS name, dropped
+                            ) AS name, standing(tp.id) AS standing, dropped
                         FROM tournament_player AS tp
                         WHERE tp.t_id=%s; """, [t_id])
     db.commit()
@@ -194,15 +280,26 @@ def matchList(r_id):
 
 def removePlayer(p_id, t_id):
     """
-        Only do this if the player has no outstanding match results
+        Only do this if the player has no outstanding match results.
 
+        If the tournament has not started, the tournament player is deleted instead of being
+        set to dropped.
     """
+    print( p_id, t_id)
     curs = db.cursor()
     
-    # get the player's tp_id
+    # get the status of the current tournament
+    t_status = tournament_status(t_id)
+
+    # if the tournament is finsihed, then nothing happens. fail.
+    if t_status == "finished":
+        return '{"outcome":false, "reason": "Tournament finished"}'
+
+    # get the player's tp_id 
     curs.execute("""SELECT id FROM tournament_player 
                         WHERE p_id = %s AND t_id = %s;""", [p_id, t_id])
     tp_id = curs.fetchone()['id']
+
 
     # check the number of ongoing matches the player is in.
     curs.execute("""SELECT COUNT(*) AS count FROM t_match 
@@ -218,7 +315,7 @@ def removePlayer(p_id, t_id):
         db.commit()
         return '{"outcome":true}'
     else:
-        return '{"outcome":false}'
+        return '{"outcome":false, "reason": "Match in progress"}'
 
 
 def roundList(t_id):
@@ -249,7 +346,25 @@ def searchPlayers(partial_name):
     return json.dumps(output)
 
 def setMatchResults(m_id, p1_wins, p2_wins, draws):
+    """
+        Sets the results of a match.
+        Only works if the round is not finished.
+    """
     curs = db.cursor()
+
+    # get the round ID
+    curs.execute("""SELECT r_id FROM t_match WHERE id = %s;""", [m_id])
+    r_id = curs.fetchone()['r_id']
+
+    # get the round status. exit if round is finished
+    curs.execute("""SELECT end_date FROM round
+                        WHERE id = %s; """, [r_id])
+    result = curs.fetchone()
+    finished = result['end_date']
+    if finished != None:
+        return '{"outcome":false, "reason":"Round results finalized"}'
+
+
     curs.execute("""UPDATE t_match
                         SET p1_wins = %s, p2_wins = %s, draws = %s
                         WHERE id = %s; """, [p1_wins, p2_wins, draws, m_id])
@@ -261,12 +376,24 @@ def setMatchResults(m_id, p1_wins, p2_wins, draws):
 
 
 def startTournament(t_id):
+    """
+        Start a tournament. 
+        Only works if the tournament has not been started yet.
+    """
     curs = db.cursor()
+
+    # get the status of the current tournament
+    t_status = tournament_status(t_id)
+
+    # if the tournament is started or finsihed, then nothing happens. fail.
+    if t_status != "not started":
+        return '{"outcome":false, "reason": "Tournament started"}'
+
     curs.execute("""UPDATE tournament
                         SET start_date = CURDATE()
                         WHERE id = %s; """, [t_id])
-    result = generatePairings(t_id)
     db.commit()
+    result = generatePairings(t_id)
 
     return result
 

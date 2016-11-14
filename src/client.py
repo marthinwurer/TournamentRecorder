@@ -169,6 +169,10 @@ def table_print(result):
             output = output + "  {:>7}"
             values.append("Dropped")
             length += 9
+            # standings
+            output = output + "  {:>7}"
+            values.append("standing")
+            length += 9
 
         if 'table_number' in keys:  # Know we are printing Matches
             output = output + "  {:>7}"
@@ -218,7 +222,10 @@ def table_print(result):
             if 'table_number' in attributes:
                 values.append(row['table_number'])
                 values.append(row['p1_id'])
-                values.append(row['p2_id'])
+                p2 = row['p2_id']
+                if row['p2_id'] is None:
+                    p2 = '-'
+                values.append(p2)
                 p1 = row['p1_wins']
                 if row['p1_wins'] is None:
                     p1 = '-'
@@ -247,6 +254,7 @@ def table_print(result):
                 if row['dropped'] is None:
                     drop = 0
                 values.append(drop)
+                values.append(row['standing'])
 
             elif 'num_players' in attributes:
                 values.append(row['name'])
@@ -263,6 +271,11 @@ def table_print(result):
             print('Success')
         else:
             print('Fail, Contact Dev')
+            try:
+                print(result['reason'])
+            except:
+                pass
+
 
 
 def player_print(result):

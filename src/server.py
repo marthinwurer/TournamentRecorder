@@ -54,6 +54,7 @@ def recieve(function):
 
     except :
         traceback.print_exc()
+        db.rollback()
         print("         an error occurred")
         return '{"outcome":false}' # return false if it failed
     print(json)
