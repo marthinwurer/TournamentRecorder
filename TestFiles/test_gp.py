@@ -4,11 +4,12 @@ Author: TangentTally
 """
 import unittest
 import sys
-sys.path.insert(0, '/home/red1717/PycharmProjects/TournamentRecorder/src')
+sys.path.insert(0, "../src")
 import tr_api
 
 
 class TestGp(unittest.TestCase):
+
     def setUp(self):
         self.player = tr_api.getPlayer(1)
 
