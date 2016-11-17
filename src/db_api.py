@@ -49,6 +49,7 @@ def addPlayer(p_id, t_id):
     """
         Add a player to the given tournament. Only works if the tournament has not been 
         started.
+        :returns outcome
     """
     curs = db.cursor()
 
@@ -67,7 +68,18 @@ def addPlayer(p_id, t_id):
 
 
 def createPlayer(DCI, name):
+    """
+    Creates a new player with the given DCI # and name.
+    Fails if the DCI # already exists.
+    :param DCI:
+    :param name:
+    :return: outcome
+    """
     curs = db.cursor()
+    curs.execute("""SELECT id FROM player WHERE id = %s""", [DCI])
+    if curs.fetchone() == None:
+        return '{"outcome":false, "reason":"DCI Exists"}'
+
     curs.execute("""INSERT INTO player
                         (id, name) VALUES
                         (%s  , %s  ); """, [DCI, name])
@@ -76,6 +88,12 @@ def createPlayer(DCI, name):
 
 
 def createTournament(name, max_rounds):
+    """
+    Creates a new tournament with the given name and a maximum number of rounds
+    :param name:
+    :param max_rounds:
+    :return: outcome
+    """
     curs = db.cursor()
     curs.execute("""INSERT INTO tournament
                         (name, max_rounds) VALUES
@@ -84,6 +102,13 @@ def createTournament(name, max_rounds):
     return '{"outcome":true}'
 
 def finishRound(r_id):
+    """
+    Finishes the given round
+    Fails if the round does not exist, if the round is already finished, or if
+    there are matches in progress.
+    :param r_id:
+    :returns outcome
+    """
     curs = db.cursor()
 
     # make sure that there is a round to complete
@@ -130,6 +155,7 @@ def generatePairings(t_id):
         Generate the pairings. 
         Only works if there are no rounds in progress for the tournament and 
         the tournament is not finished.
+        :returns outcome
     """
     curs = db.cursor()
 
@@ -205,6 +231,12 @@ def generatePairings(t_id):
 
 
 def getPlayer(p_id):
+    """
+    Returns the information for the given player.
+    {outcome, name, id}
+    :param p_id:
+    :return: {outcome, name, id}
+    """
     curs = db.cursor()
     curs.execute("""SELECT id, name FROM player
                         WHERE id=%s; """, [p_id])
@@ -215,6 +247,17 @@ def getPlayer(p_id):
     return json.dumps(result)
 
 def listPlayers():
+    """
+    :returns:
+    {outcome: true/false,
+     rows:[
+        {
+            id
+            name
+        }
+        ]
+    }
+    """
     curs = db.cursor()
     curs.execute("""SELECT id, name FROM player; """, [])
     db.commit()
@@ -228,6 +271,18 @@ def listPlayers():
     
 
 def listTournaments(sort_on, filter_types):
+    """
+    :returns:
+    {outcome: true/false,
+     rows:[
+        {
+            id
+            name
+            num_players
+        }
+        ]
+    }
+    """
     curs = db.cursor()
     curs.execute("""SELECT t.id, t.name, (
                         SELECT COUNT(*)
@@ -259,12 +314,33 @@ def listTournamentPlayersHelper(t_id):
 
 
 def listTournamentPlayers(t_id):
+    """
+
+    :param t_id:
+    :return:
+    {outcome:
+     rows:[
+        { id, p_id, name, standing, dropped (None if not dropped, 1 if dropped) }
+        ]
+    }
+
+    """
     # call the helper function
     output = {'outcome': True, 'rows': listTournamentPlayersHelper(t_id)}
     
     return json.dumps(output)
 
 def matchList(r_id):
+    """
+
+    :param r_id:
+    :return:
+    {outcome:
+     rows:[
+        { id, table_number, p1_id, p2_id, p1_wins, p2_wins, draws}
+        ]
+    }
+    """
     curs = db.cursor()
     curs.execute("""SELECT id, table_number, p1_id, p2_id, p1_wins, p2_wins, draws
                         FROM t_match
@@ -284,6 +360,8 @@ def removePlayer(p_id, t_id):
 
         If the tournament has not started, the tournament player is deleted instead of being
         set to dropped.
+
+        :returns outcome
     """
     print( p_id, t_id)
     curs = db.cursor()
@@ -319,6 +397,16 @@ def removePlayer(p_id, t_id):
 
 
 def roundList(t_id):
+    """
+    List the rounds for the given tournament
+    :param t_id:
+    :return:
+    {outcome:
+     rows:[
+        { id, table_number, p1_id, p2_id, p1_wins, p2_wins, draws}
+        ]
+    }
+    """
     curs = db.cursor()
     curs.execute("""SELECT id, number, start_date, end_date
                         FROM round
