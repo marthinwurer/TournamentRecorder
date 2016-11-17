@@ -243,6 +243,8 @@ def getPlayer(p_id):
     db.commit()
     
     result = curs.fetchone()
+    if result == None:
+        return '{"outcome":false, "reason": "Player does not exist"}'
     result['outcome'] = True
     return json.dumps(result)
 
