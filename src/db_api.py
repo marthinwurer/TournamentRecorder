@@ -281,6 +281,8 @@ def listTournaments(sort_on, filter_types):
             id
             name
             num_players
+            start_date
+            end_date
         }
         ]
     }
@@ -289,9 +291,9 @@ def listTournaments(sort_on, filter_types):
     curs.execute("""SELECT t.id, t.name, (
                         SELECT COUNT(*)
                         FROM tournament_player as p
-                        WHERE p.t_id=t.id)
-                            as num_players
-                        FROM tournament as t; """, [])
+                        WHERE p.t_id=t.id) as num_players,
+                        t.start_date, t.end_date
+                    FROM tournament as t; """, [])
     db.commit()
     
     result = curs.fetchall()
