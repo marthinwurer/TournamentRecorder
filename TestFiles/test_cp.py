@@ -10,21 +10,16 @@ import tr_api
 
 class TestAp(unittest.TestCase):
     def setUp(self):
-        self.topdict = tr_api.listPlayers()
-
-    def tearDown(self):
-        pass
-
-    #checks to see that there are no players in db
-    def test_player_not_in_db(self):
-        try:
-            self.assertEqual(self.topdict.get('rows')[0].get('id'), -1)
-        except IndexError:
-            self.assertTrue(True)
-
-    def test_add_player(self):
         tr_api.createPlayer(1, 'Evan')
         self.topdict = tr_api.listPlayers()
+        self.topdict2 = tr_api.createPlayer(1, "Fail2")
+
+    def tearDown(self):
+        tr_api.createPlayer(2, 'Ben')
+        tr_api.createPlayer(3, 'Will')
+        tr_api.createPlayer(4, 'Jon')
+
+    def test_add_player(self):
         self.assertEqual(len(self.topdict.get('rows')), 1)
 
     def test_new_player_id(self):
@@ -34,9 +29,7 @@ class TestAp(unittest.TestCase):
         self.assertEqual(self.topdict.get('rows')[0].get('name'), 'Evan')
 
     def test_fail_cp_same_id(self):
-        self.topdict2 = tr_api.createPlayer(1, "Fail")
         self.assertFalse(self.topdict2.get('outcome'))
 
     def test_fail_cp_error_message(self):
-        self.topdict3 = tr_api.createPlayer(1, "Fail2")
-        self.assertEqual(self.topdict3.get('reason'), '')
+        self.assertEqual(self.topdict2.get('reason'), 'DCI Exists')

@@ -16,8 +16,9 @@ class TestLp(unittest.TestCase):
     def tearDown(self):
         pass
 
+    #checks to see if theyre are players returned
     def test_key_in_dict(self):
-        self.assertFalse(not self.topdict.keys())
+        self.assertTrue(self.topdict.keys())
 
     def test_player1_id(self):
         self.assertEqual(self.topdict.get('rows')[0].get('id'), 1)
