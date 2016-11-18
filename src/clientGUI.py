@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 import tr_api
 
 class clientApp ( Tk ) :
@@ -97,18 +98,27 @@ class clientApp ( Tk ) :
         Label(frame_tournList, text="# of PLayers").grid(row=0, column=1, sticky=W)
 
         tournaments = tr_api.listTournaments(None, None)
-        if len(tournaments["rows"]) > 0:
+        row_num = 0;
+        if "rows" not in tournaments.keys():
+            self.event_error("Database Communication Error")
+            messagebox.showerror(
+                "List Tournaments",
+                "Database Communication Error"
+            )
+            return
+        elif len(tournaments["rows"]) > 0:
             tourn_list = tournaments["rows"]
             for i in range(0, len(tourn_list)):
-                Label(frame_tournList, text=tourn_list[i]["name"]).grid(row=i+1, column=0)
-                Label(frame_tournList, text=tourn_list[i]["num_players"]).grid(row=i+1, column=1)
-                Button(frame_tournList, text="List Matches", command= lambda j=i: print("List matches for " + tourn_list[j]["name"])).grid(row=i+1, column=2)
+                row_num = i+1
+                Label(frame_tournList, text=tourn_list[i]["name"]).grid(row=row_num, column=0)
+                Label(frame_tournList, text=tourn_list[i]["num_players"]).grid(row=row_num, column=1)
+                Button(frame_tournList, text="List Matches", command= lambda j=i: print("List matches for " + tourn_list[j]["name"])).grid(row=row_num, column=2)
 
         # create the submit and cancel buttons
         btn_listTourn_close = Button(frame_tournList, text="Cancel", command=self.win_listTourn.destroy)
 
         # align the buttons
-        btn_listTourn_close.grid(row=len(tournaments["rows"])+1, column=0)
+        btn_listTourn_close.grid(row=row_num+1, column=0)
 
         # create the error message text label
         self.text_listTourn_failMsg = StringVar()
@@ -321,7 +331,7 @@ class clientApp ( Tk ) :
         self.menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
         print ( "Adding Player" )
 
-    def action_match_resuts ( self ) :
+    def action_match_results ( self ) :
         '''
             creates a new window to submit results of a match.
         '''
@@ -373,6 +383,7 @@ class clientApp ( Tk ) :
         self.win_matchResult.bind ( '<Escape>', self.win_matchResult.destroy )
 
         self.win_matchResult.mainloop ()
+
 
 if ( __name__ == "__main__" ) :
     g_client = Tk ( )
