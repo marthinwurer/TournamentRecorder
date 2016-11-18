@@ -77,7 +77,7 @@ def createPlayer(DCI, name):
     """
     curs = db.cursor()
     curs.execute("""SELECT id FROM player WHERE id = %s""", [DCI])
-    if curs.fetchone() == None:
+    if curs.fetchone() != None:
         return '{"outcome":false, "reason":"DCI Exists"}'
 
     curs.execute("""INSERT INTO player
