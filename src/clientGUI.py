@@ -19,12 +19,13 @@ class clientApp ( Tk ) :
 
     def __init__  ( self, master ) :
         global g_master
+        global g_menubar
 
         self.g_master = master
         self.g_master.title ( "Tournament Recorder" )
 
-        self.label = Label ( self.g_master, text = "" )
-        self.label.pack ()
+        label = Label ( self.g_master, text = "" )
+        label.pack ()
 
         self.g_master.minsize ( 500,500 )
 
@@ -39,7 +40,6 @@ class clientApp ( Tk ) :
         self.create_menu_file ( )
         self.create_menu_tourn ( )
         self.create_menu_players ( )
-
 
     def create_menu_file ( self ) :
         global g_menubar
@@ -69,7 +69,6 @@ class clientApp ( Tk ) :
         self.menu_players.add_command ( label = "Add Player", command = self.action_addPlayer )
 
         self.g_menubar.add_cascade ( label = "Players", menu = self.menu_players )
-
 
     def action_listTournaments ( self ) :
         '''
@@ -127,7 +126,6 @@ class clientApp ( Tk ) :
         self.win_listTourn.bind('<Escape>', self.win_listTourn.destroy)
 
         self.win_listTourn.mainloop()
-
 
     def action_startTournament ( self ) :
         print ( "Starting Tournament" )
@@ -230,14 +228,14 @@ class clientApp ( Tk ) :
         self.input_playerList_searchName = Entry ( frame_playerFind )
         self.input_playerList_searchName.grid ( row = 0, column = 1 )
 
-        btn_playerFind_find = Button ( frame_playerFind, text = "Find" ).grid ( row = 0, column = 2 )
-        # btn_playerFind_find = Button ( frame_playerFind, text = "Find", command = self.event_createPlayer_submit )
+        btn_playerFind_find = Button ( frame_playerFind, text = "Find", command = self.event_findPlayer ).grid ( row = 0, column = 2 )
 
         lbl_playerEntry_id = Label ( frame_playerList, fg = "blue", text = "DCI #" ).grid ( row = 0, column = 0 )
         lbl_playerEntry_name = Label ( frame_playerList, fg = "blue", text = "Player Name" ).grid ( row = 0, column = 1 )
         lbl_playerEntry_name = Label ( frame_playerList, fg = "blue", text = "----" ).grid ( row = 0, column = 2 )
 
         playerList = tr_api.listPlayers ( ) ['rows']
+
         row_count = 1
         for player in playerList :
             lbl_playerEntry_id = Label ( frame_playerList, text = player["id"] ).grid ( row = int(row_count), column = 0 )
@@ -246,6 +244,36 @@ class clientApp ( Tk ) :
             btn_playerEntry_add.grid ( row = row_count, column = 2 )
             row_count += 1
 
+        # scroll_playerList = Scrollbar ( frame_playerList )
+        # scroll_playerList.pack ( side = "right", fill = "y" )
+        # scroll_playerList.config ( command = win_listPlayer.yview )
+
+    def event_findPlayer ( self ) :
+        '''
+            create the findPlayer window
+        '''
+
+        print ( "Finding player" )
+
+        self.win_findPlayer = Tk ()
+        self.win_findPlayer.title ( "Player Finder" )
+        self.win_findPlayer.minsize ( 600, 400 )
+        lbl_listPlayer = Label ( self.win_findPlayer, text = "Players Finder" ).pack ()
+
+        scroll_playerList = Scrollbar ( self.win_findPlayer )
+        scroll_playerList.pack ( side = "right", fill = "y" )
+
+        list_playerList = Listbox ( self.win_findPlayer, yscrollcommand = scroll_playerList.set )
+        list_playerList.config ( width = "95" )
+        list_playerList.pack ( side = "left", fill = "both" )
+
+        scroll_playerList.config ( command = list_playerList.yview )
+
+        playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
+
+        for player in playerList :
+            entry = str ( player["id"] ) + "\t" + player["name"]
+            list_playerList.insert ( END, entry )
 
     def action_createPlayer ( self ) :
         '''
@@ -324,7 +352,6 @@ class clientApp ( Tk ) :
 
         print ( "playerDCI: " + playerDCI )
         print ( "playerName: " + playerName )
-
 
     def action_addPlayer ( self ) :
         self.menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
