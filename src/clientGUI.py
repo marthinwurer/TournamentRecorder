@@ -100,7 +100,6 @@ class clientApp ( Tk ) :
         tournaments = tr_api.listTournaments(None, None)
         row_num = 0;
         if "rows" not in tournaments.keys():
-            self.event_error("Database Communication Error")
             messagebox.showerror(
                 "List Tournaments",
                 "Database Communication Error"
