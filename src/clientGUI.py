@@ -39,6 +39,7 @@ class clientApp ( Tk ) :
         self.create_menu_tourn ( )
         self.create_menu_players ( )
 
+
     def create_menu_file ( self ) :
         global g_menubar
 
@@ -68,8 +69,56 @@ class clientApp ( Tk ) :
 
         self.g_menubar.add_cascade ( label = "Players", menu = self.menu_players )
 
+
     def action_listTournaments ( self ) :
-        print ( "Listing Tournaments" )
+        '''
+        creates a new window to submit results of a match.
+        '''
+
+        print("Listing Tournaments")
+
+        global input_player1Wins
+        global input_player2Wins
+        global input_matchDraws
+        global win_listTourn
+
+        global text_matchResult_failMsg
+
+        self.win_listTourn = Tk()  # create the new window
+        self.win_listTourn.title("Match")  # set the title of window
+        self.win_listTourn.minsize(400, 400)  # set the minimum (default) size
+        lbl_listTourn = Label(self.win_listTourn, text="Tournaments").pack()
+
+        frame_tournList = Frame(self.win_listTourn)  # create a frame
+        frame_tournList.pack(side="top")  # and place it on the top
+
+        # create the labels that define what each input box is used for, and align them
+        Label(frame_tournList, text="Tournament Name").grid(row=0, column=0, sticky=W)
+        Label(frame_tournList, text="# of PLayers").grid(row=0, column=1, sticky=W)
+
+        tournaments = tr_api.listTournaments(None, None)
+        if len(tournaments["rows"]) > 0:
+            tourn_list = tournaments["rows"]
+            for i in range(0, len(tourn_list)):
+                Label(frame_tournList, text=tourn_list[i]["name"]).grid(row=i+1, column=0)
+                Label(frame_tournList, text=tourn_list[i]["num_players"]).grid(row=i+1, column=1)
+                Button(frame_tournList, text="List Matches", command= lambda j=i: print("List matches for " + tourn_list[j]["name"])).grid(row=i+1, column=2)
+
+        # create the submit and cancel buttons
+        btn_listTourn_close = Button(frame_tournList, text="Cancel", command=self.win_listTourn.destroy)
+
+        # align the buttons
+        btn_listTourn_close.grid(row=len(tournaments["rows"])+1, column=0)
+
+        # create the error message text label
+        self.text_listTourn_failMsg = StringVar()
+        lbl_listTourn_fail = Label(self.win_listTourn, textvariable=self.text_listTourn_failMsg).pack()
+
+        # bind these keystrokes
+        self.win_listTourn.bind('<Escape>', self.win_listTourn.destroy)
+
+        self.win_listTourn.mainloop()
+
 
     def action_startTournament ( self ) :
         print ( "Starting Tournament" )
@@ -137,7 +186,7 @@ class clientApp ( Tk ) :
 
         if ( len ( tournName ) >= 4 and tournMaxRounds.isdigit () ) :   # check values
             print ( "create tournament success" )
-
+            tr_api.createTournament(tournName, tournMaxRounds)
             self.win_createTourn.destroy ( )    # destroy window on db submission
         else : # values are not valid, check what failed
             print ( "create tournament failed" )
@@ -238,6 +287,59 @@ class clientApp ( Tk ) :
     def action_addPlayer ( self ) :
         self.menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
         print ( "Adding Player" )
+
+    def action_match_resuts ( self ) :
+        '''
+            creates a new window to submit results of a match.
+        '''
+        print ( "Match Results" )
+
+
+        global input_player1Wins
+        global input_player2Wins
+        global input_matchDraws
+        global win_matchResult
+
+        global text_matchResult_failMsg
+
+        self.win_matchResult = Tk ()                   # create the new window
+        self.win_matchResult.title ( "Match" )        # set the title of window
+        self.win_matchResult.minsize ( 200, 100 )      # set the minimum (default) size
+        lbl_matchResult = Label ( self.win_matchResult, text="Input Match Results" ).pack ()
+
+        frame_matchForm = Frame ( self.win_matchResult )   # create a frame
+        frame_matchForm.pack ( side = "top" )               # and place it on the top
+
+        # create the labels that define what each input box is used for, and align them
+        Label ( frame_matchForm, text = "Player 1 wins:" ).grid ( row = 0, sticky = W )
+        Label (frame_matchForm , text = "Draws:" ).grid ( row = 1, column = 1, sticky = W )
+        Label ( frame_matchForm, text = "Player 2 Wins:" ).grid ( row = 2, sticky = W )
+
+        # create the entry boxes and align them
+        self.input_player1Wins = Entry ( frame_matchForm )
+        self.input_player1Wins.grid ( row = 0, column = 1 )
+        self.input_matchDraws = Entry ( frame_matchForm )
+        self.input_matchDraws.grid (row = 1, column = 3)
+        self.input_player2Wins = Entry ( frame_matchForm )
+        self.input_player2Wins.grid ( row = 2, column = 1 )
+
+        # create the submit and cancel buttons
+        btn_matchResult_submit = Button ( frame_matchForm, text = "Submit", command = self.event_matchResult_submit )
+        btn_matchResult_cancel = Button ( frame_matchForm, text = "Cancel", command = self.win_matchResult.destroy )
+
+        # align the buttons
+        btn_matchResult_submit.grid ( row = 3, column = 0 )
+        btn_matchResult_cancel.grid ( row = 3, column = 1 )
+
+        # create the error message text label
+        self.text_matchResult_failMsg = StringVar ()
+        lbl_matchResult_fail = Label ( self.win_matchResult, textvariable = self.text_matchResult_failMsg ).pack ()
+
+        # bind these keystrokes
+        self.win_matchResult.bind ( '<Return>', self.event_matchResult_submit )
+        self.win_matchResult.bind ( '<Escape>', self.win_matchResult.destroy )
+
+        self.win_matchResult.mainloop ()
 
 if ( __name__ == "__main__" ) :
     g_client = Tk ( )
