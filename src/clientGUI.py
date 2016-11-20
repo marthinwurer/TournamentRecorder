@@ -75,29 +75,19 @@ class clientApp ( Tk ) :
         creates a new window to submit results of a match.
         '''
 
-        print("Listing Tournaments")
-
-        global input_player1Wins
-        global input_player2Wins
-        global input_matchDraws
-        global win_listTourn
-
-        global text_matchResult_failMsg
-
         self.win_listTourn = Tk()  # create the new window
         self.win_listTourn.title("Match")  # set the title of window
-        self.win_listTourn.minsize(400, 400)  # set the minimum (default) size
-        lbl_listTourn = Label(self.win_listTourn, text="Tournaments").pack()
+        Label(self.win_listTourn, text="Tournaments", font=("Helvetica", 16)).pack()
 
         frame_tournList = Frame(self.win_listTourn)  # create a frame
-        frame_tournList.pack(side="top")  # and place it on the top
+        frame_tournList.pack(side="top", padx=20, pady=20)  # and place it on the top
 
         # create the labels that define what each input box is used for, and align them
         Label(frame_tournList, text="Tournament Name").grid(row=0, column=0, sticky=W)
         Label(frame_tournList, text="# of PLayers").grid(row=0, column=1, sticky=W)
 
         tournaments = tr_api.listTournaments(None, None)
-        row_num = 0;
+        row_num = 0
         if "rows" not in tournaments.keys():
             messagebox.showerror(
                 "List Tournaments",
@@ -118,10 +108,6 @@ class clientApp ( Tk ) :
         # align the buttons
         btn_listTourn_close.grid(row=row_num+1, column=0)
 
-        # create the error message text label
-        self.text_listTourn_failMsg = StringVar()
-        lbl_listTourn_fail = Label(self.win_listTourn, textvariable=self.text_listTourn_failMsg).pack()
-
         # bind these keystrokes
         self.win_listTourn.bind('<Escape>', self.win_listTourn.destroy)
 
@@ -139,8 +125,6 @@ class clientApp ( Tk ) :
         global input_tournName
         global input_tournMaxRounds
         global win_createTourn
-
-        global text_createTourn_failMsg
 
         self.win_createTourn = Tk ()                            # create the new window
         self.win_createTourn.title ( "Tournament Creation" )    # set the title of window
@@ -167,10 +151,6 @@ class clientApp ( Tk ) :
         # align the buttons
         btn_createTourn_submit.grid ( row = 2, column = 0 )
         btn_createTourn_cancel.grid ( row = 2, column = 1 )
-
-        # create the error message text label
-        self.text_createTourn_failMsg = StringVar ()
-        lbl_createTourn_fail = Label ( self.win_createTourn, textvariable = self.text_createTourn_failMsg ).pack ()
 
         # bind these keystrokes
         self.win_createTourn.bind ( '<Return>', self.event_createTourn_submit )
