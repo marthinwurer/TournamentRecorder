@@ -106,7 +106,7 @@ class clientApp ( Tk ) :
         btn_listTourn_close = Button(frame_tournList, text="Cancel", command=self.win_listTourn.destroy)
 
         # align the buttons
-        btn_listTourn_close.grid(row=row_num+1, column=0)
+        btn_listTourn_close.grid(row=row_num+1, column=1)
 
         # bind these keystrokes
         self.win_listTourn.bind('<Escape>', self.win_listTourn.destroy)
@@ -129,7 +129,7 @@ class clientApp ( Tk ) :
         self.win_createTourn = Tk ()                            # create the new window
         self.win_createTourn.title ( "Tournament Creation" )    # set the title of window
         self.win_createTourn.minsize ( 200, 100 )               # set the minimum (default) size
-        lbl_createTourn = Label ( self.win_createTourn, text="Create a new Tournament" ).pack ()
+        Label ( self.win_createTourn, text="Create a new Tournament" ).pack ()
 
         frame_tournForm = Frame ( self.win_createTourn )        # create a frame
         frame_tournForm.pack ( side = "top" )                   #   and place it on the top
@@ -178,12 +178,22 @@ class clientApp ( Tk ) :
         else : # values are not valid, check what failed
             print ( "create tournament failed" )
             if ( len ( tournName ) < 4 ) :
-                self.text_createTourn_failMsg.set ( "tournament name length must be greater that 4" )
+                messagebox.showerror(
+                    "Create Tournaments",
+                    "tournament name length must be greater that 4"
+                )
                 print ( "Error: tournName length < 4" )
 
+                return
+
             if ( not tournMaxRounds.isdigit () ) :
-                self.text_createTourn_failMsg.set ( "max rounds must be a number at least 1" )
+                messagebox.showerror(
+                    "Create Tournaments",
+                    "tournament max rounds must be greater than 1"
+                )
                 print ( "Error: tourn max rounds < 1" )
+
+                return
 
         print ( "tournName: " + tournName )
         print ( "tournMaxRounds: " + tournMaxRounds )
@@ -197,7 +207,7 @@ class clientApp ( Tk ) :
         self.win_listPlayer = Tk ()
         self.win_listPlayer.title ( "Players Viewer" )
         self.win_listPlayer.minsize ( 600, 400 )
-        lbl_listPlayer = Label ( self.win_listPlayer, text = "Players Viewer" ).pack ()
+        Label ( self.win_listPlayer, text = "Players Viewer" ).pack ()
 
         frame_playerFind = Frame ( self.win_listPlayer )
         frame_playerFind.pack ( side = "top" )
@@ -210,16 +220,16 @@ class clientApp ( Tk ) :
 
         btn_playerFind_find = Button ( frame_playerFind, text = "Find", command = self.event_findPlayer ).grid ( row = 0, column = 2 )
 
-        lbl_playerEntry_id = Label ( frame_playerList, fg = "blue", text = "DCI #" ).grid ( row = 0, column = 0 )
-        lbl_playerEntry_name = Label ( frame_playerList, fg = "blue", text = "Player Name" ).grid ( row = 0, column = 1 )
-        lbl_playerEntry_name = Label ( frame_playerList, fg = "blue", text = "----" ).grid ( row = 0, column = 2 )
+        Label ( frame_playerList, fg = "blue", text = "DCI #" ).grid ( row = 0, column = 0 )
+        Label ( frame_playerList, fg = "blue", text = "Player Name" ).grid ( row = 0, column = 1 )
+        Label ( frame_playerList, fg = "blue", text = "----" ).grid ( row = 0, column = 2 )
 
         playerList = tr_api.listPlayers ( ) ['rows']
 
         row_count = 1
         for player in playerList :
-            lbl_playerEntry_id = Label ( frame_playerList, text = player["id"] ).grid ( row = int(row_count), column = 0 )
-            lbl_playerEntry_name = Label ( frame_playerList, text = player["name"] ).grid ( row = int(row_count), column = 1 )
+            Label ( frame_playerList, text = player["id"] ).grid ( row = int(row_count), column = 0 )
+            Label ( frame_playerList, text = player["name"] ).grid ( row = int(row_count), column = 1 )
             btn_playerEntry_add = Button ( frame_playerList, text = "Add" )
             btn_playerEntry_add.grid ( row = row_count, column = 2 )
             row_count += 1
@@ -238,7 +248,7 @@ class clientApp ( Tk ) :
         self.win_findPlayer = Tk ()
         self.win_findPlayer.title ( "Player Finder" )
         self.win_findPlayer.minsize ( 600, 400 )
-        lbl_listPlayer = Label ( self.win_findPlayer, text = "Players Finder" ).pack ()
+        Label ( self.win_findPlayer, text = "Players Finder" ).pack ()
 
         scroll_playerList = Scrollbar ( self.win_findPlayer )
         scroll_playerList.pack ( side = "right", fill = "y" )
@@ -252,8 +262,10 @@ class clientApp ( Tk ) :
         playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
 
         for player in playerList :
-            entry = str ( player["id"] ) + "\t" + player["name"]
+            entry = str ( player["id"] ) + " " + player["name"]
             list_playerList.insert ( END, entry )
+
+        btn_playerEntry_add = Button ( frame_)
 
     def action_createPlayer ( self ) :
         '''
@@ -270,7 +282,7 @@ class clientApp ( Tk ) :
         self.win_createPlayer = Tk ()                       # create the new window
         self.win_createPlayer.title ( "Create Player" )     # set the title of window
         self.win_createPlayer.minsize ( 200, 100 )          # set the minimum (default) size
-        lbl_createPlayer = Label ( self.win_createPlayer, text="Create a new Player" ).pack ()
+        Label ( self.win_createPlayer, text="Create a new Player" ).pack ()
 
         frame_playerForm = Frame ( self.win_createPlayer )   # create a frame
         frame_playerForm.pack ( side = "top" )               #   and place it on the top
@@ -292,10 +304,6 @@ class clientApp ( Tk ) :
         # align the buttons
         btn_createPlayer_submit.grid ( row = 2, column = 0 )
         btn_createPlayer_cancel.grid ( row = 2, column = 1 )
-
-        # create the error message text label
-        self.text_createPlayer_failMsg = StringVar ()
-        lbl_createPlayer_fail = Label ( self.win_createPlayer, textvariable = self.text_createPlayer_failMsg ).pack ()
 
         # bind these keystrokes
         self.win_createPlayer.bind ( '<Return>', self.event_createPlayer_submit )
@@ -333,6 +341,8 @@ class clientApp ( Tk ) :
         print ( "playerDCI: " + playerDCI )
         print ( "playerName: " + playerName )
 
+        tr_api.createPlayer ( playerDCI, playerName )
+
     def action_addPlayer ( self ) :
         self.menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
         print ( "Adding Player" )
@@ -354,7 +364,7 @@ class clientApp ( Tk ) :
         self.win_matchResult = Tk ()                   # create the new window
         self.win_matchResult.title ( "Match" )        # set the title of window
         self.win_matchResult.minsize ( 200, 100 )      # set the minimum (default) size
-        lbl_matchResult = Label ( self.win_matchResult, text="Input Match Results" ).pack ()
+        Label ( self.win_matchResult, text="Input Match Results" ).pack ()
 
         frame_matchForm = Frame ( self.win_matchResult )   # create a frame
         frame_matchForm.pack ( side = "top" )               # and place it on the top
@@ -379,10 +389,6 @@ class clientApp ( Tk ) :
         # align the buttons
         btn_matchResult_submit.grid ( row = 3, column = 0 )
         btn_matchResult_cancel.grid ( row = 3, column = 1 )
-
-        # create the error message text label
-        self.text_matchResult_failMsg = StringVar ()
-        lbl_matchResult_fail = Label ( self.win_matchResult, textvariable = self.text_matchResult_failMsg ).pack ()
 
         # bind these keystrokes
         self.win_matchResult.bind ( '<Return>', self.event_matchResult_submit )
