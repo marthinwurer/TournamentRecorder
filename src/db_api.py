@@ -32,6 +32,9 @@ def json_serial(obj):
 
 
 def tournament_status(t_id):
+    """
+        Check the status of a tournament
+    """
     curs = db.cursor()
     curs.execute("""SELECT start_date, end_date
                         FROM tournament
@@ -49,7 +52,7 @@ def addPlayer(p_id, t_id):
     """
         Add a player to the given tournament. Only works if the tournament has not been 
         started.
-        :returns outcome
+        :returns {outcome}
     """
     curs = db.cursor()
 
@@ -252,13 +255,7 @@ def listPlayers():
     """
     :returns:
     {outcome: true/false,
-     rows:[
-        {
-            id
-            name
-        }
-        ]
-    }
+     rows:[{id, name }]}
     """
     curs = db.cursor()
     curs.execute("""SELECT id, name FROM player; """, [])
@@ -274,18 +271,10 @@ def listPlayers():
 
 def listTournaments(sort_on, filter_types):
     """
+    Returns a list of tournaments sorted by sort on and filtered by the types in filter types
     :returns:
     {outcome: true/false,
-     rows:[
-        {
-            id
-            name
-            num_players
-            start_date
-            end_date
-        }
-        ]
-    }
+     rows:[{id, name, num_players, start_date, end_date}]}
     """
     curs = db.cursor()
     curs.execute("""SELECT t.id, t.name, (
@@ -319,15 +308,12 @@ def listTournamentPlayersHelper(t_id):
 
 def listTournamentPlayers(t_id):
     """
-
     :param t_id:
     :return:
     {outcome:
      rows:[
-        { id, p_id, name, standing, dropped (None if not dropped, 1 if dropped) }
-        ]
+        { id, p_id, name, standing, dropped (None if not dropped, 1 if dropped) }]
     }
-
     """
     # call the helper function
     output = {'outcome': True, 'rows': listTournamentPlayersHelper(t_id)}
@@ -336,7 +322,6 @@ def listTournamentPlayers(t_id):
 
 def matchList(r_id):
     """
-
     :param r_id:
     :return:
     {outcome:
@@ -425,6 +410,13 @@ def roundList(t_id):
     return json.dumps(output, default=json_serial)
 
 def searchPlayers(partial_name):
+    """
+    Look for players whose name contains the partial name
+    :param partial_name:
+    :return:
+    {outcome: true/false,
+     rows:[{id, name }]}
+    """
     curs = db.cursor()
     curs.execute("""SELECT id, name FROM player
                         WHERE name LIKE %s; """, ['%' + partial_name + '%'])
