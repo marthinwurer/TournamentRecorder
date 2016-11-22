@@ -40,6 +40,7 @@ class clientApp ( Tk ) :
         self.create_menu_file ( )
         self.create_menu_tourn ( )
         self.create_menu_players ( )
+        self.create_menu_rounds ( )
 
     def create_menu_file ( self ) :
         global g_menubar
@@ -69,6 +70,13 @@ class clientApp ( Tk ) :
         self.menu_players.add_command ( label = "Add Player", command = self.action_addPlayer )
 
         self.g_menubar.add_cascade ( label = "Players", menu = self.menu_players )
+
+    def create_menu_rounds ( self ) :
+        self.menu_rounds = Menu ( self.g_menubar )
+        self.menu_rounds.add_command ( label = "List Rounds", command = self.action_listRounds )
+        self.menu_rounds.add_separator ()
+
+        self.g_menubar.add_cascade ( label = "Rounds", menu = self.menu_rounds )
 
     def action_listTournaments ( self ) :
         '''
@@ -337,12 +345,41 @@ class clientApp ( Tk ) :
         self.menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
         print ( "Adding Player" )
 
+    def action_listRounds ( self ) :
+        '''
+            creates a new window to view round data.
+        '''
+        print ( "Listing Rounds" )
+
+        self.win_listRound = Tk ()
+        self.win_listRound.title ( "Round Viewer" )
+        self.win_listRound.minsize ( 600, 400 )
+        lbl_listRound = Label ( self.win_listRound, text = "Round Viewer" ).pack ()
+
+        frame_roundList = Frame ( self.win_listRound )
+        frame_roundList.pack ( side = "top" )
+
+        lbl_roundEntry_id = Label ( frame_roundList, fg = "blue", text = "Round Number" ).grid ( row = 0, column = 0 )
+        lbl_roundEntry_startDate = Label ( frame_roundList, fg = "blue", text = "Start Date" ).grid ( row = 0, column = 1 )
+        lbl_roundEntry_endDate = Label ( frame_roundList, fg = "blue", text = "End Date" ).grid ( row = 0, column = 2 )
+        lbl_roundEntry_call = Label ( frame_roundList, fg = "blue", text = "----" ).grid ( row = 0, column = 3 )
+
+        roundList = tr_api.roundList ( ) ['rows']
+
+        row_count = 1
+        for rnd in roundList :
+            lbl_roundEntry_num = Label ( frame_roundList, text = rnd["Number"] ).grid ( row = int(row_count), column = 0 )
+            lbl_roundEntry_startDate = Label ( frame_roundList, text = rnd["Start Date"] ).grid ( row = int(row_count), column = 1 )
+            lbl_roundEntry_endDate = Label ( frame_roundList, text = rnd["End Date"] ).grid ( row = int(row_count), column = 2 )
+            btn_roundEntry_select = Button ( frame_roundList, text = "Select" )
+            btn_playerEntry_add.grid ( row = row_count, column = 3 )
+            row_count += 1
+
     def action_match_results ( self ) :
         '''
             creates a new window to submit results of a match.
         '''
         print ( "Match Results" )
-
 
         global input_player1Wins
         global input_player2Wins
@@ -389,7 +426,6 @@ class clientApp ( Tk ) :
         self.win_matchResult.bind ( '<Escape>', self.win_matchResult.destroy )
 
         self.win_matchResult.mainloop ()
-
 
 if ( __name__ == "__main__" ) :
     g_client = Tk ( )
