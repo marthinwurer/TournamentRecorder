@@ -53,7 +53,7 @@ class clientApp ( Tk ) :
         menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
 
         menu_tourn.add_separator ()
-        
+
         menu_tourn.add_command ( label = "Create Tournament", command = self.action_createTournament )
 
         self.g_menubar.add_cascade ( label = "Tournaments", menu = menu_tourn )
@@ -63,7 +63,7 @@ class clientApp ( Tk ) :
         menu_players.add_command ( label = "List Player", command = self.action_listPlayers )
         menu_players.add_separator ()
         menu_players.add_command ( label = "Create Player", command = self.action_createPlayer )
-        menu_players.add_command ( label = "Add Player", command = self.action_addPlayer )
+        # menu_players.add_command ( label = "Add Player", command = self.action_addPlayer )
 
         self.g_menubar.add_cascade ( label = "Players", menu = menu_players )
 
@@ -72,44 +72,44 @@ class clientApp ( Tk ) :
         creates a new window to submit results of a match.
         '''
 
-        win_listTourn = Tk()  # create the new window
-        win_listTourn.title("Match")  # set the title of window
-        Label(win_listTourn, text="Tournaments", font=("Helvetica", 16)).pack()
+        self.win_listTourn = Tk()  # create the new window
+        self.win_listTourn.title ( "Tournaments" )  # set the title of window
+        Label ( self.win_listTourn, text="Tournaments", font = ( "Helvetica", 16 ) ).pack ( )
 
-        frame_tournList = Frame(win_listTourn)  # create a frame
-        frame_tournList.pack(side="top", padx=20, pady=20)  # and place it on the top
+        frame_tournList = Frame ( self.win_listTourn )  # create a frame
+        frame_tournList.pack ( side = "top", padx = 20, pady = 20 )  # and place it on the top
 
         # create the labels that define what each input box is used for, and align them
-        Label(frame_tournList, text="Tournament Name").grid(row=0, column=0, sticky=W)
-        Label(frame_tournList, text="# of PLayers").grid(row=0, column=1, sticky=W)
+        Label ( frame_tournList, text = "Tournament Name" ).grid ( row = 0, column = 0, sticky = W )
+        Label ( frame_tournList, text = "# of PLayers" ).grid ( row = 0, column = 1, sticky = W )
 
-        tournaments = tr_api.listTournaments(None, None)
+        tournaments = tr_api.listTournaments ( None, None )
         row_num = 0
-        if "rows" not in tournaments.keys():
-            messagebox.showerror(
+        if "rows" not in tournaments.keys ( ):
+            messagebox.showerror (
                 "List Tournaments",
                 "Database Communication Error"
             )
             return
-        elif len(tournaments["rows"]) > 0:
+        elif len ( tournaments["rows"] ) > 0:
             tourn_list = tournaments["rows"]
-            for i in range(0, len(tourn_list)):
+            for i in range ( 0, len ( tourn_list ) ):
                 row_num = i+1
-                Label(frame_tournList, text=tourn_list[i]["name"]).grid(row=row_num, column=0)
-                Label(frame_tournList, text=tourn_list[i]["num_players"]).grid(row=row_num, column=1)
+                Label ( frame_tournList, text = tourn_list[i]["name"] ).grid ( row = row_num, column = 0)
+                Label ( frame_tournList, text = tourn_list[i]["num_players"] ).grid ( row = row_num, column = 1 )
                 # Button(frame_tournList, text="Select", command= lambda j=i: print("List matches for " + str(tourn_list[j]["id"]))).grid(row=row_num, column=2)
-                Button ( frame_tournList, text="Select", command= lambda j=i: self.action_selectTournament ( tourn_list[j]["id"] ) ).grid(row=row_num, column=2)
+                Button ( frame_tournList, text = "Select", command = lambda j=i: self.action_selectTournament ( tourn_list[j]["id"] ) ).grid ( row = row_num, column = 2 )
 
         # create the submit and cancel buttons
-        btn_listTourn_close = Button(frame_tournList, text="Cancel", command=win_listTourn.destroy)
+        btn_listTourn_close = Button(frame_tournList, text="Cancel", command=self.win_listTourn.destroy)
 
         # align the buttons
         btn_listTourn_close.grid(row=row_num+1, column=1)
 
         # bind these keystrokes
-        win_listTourn.bind('<Escape>', win_listTourn.destroy)
+        self.win_listTourn.bind('<Escape>', self.win_listTourn.destroy)
 
-        win_listTourn.mainloop()
+        self.win_listTourn.mainloop()
 
     def action_selectTournament ( self, tourn_id ) :
         global activeTourn
@@ -126,6 +126,7 @@ class clientApp ( Tk ) :
             )
             return
         print ( "Starting Tournament" )
+        tr_api.startTournament ( activeTourn )
 
     def action_createTournament ( self ) :
         '''
@@ -216,14 +217,16 @@ class clientApp ( Tk ) :
         print ( "Listing Players" )
 
         self.win_listPlayer = Tk ()
-        self.win_listPlayer.title ( "Players Viewer" )
+        self.win_listPlayer.title ( "Players Finder" )
         self.win_listPlayer.minsize ( 600, 400 )
-        Label ( self.win_listPlayer, text = "Players Viewer" ).pack ()
+        Label ( self.win_listPlayer, text = "Players Finder" ).pack ()
 
         frame_playerFind = Frame ( self.win_listPlayer )
         frame_playerFind.pack ( side = "top" )
-        frame_playerList = Frame ( self.win_listPlayer )
-        frame_playerList.pack ( expand = True, side = "left")
+        self.frame_playerList = Frame ( self.win_listPlayer )
+        self.frame_playerList.pack ( expand = True, side = "left")
+        frame_playerFooter = Frame ( self.win_listPlayer )
+        frame_playerFooter.pack ( side = "right" )
 
         Label ( frame_playerFind, text = "Search For:" ).grid ( row = 0 )
         self.input_playerList_searchName = Entry ( frame_playerFind )
@@ -231,19 +234,24 @@ class clientApp ( Tk ) :
 
         btn_playerFind_find = Button ( frame_playerFind, text = "Find", command = self.event_findPlayer ).grid ( row = 0, column = 2 )
 
-        Label ( frame_playerList, fg = "blue", text = "DCI #" ).grid ( row = 0, column = 0 )
-        Label ( frame_playerList, fg = "blue", text = "Player Name" ).grid ( row = 0, column = 1 )
-        Label ( frame_playerList, fg = "blue", text = "----" ).grid ( row = 0, column = 2 )
+        scroll_playerList = Scrollbar ( self.frame_playerList )
+        scroll_playerList.pack ( side = "right", fill = "y" )
 
-        playerList = tr_api.listPlayers ( ) ['rows']
+        self.list_playerList = Listbox ( self.frame_playerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple" )
+        self.list_playerList.config ( width = "95" )
+        self.list_playerList.pack ( side = "left", fill = "both" )
+
+        scroll_playerList.config ( command = self.list_playerList.yview )
+
+        playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
 
         row_count = 1
         for player in playerList :
-            Label ( frame_playerList, text = player["id"] ).grid ( row = int(row_count), column = 0 )
-            Label ( frame_playerList, text = player["name"] ).grid ( row = int(row_count), column = 1 )
-            btn_playerEntry_add = Button ( frame_playerList, text = "Add" )
-            btn_playerEntry_add.grid ( row = row_count, column = 2 )
-            row_count += 1
+            entry = str ( player["id"] ) + " " + player["name"]
+            self.list_playerList.insert ( END, entry )
+
+        btn_addPlayer_add = Button ( frame_playerFooter, text = "Add to Active", command = self.action_addPlayer ).pack ()
+        btn_addPlayer_cancel = Button ( frame_playerFooter, text = "Cancel", command = self.win_listPlayer.quit ).pack ()
 
         # scroll_playerList = Scrollbar ( frame_playerList )
         # scroll_playerList.pack ( side = "right", fill = "y" )
@@ -256,27 +264,14 @@ class clientApp ( Tk ) :
 
         print ( "Finding player" )
 
-        self.win_findPlayer = Tk ()
-        self.win_findPlayer.title ( "Player Finder" )
-        self.win_findPlayer.minsize ( 600, 400 )
-        Label ( self.win_findPlayer, text = "Players Finder" ).pack ()
-
-        scroll_playerList = Scrollbar ( self.win_findPlayer )
-        scroll_playerList.pack ( side = "right", fill = "y" )
-
-        list_playerList = Listbox ( self.win_findPlayer, yscrollcommand = scroll_playerList.set )
-        list_playerList.config ( width = "95" )
-        list_playerList.pack ( side = "left", fill = "both" )
-
-        scroll_playerList.config ( command = list_playerList.yview )
-
         playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
-
+        self.list_playerList.delete ( 0, END )
         for player in playerList :
             entry = str ( player["id"] ) + " " + player["name"]
-            list_playerList.insert ( END, entry )
+            self.list_playerList.insert ( END, entry )
 
-        btn_playerEntry_add = Button ( frame_)
+        self.frame_playerList
+
 
     def action_createPlayer ( self ) :
         '''
@@ -355,8 +350,26 @@ class clientApp ( Tk ) :
         tr_api.createPlayer ( playerDCI, playerName )
 
     def action_addPlayer ( self ) :
-        self.menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
+        if ( self.activeTourn is None ) :
+            messagebox.showerror (
+                "Start Tournament",
+                "Invalid selected tournament"
+            )
+            print ( "error: invalid conditions" )
+            return
         print ( "Adding Player" )
+
+        items = self.list_playerList.curselection ( ) # returns a tuple
+        selected = []
+        for i in items :
+            selected.append ( self.list_playerList.get ( i ) )
+
+        print ( selected )
+
+        for e in selected :
+            tr_api.addPlayer ( int(e.split ( )[0]), self.activeTourn )
+
+        self.win_listPlayer.quit ( )
 
     def action_match_results ( self ) :
         '''
@@ -406,7 +419,6 @@ class clientApp ( Tk ) :
         self.win_matchResult.bind ( '<Escape>', self.win_matchResult.destroy )
 
         self.win_matchResult.mainloop ()
-
 
 if ( __name__ == "__main__" ) :
     g_client = Tk ( )
