@@ -226,7 +226,7 @@ class clientApp ( Tk ) :
         self.frame_playerList = Frame ( self.win_listPlayer )
         self.frame_playerList.pack ( expand = True, side = "left")
         frame_playerFooter = Frame ( self.win_listPlayer )
-        frame_playerFooter.pack ( side = "bottom" )
+        frame_playerFooter.pack ( side = "right" )
 
         Label ( frame_playerFind, text = "Search For:" ).grid ( row = 0 )
         self.input_playerList_searchName = Entry ( frame_playerFind )
@@ -250,7 +250,8 @@ class clientApp ( Tk ) :
             entry = str ( player["id"] ) + " " + player["name"]
             self.list_playerList.insert ( END, entry )
 
-        btn_addPlayer_add = Button ( frame_playerFooter, text = "Add to Active", command = self.action_addPlayer )
+        btn_addPlayer_add = Button ( frame_playerFooter, text = "Add to Active", command = self.action_addPlayer ).pack ()
+        btn_addPlayer_cancel = Button ( frame_playerFooter, text = "Cancel", command = self.win_listPlayer.quit ).pack ()
 
         # scroll_playerList = Scrollbar ( frame_playerList )
         # scroll_playerList.pack ( side = "right", fill = "y" )
@@ -366,7 +367,7 @@ class clientApp ( Tk ) :
         print ( selected )
 
         for e in selected :
-            tr_api.addPlayer ( activeTourn, e.split ( )[0] )
+            tr_api.addPlayer ( self.activeTourn, e.split ( )[0] )
 
     def action_match_results ( self ) :
         '''
