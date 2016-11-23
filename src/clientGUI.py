@@ -259,7 +259,7 @@ class clientApp ( Tk ) :
 
         self.win_findPlayer = Tk ()
         self.win_findPlayer.title ( "Player Finder" )
-        self.win_findPlayer.minsize ( 600, 400 )
+        self.win_findPlayer.minsize ( 400, 200 )
         Label ( self.win_findPlayer, text = "Players Finder" ).pack ()
 
         scroll_playerList = Scrollbar ( self.win_findPlayer )
@@ -277,7 +277,8 @@ class clientApp ( Tk ) :
             entry = str ( player["id"] ) + " " + player["name"]
             list_playerList.insert ( END, entry )
 
-        btn_playerEntry_add = Button ( frame_)
+        btn_playerEntry_add = Button ( self.win_findPlayer, text = "Add to Active" )
+        btn_playerEntry_add.pack ()
 
     def action_createPlayer ( self ) :
         '''
