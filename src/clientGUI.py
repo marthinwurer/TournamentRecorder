@@ -14,6 +14,7 @@ class clientApp ( Tk ) :
     input_playerName = None
 
     activeTourn = None
+    started = False
 
     def __init__  ( self, master ) :
         global g_master
@@ -117,16 +118,18 @@ class clientApp ( Tk ) :
         print ( "Selected Tournament " + str ( tourn_id ) )
 
         self.activeTourn = tourn_id
+        self.win_listTourn.destroy ( )
+        self.action_listPlayers ( )
 
     def action_startTournament ( self ) :
         if ( self.activeTourn is None ) :
             messagebox.showerror(
-                "Start Tournament",
+                "Tournament",
                 "Invalid selected tournament"
             )
             return
         print ( "Starting Tournament" )
-        tr_api.startTournament ( activeTourn )
+        tr_api.startTournament ( self.activeTourn )
 
     def action_createTournament ( self ) :
         '''
@@ -250,12 +253,8 @@ class clientApp ( Tk ) :
             entry = str ( player["id"] ) + " " + player["name"]
             self.list_playerList.insert ( END, entry )
 
-        btn_addPlayer_add = Button ( frame_playerFooter, text = "Add to Active", command = self.action_addPlayer ).pack ()
+        btn_addPlayer_add = Button ( frame_playerFooter, text = "Add to Active", command = self.event_addPlayer ).pack ()
         btn_addPlayer_cancel = Button ( frame_playerFooter, text = "Cancel", command = self.win_listPlayer.quit ).pack ()
-
-        # scroll_playerList = Scrollbar ( frame_playerList )
-        # scroll_playerList.pack ( side = "right", fill = "y" )
-        # scroll_playerList.config ( command = win_listPlayer.yview )
 
     def event_findPlayer ( self ) :
         '''
@@ -271,7 +270,6 @@ class clientApp ( Tk ) :
             self.list_playerList.insert ( END, entry )
 
         self.frame_playerList
-
 
     def action_createPlayer ( self ) :
         '''
@@ -349,7 +347,7 @@ class clientApp ( Tk ) :
 
         tr_api.createPlayer ( playerDCI, playerName )
 
-    def action_addPlayer ( self ) :
+    def event_addPlayer ( self ) :
         if ( self.activeTourn is None ) :
             messagebox.showerror (
                 "Start Tournament",
