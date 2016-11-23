@@ -120,6 +120,7 @@ class clientApp ( Tk ) :
         self.activeTourn = tourn_id
         self.win_listTourn.destroy ( )
         self.action_listPlayers ( )
+        self.action_listActivePlayers ( )
 
     def action_startTournament ( self ) :
         if ( self.activeTourn is None ) :
@@ -254,22 +255,44 @@ class clientApp ( Tk ) :
             self.list_playerList.insert ( END, entry )
 
         btn_addPlayer_add = Button ( frame_playerFooter, text = "Add to Active", command = self.event_addPlayer ).pack ()
-        btn_addPlayer_cancel = Button ( frame_playerFooter, text = "Cancel", command = self.win_listPlayer.quit ).pack ()
+        btn_addPlayer_cancel = Button ( frame_playerFooter, text = "Cancel", command = self.win_listPlayer.destroy ).pack ()
 
-    def event_findPlayer ( self ) :
+    def action_listActivePlayers ( self ) :
         '''
-            create the findPlayer window
+            creates a new window to view active player data.
         '''
+        print ( "Listing Active Players" )
 
-        print ( "Finding player" )
+        self.win_listActivePlayers = Tk ()
+        self.win_listActivePlayers.title ( "Players Viewer" )
+        self.win_listActivePlayers.minsize ( 600, 200 )
+        Label ( self.win_listActivePlayers, text = "Players Viewer" ).pack ()
 
-        playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
-        self.list_playerList.delete ( 0, END )
+        self.frame_activePlayerList = Frame ( self.win_listActivePlayers )
+        self.frame_activePlayerList.pack ( expand = True, side = "left")
+        frame_playerFooter = Frame ( self.win_listActivePlayers )
+        frame_playerFooter.pack ( side = "right" )
+
+        scroll_playerList = Scrollbar ( self.frame_activePlayerList )
+        scroll_playerList.pack ( side = "right", fill = "y" )
+
+        self.list_activePlayerList = Listbox ( self.frame_activePlayerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple" )
+        self.list_activePlayerList.config ( width = "95" )
+        self.list_activePlayerList.pack ( side = "left", fill = "both" )
+
+        scroll_playerList.config ( command = self.list_activePlayerList.yview )
+
+        playerList = tr_api.listTournamentPlayers ( self.activeTourn ) ['rows']
+
+        row_count = 1
         for player in playerList :
-            entry = str ( player["id"] ) + " " + player["name"]
-            self.list_playerList.insert ( END, entry )
+            entry = str(player["id"]) + " " + player["name"]
+            self.list_activePlayerList.insert ( END, entry )
 
-        self.frame_playerList
+        # playerList.update_idletasks ()
+
+        Button ( frame_playerFooter, text = "Remove Player(s)", command = self.event_removeTournPlayer ).grid ( row = 0, column = 0 ) # create remove button
+        Button ( frame_playerFooter, text = "Cancel", command = self.win_listActivePlayers.destroy ).grid ( row = 1, column = 0 ) # create cancel button
 
     def action_createPlayer ( self ) :
         '''
@@ -347,6 +370,19 @@ class clientApp ( Tk ) :
 
         tr_api.createPlayer ( playerDCI, playerName )
 
+    def event_findPlayer ( self ) :
+        '''
+            create the findPlayer window
+        '''
+
+        print ( "Finding player" )
+
+        playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
+        self.list_playerList.delete ( 0, END )
+        for player in playerList :
+            entry = str ( player["id"] ) + " " + player["name"]
+            self.list_playerList.insert ( END, entry )
+
     def event_addPlayer ( self ) :
         if ( self.activeTourn is None ) :
             messagebox.showerror (
@@ -368,6 +404,22 @@ class clientApp ( Tk ) :
             tr_api.addPlayer ( int(e.split ( )[0]), self.activeTourn )
 
         self.win_listPlayer.quit ( )
+
+    def event_removeTournPlayer ( self ) :
+        print ( "Removing selected players from tourn" )
+        items = self.list_activePlayerList.curselection ( ) # returns a tuple
+        selected = []
+
+        for i in items :
+            selected.append ( self.list_activePlayerList.get ( i ) )
+
+        print ( selected )
+
+        for e in selected :
+            tr_api.removePlayer ( e.split ( )[0], self.activeTourn )
+
+        self.list_activePlayerList.delete ( 0, END )
+
 
     def action_match_results ( self ) :
         '''
