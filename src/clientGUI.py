@@ -265,20 +265,22 @@ class clientApp ( Tk ) :
         scroll_playerList = Scrollbar ( self.win_findPlayer )
         scroll_playerList.pack ( side = "right", fill = "y" )
 
-        list_playerList = Listbox ( self.win_findPlayer, yscrollcommand = scroll_playerList.set )
-        list_playerList.config ( width = "95" )
-        list_playerList.pack ( side = "left", fill = "both" )
+        self.list_playerList = Listbox ( self.win_findPlayer, yscrollcommand = scroll_playerList.set, selectmode = "multiple" )
+        self.list_playerList.config ( width = "95" )
+        self.list_playerList.pack ( side = "left", fill = "both" )
 
-        scroll_playerList.config ( command = list_playerList.yview )
+        scroll_playerList.config ( command = self.list_playerList.yview )
 
         playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
 
         for player in playerList :
             entry = str ( player["id"] ) + " " + player["name"]
-            list_playerList.insert ( END, entry )
+            self.list_playerList.insert ( END, entry )
 
-        btn_playerEntry_add = Button ( self.win_findPlayer, text = "Add to Active" )
+        btn_playerEntry_add = Button ( self.win_findPlayer, text = "Add to Active", command = self.action_addPlayer )
         btn_playerEntry_add.pack ()
+        btn_playerEntry_cancel = Button ( self.win_findPlayer, text = "Cancel", command = self.win_findPlayer.quit )
+        btn_playerEntry_cancel.pack ()
 
     def action_createPlayer ( self ) :
         '''
@@ -358,12 +360,23 @@ class clientApp ( Tk ) :
 
     def action_addPlayer ( self ) :
         if ( self.activeTourn is None ) :
-            messagebox.showerror(
+            messagebox.showerror (
                 "Start Tournament",
                 "Invalid selected tournament"
             )
+            print ( "error: invalid conditions" )
             return
         print ( "Adding Player" )
+
+        items = self.list_playerList.curselection ( ) # returns a tuple
+        selected = []
+        for i in items :
+            selected.append ( self.list_playerList.get ( i ) )
+
+        print ( selected )
+
+        for e in selected :
+            tr_api.addPlayer ( activeTourn, e.split ( )[0] )
 
     def action_match_results ( self ) :
         '''
