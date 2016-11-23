@@ -217,14 +217,16 @@ class clientApp ( Tk ) :
         print ( "Listing Players" )
 
         self.win_listPlayer = Tk ()
-        self.win_listPlayer.title ( "Players Viewer" )
+        self.win_listPlayer.title ( "Players Finder" )
         self.win_listPlayer.minsize ( 600, 400 )
-        Label ( self.win_listPlayer, text = "Players Viewer" ).pack ()
+        Label ( self.win_listPlayer, text = "Players Finder" ).pack ()
 
         frame_playerFind = Frame ( self.win_listPlayer )
         frame_playerFind.pack ( side = "top" )
-        frame_playerList = Frame ( self.win_listPlayer )
-        frame_playerList.pack ( expand = True, side = "left")
+        self.frame_playerList = Frame ( self.win_listPlayer )
+        self.frame_playerList.pack ( expand = True, side = "left")
+        frame_playerFooter = Frame ( self.win_listPlayer )
+        frame_playerFooter.pack ( side = "bottom" )
 
         Label ( frame_playerFind, text = "Search For:" ).grid ( row = 0 )
         self.input_playerList_searchName = Entry ( frame_playerFind )
@@ -232,19 +234,23 @@ class clientApp ( Tk ) :
 
         btn_playerFind_find = Button ( frame_playerFind, text = "Find", command = self.event_findPlayer ).grid ( row = 0, column = 2 )
 
-        Label ( frame_playerList, fg = "blue", text = "DCI #" ).grid ( row = 0, column = 0 )
-        Label ( frame_playerList, fg = "blue", text = "Player Name" ).grid ( row = 0, column = 1 )
-        Label ( frame_playerList, fg = "blue", text = "----" ).grid ( row = 0, column = 2 )
+        scroll_playerList = Scrollbar ( self.frame_playerList )
+        scroll_playerList.pack ( side = "right", fill = "y" )
 
-        playerList = tr_api.listPlayers ( ) ['rows']
+        self.list_playerList = Listbox ( self.frame_playerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple" )
+        self.list_playerList.config ( width = "95" )
+        self.list_playerList.pack ( side = "left", fill = "both" )
+
+        scroll_playerList.config ( command = self.list_playerList.yview )
+
+        playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
 
         row_count = 1
         for player in playerList :
-            Label ( frame_playerList, text = player["id"] ).grid ( row = int(row_count), column = 0 )
-            Label ( frame_playerList, text = player["name"] ).grid ( row = int(row_count), column = 1 )
-            btn_playerEntry_add = Button ( frame_playerList, text = "Add" )
-            btn_playerEntry_add.grid ( row = row_count, column = 2 )
-            row_count += 1
+            entry = str ( player["id"] ) + " " + player["name"]
+            self.list_playerList.insert ( END, entry )
+
+        btn_addPlayer_add = Button ( frame_playerFooter, text = "Add to Active", command = self.action_addPlayer )
 
         # scroll_playerList = Scrollbar ( frame_playerList )
         # scroll_playerList.pack ( side = "right", fill = "y" )
@@ -257,30 +263,14 @@ class clientApp ( Tk ) :
 
         print ( "Finding player" )
 
-        self.win_findPlayer = Tk ()
-        self.win_findPlayer.title ( "Player Finder" )
-        self.win_findPlayer.minsize ( 400, 200 )
-        Label ( self.win_findPlayer, text = "Players Finder" ).pack ()
-
-        scroll_playerList = Scrollbar ( self.win_findPlayer )
-        scroll_playerList.pack ( side = "right", fill = "y" )
-
-        self.list_playerList = Listbox ( self.win_findPlayer, yscrollcommand = scroll_playerList.set, selectmode = "multiple" )
-        self.list_playerList.config ( width = "95" )
-        self.list_playerList.pack ( side = "left", fill = "both" )
-
-        scroll_playerList.config ( command = self.list_playerList.yview )
-
         playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
-
+        self.list_playerList.delete ( 0, END )
         for player in playerList :
             entry = str ( player["id"] ) + " " + player["name"]
             self.list_playerList.insert ( END, entry )
 
-        btn_playerEntry_add = Button ( self.win_findPlayer, text = "Add to Active", command = self.action_addPlayer )
-        btn_playerEntry_add.pack ()
-        btn_playerEntry_cancel = Button ( self.win_findPlayer, text = "Cancel", command = self.win_findPlayer.quit )
-        btn_playerEntry_cancel.pack ()
+        self.frame_playerList
+
 
     def action_createPlayer ( self ) :
         '''
