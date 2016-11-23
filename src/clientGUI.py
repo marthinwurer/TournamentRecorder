@@ -53,7 +53,7 @@ class clientApp ( Tk ) :
         menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
 
         menu_tourn.add_separator ()
-        
+
         menu_tourn.add_command ( label = "Create Tournament", command = self.action_createTournament )
 
         self.g_menubar.add_cascade ( label = "Tournaments", menu = menu_tourn )
@@ -63,7 +63,7 @@ class clientApp ( Tk ) :
         menu_players.add_command ( label = "List Player", command = self.action_listPlayers )
         menu_players.add_separator ()
         menu_players.add_command ( label = "Create Player", command = self.action_createPlayer )
-        menu_players.add_command ( label = "Add Player", command = self.action_addPlayer )
+        # menu_players.add_command ( label = "Add Player", command = self.action_addPlayer )
 
         self.g_menubar.add_cascade ( label = "Players", menu = menu_players )
 
@@ -72,44 +72,44 @@ class clientApp ( Tk ) :
         creates a new window to submit results of a match.
         '''
 
-        win_listTourn = Tk()  # create the new window
-        win_listTourn.title("Match")  # set the title of window
-        Label(win_listTourn, text="Tournaments", font=("Helvetica", 16)).pack()
+        self.win_listTourn = Tk()  # create the new window
+        self.win_listTourn.title ( "Tournaments" )  # set the title of window
+        Label ( self.win_listTourn, text="Tournaments", font = ( "Helvetica", 16 ) ).pack ( )
 
-        frame_tournList = Frame(win_listTourn)  # create a frame
-        frame_tournList.pack(side="top", padx=20, pady=20)  # and place it on the top
+        frame_tournList = Frame ( self.win_listTourn )  # create a frame
+        frame_tournList.pack ( side = "top", padx = 20, pady = 20 )  # and place it on the top
 
         # create the labels that define what each input box is used for, and align them
-        Label(frame_tournList, text="Tournament Name").grid(row=0, column=0, sticky=W)
-        Label(frame_tournList, text="# of PLayers").grid(row=0, column=1, sticky=W)
+        Label ( frame_tournList, text = "Tournament Name" ).grid ( row = 0, column = 0, sticky = W )
+        Label ( frame_tournList, text = "# of PLayers" ).grid ( row = 0, column = 1, sticky = W )
 
-        tournaments = tr_api.listTournaments(None, None)
+        tournaments = tr_api.listTournaments ( None, None )
         row_num = 0
-        if "rows" not in tournaments.keys():
-            messagebox.showerror(
+        if "rows" not in tournaments.keys ( ):
+            messagebox.showerror (
                 "List Tournaments",
                 "Database Communication Error"
             )
             return
-        elif len(tournaments["rows"]) > 0:
+        elif len ( tournaments["rows"] ) > 0:
             tourn_list = tournaments["rows"]
-            for i in range(0, len(tourn_list)):
+            for i in range ( 0, len ( tourn_list ) ):
                 row_num = i+1
-                Label(frame_tournList, text=tourn_list[i]["name"]).grid(row=row_num, column=0)
-                Label(frame_tournList, text=tourn_list[i]["num_players"]).grid(row=row_num, column=1)
+                Label ( frame_tournList, text = tourn_list[i]["name"] ).grid ( row = row_num, column = 0)
+                Label ( frame_tournList, text = tourn_list[i]["num_players"] ).grid ( row = row_num, column = 1 )
                 # Button(frame_tournList, text="Select", command= lambda j=i: print("List matches for " + str(tourn_list[j]["id"]))).grid(row=row_num, column=2)
-                Button ( frame_tournList, text="Select", command= lambda j=i: self.action_selectTournament ( tourn_list[j]["id"] ) ).grid(row=row_num, column=2)
+                Button ( frame_tournList, text = "Select", command = lambda j=i: self.action_selectTournament ( tourn_list[j]["id"] ) ).grid ( row = row_num, column = 2 )
 
         # create the submit and cancel buttons
-        btn_listTourn_close = Button(frame_tournList, text="Cancel", command=win_listTourn.destroy)
+        btn_listTourn_close = Button(frame_tournList, text="Cancel", command=self.win_listTourn.destroy)
 
         # align the buttons
         btn_listTourn_close.grid(row=row_num+1, column=1)
 
         # bind these keystrokes
-        win_listTourn.bind('<Escape>', win_listTourn.destroy)
+        self.win_listTourn.bind('<Escape>', self.win_listTourn.destroy)
 
-        win_listTourn.mainloop()
+        self.win_listTourn.mainloop()
 
     def action_selectTournament ( self, tourn_id ) :
         global activeTourn
@@ -126,6 +126,7 @@ class clientApp ( Tk ) :
             )
             return
         print ( "Starting Tournament" )
+        tr_api.startTournament ( activeTourn )
 
     def action_createTournament ( self ) :
         '''
@@ -355,7 +356,12 @@ class clientApp ( Tk ) :
         tr_api.createPlayer ( playerDCI, playerName )
 
     def action_addPlayer ( self ) :
-        self.menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
+        if ( self.activeTourn is None ) :
+            messagebox.showerror(
+                "Start Tournament",
+                "Invalid selected tournament"
+            )
+            return
         print ( "Adding Player" )
 
     def action_match_results ( self ) :
@@ -406,7 +412,6 @@ class clientApp ( Tk ) :
         self.win_matchResult.bind ( '<Escape>', self.win_matchResult.destroy )
 
         self.win_matchResult.mainloop ()
-
 
 if ( __name__ == "__main__" ) :
     g_client = Tk ( )
