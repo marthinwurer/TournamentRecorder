@@ -35,6 +35,8 @@ def recieve(function):
             return listTournaments(json['sort_on'], json['filter_types'])
         elif function == 'listTournamentPlayers':
             return listTournamentPlayers(json['t_id'])
+        elif function == 'listActiveTournamentPlayers':
+            return listActiveTournamentPlayers(json['t_id'])
         elif function == 'matchList':
             return matchList(json['r_id'])
         elif function == 'removePlayer':

@@ -99,6 +99,17 @@ def listTournamentPlayers(t_id):
     """
     return sendRequest('listTournamentPlayers', {'t_id': t_id})
 
+def listActiveTournamentPlayers(t_id):
+    """
+    :param t_id:
+    :return:
+    {outcome:
+     rows:[
+        { id, p_id, name, standing, dropped (None if not dropped, 1 if dropped) }]
+    }
+    """
+    return sendRequest('listActiveTournamentPlayers', {'t_id': t_id})
+
 def matchList(r_id):
     """
     :param r_id:

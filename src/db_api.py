@@ -320,6 +320,27 @@ def listTournamentPlayers(t_id):
     
     return json.dumps(output)
 
+def listActiveTournamentPlayers(t_id):
+    """
+    :param t_id:
+    :return:
+    {outcome:
+     rows:[
+        { id, p_id, name, standing, dropped (None if not dropped, 1 if dropped) }]
+    }
+    """
+    curs = db.cursor()
+    curs.execute("""SELECT tp.id, tp.p_id, (
+                            SELECT name FROM player AS p WHERE p.id=tp.p_id
+                            ) AS name, standing(tp.id) AS standing, dropped
+                        FROM tournament_player AS tp
+                        WHERE tp.t_id=%s AND tp.dropped IS NULL; """, [t_id])
+
+    # build the output
+    output = {'outcome': True, 'rows': curs.fetchall()}
+
+    return json.dumps(output)
+
 def matchList(r_id):
     """
     :param r_id:
