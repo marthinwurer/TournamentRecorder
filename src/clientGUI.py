@@ -367,7 +367,9 @@ class clientApp ( Tk ) :
         print ( selected )
 
         for e in selected :
-            tr_api.addPlayer ( self.activeTourn, e.split ( )[0] )
+            tr_api.addPlayer ( int(e.split ( )[0]), self.activeTourn )
+
+        self.win_listPlayer.quit ( )
 
     def action_match_results ( self ) :
         '''
