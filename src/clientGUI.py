@@ -62,6 +62,7 @@ class clientApp ( Tk ) :
     def create_menu_players ( self ) :
         menu_players = Menu ( self.g_menubar )
         menu_players.add_command ( label = "List Player", command = self.action_listPlayers )
+        menu_players.add_command ( label = "List Active Player", command = self.action_listActivePlayers )
         menu_players.add_separator ()
         menu_players.add_command ( label = "Create Player", command = self.action_createPlayer )
         # menu_players.add_command ( label = "Add Player", command = self.action_addPlayer )
@@ -222,7 +223,7 @@ class clientApp ( Tk ) :
 
         self.win_listPlayer = Tk ()
         self.win_listPlayer.title ( "Players Finder" )
-        self.win_listPlayer.minsize ( 600, 400 )
+        self.win_listPlayer.minsize ( 600, 300 )
         Label ( self.win_listPlayer, text = "Players Finder" ).pack ()
 
         frame_playerFind = Frame ( self.win_listPlayer )
@@ -261,6 +262,13 @@ class clientApp ( Tk ) :
         '''
             creates a new window to view active player data.
         '''
+        if ( self.activeTourn is None ) :
+            messagebox.showerror (
+                "Active Players",
+                "Usage: active tournament must be selected "
+            )
+            print ( "error: invalid conditions" )
+            return
         print ( "Listing Active Players" )
 
         self.win_listActivePlayers = Tk ()
@@ -418,8 +426,7 @@ class clientApp ( Tk ) :
         for e in selected :
             tr_api.removePlayer ( e.split ( )[0], self.activeTourn )
 
-        self.list_activePlayerList.delete ( 0, END )
-
+        self.win_listActivePlayers.destroy ( )
 
     def action_match_results ( self ) :
         '''
