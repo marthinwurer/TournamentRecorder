@@ -25,7 +25,8 @@ def json_serial(obj):
     Taken from http://stackoverflow.com/a/22238613/3000741
     """
 
-    if isinstance(obj, datetime):
+    # hassattr taken from http://stackoverflow.com/a/25895504/3000741
+    if isinstance(obj, datetime) or hasattr(obj, 'isoformat'):
         serial = obj.isoformat()
         return serial
     print(type(obj))
