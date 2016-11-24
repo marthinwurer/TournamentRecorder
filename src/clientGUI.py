@@ -605,7 +605,14 @@ class clientApp ( Tk ) :
         print ( selected )
 
         for e in selected :
-            tr_api.addPlayer ( int(e.split ( )[0]), self.activeTourn )
+            e = e.split ( " ",
+                          maxsplit = 1 )
+            result = tr_api.addPlayer ( int(e[0]),
+                                        self.activeTourn )
+            if ( result["outcome"] is False ) :
+                messagebox.showerror ( "Add Player",
+                                       "Active Tournament selected is in start state, did not add "
+                                       + e[1] )
 
         # self.win_listPlayer.quit ( )
 
