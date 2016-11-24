@@ -72,6 +72,15 @@ def getPlayer(p_id):
     """
     return sendRequest('getPlayer', {'p_id': p_id})
 
+def getTournamentPlayer(tp_id):
+    """
+    Returns the information for the given Tournamanet player.
+    {outcome, name, id, t_id, p_id, dropped, standing}
+    :param p_id:
+    :return: {outcome, name, id}
+    """
+    return sendRequest('getTournamentPlayer', {'tp_id': tp_id})
+
 def listPlayers():
     """
     :returns:

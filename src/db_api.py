@@ -232,7 +232,7 @@ def generatePairings(t_id):
     result = {}
     result['outcome'] = True
     return json.dumps(result)
-    
+
 
 
 def getPlayer(p_id):
@@ -246,7 +246,25 @@ def getPlayer(p_id):
     curs.execute("""SELECT id, name FROM player
                         WHERE id=%s; """, [p_id])
     db.commit()
-    
+
+    result = curs.fetchone()
+    if result == None:
+        return '{"outcome":false, "reason": "Player does not exist"}'
+    result['outcome'] = True
+    return json.dumps(result)
+
+def getTournamentPlayer(tp_id):
+    """
+    Returns the information for the given Tournamanet player.
+    {outcome, name, id, t_id, p_id, dropped, standing}
+    :param p_id:
+    :return: {outcome, name, id}
+    """
+    curs = db.cursor()
+    curs.execute("""SELECT id, t_id, p_id, dropped, STANDING(id) AS standing FROM tournament_player
+                        WHERE id=%s; """, [tp_id])
+    db.commit()
+
     result = curs.fetchone()
     if result == None:
         return '{"outcome":false, "reason": "Player does not exist"}'
