@@ -25,13 +25,18 @@ def json_serial(obj):
     Taken from http://stackoverflow.com/a/22238613/3000741
     """
 
-    if isinstance(obj, datetime):
+    # hassattr taken from http://stackoverflow.com/a/25895504/3000741
+    if isinstance(obj, datetime) or hasattr(obj, 'isoformat'):
         serial = obj.isoformat()
         return serial
+    print(type(obj))
     raise TypeError ("Type not serializable")
 
 
 def tournament_status(t_id):
+    """
+        Check the status of a tournament
+    """
     curs = db.cursor()
     curs.execute("""SELECT start_date, end_date
                         FROM tournament
@@ -49,7 +54,7 @@ def addPlayer(p_id, t_id):
     """
         Add a player to the given tournament. Only works if the tournament has not been 
         started.
-        :returns outcome
+        :returns {outcome}
     """
     curs = db.cursor()
 
@@ -253,13 +258,7 @@ def listPlayers():
     """
     :returns:
     {outcome: true/false,
-     rows:[
-        {
-            id
-            name
-        }
-        ]
-    }
+     rows:[{id, name }]}
     """
     curs = db.cursor()
     curs.execute("""SELECT id, name FROM player; """, [])
@@ -275,18 +274,10 @@ def listPlayers():
 
 def listTournaments(sort_on, filter_types):
     """
+    Returns a list of tournaments sorted by sort on and filtered by the types in filter types
     :returns:
     {outcome: true/false,
-     rows:[
-        {
-            id
-            name
-            num_players
-            start_date
-            end_date
-        }
-        ]
-    }
+     rows:[{id, name, num_players, start_date, end_date}]}
     """
     curs = db.cursor()
     curs.execute("""SELECT t.id, t.name, (
@@ -320,24 +311,41 @@ def listTournamentPlayersHelper(t_id):
 
 def listTournamentPlayers(t_id):
     """
-
     :param t_id:
     :return:
     {outcome:
      rows:[
-        { id, p_id, name, standing, dropped (None if not dropped, 1 if dropped) }
-        ]
+        { id, p_id, name, standing, dropped (None if not dropped, 1 if dropped) }]
     }
-
     """
     # call the helper function
     output = {'outcome': True, 'rows': listTournamentPlayersHelper(t_id)}
     
     return json.dumps(output)
 
+def listActiveTournamentPlayers(t_id):
+    """
+    :param t_id:
+    :return:
+    {outcome:
+     rows:[
+        { id, p_id, name, standing, dropped (None if not dropped, 1 if dropped) }]
+    }
+    """
+    curs = db.cursor()
+    curs.execute("""SELECT tp.id, tp.p_id, (
+                            SELECT name FROM player AS p WHERE p.id=tp.p_id
+                            ) AS name, standing(tp.id) AS standing, dropped
+                        FROM tournament_player AS tp
+                        WHERE tp.t_id=%s AND tp.dropped IS NULL; """, [t_id])
+
+    # build the output
+    output = {'outcome': True, 'rows': curs.fetchall()}
+
+    return json.dumps(output)
+
 def matchList(r_id):
     """
-
     :param r_id:
     :return:
     {outcome:
@@ -426,6 +434,13 @@ def roundList(t_id):
     return json.dumps(output, default=json_serial)
 
 def searchPlayers(partial_name):
+    """
+    Look for players whose name contains the partial name
+    :param partial_name:
+    :return:
+    {outcome: true/false,
+     rows:[{id, name }]}
+    """
     curs = db.cursor()
     curs.execute("""SELECT id, name FROM player
                         WHERE name LIKE %s; """, ['%' + partial_name + '%'])

@@ -91,6 +91,9 @@ def main():
             elif command[0].lower() == 'ltp':
                 result = tr_api.listTournamentPlayers(int(command[1]))
                 table_print(result)
+            elif command[0].lower() == 'latp':
+                result = tr_api.listActiveTournamentPlayers(int(command[1]))
+                table_print(result)
             elif command[0].lower() == 'fr':
                 result = tr_api.finishRound(int(command[1]))
                 table_print(result)

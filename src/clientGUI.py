@@ -3,19 +3,18 @@ from tkinter import messagebox
 import tr_api
 
 class clientApp ( Tk ) :
+    # base widgets/modules
     g_master = None
     g_menubar = None
 
-    win_createTourn = None
-    win_createPlayer = None
-
+    # entry box input
     input_tournName = None
     input_tournMaxRounds = None
     input_playerDCI = None
     input_playerName = None
 
-    text_createTourn_failMsg = None
-    text_createPlayer_failMsg = None
+    activeTourn = None
+    started = False
 
     def __init__  ( self, master ) :
         global g_master
@@ -44,91 +43,95 @@ class clientApp ( Tk ) :
     def create_menu_file ( self ) :
         global g_menubar
 
-        self.menu_file = Menu ( self.g_menubar )
-        self.menu_file.add_command ( label = "Exit", command = self.g_master.quit )
+        menu_file = Menu ( self.g_menubar )
+        menu_file.add_command ( label = "Exit", command = self.g_master.quit )
 
-        self.g_menubar.add_cascade ( label = "File", menu = self.menu_file )
+        self.g_menubar.add_cascade ( label = "File", menu = menu_file )
 
     def create_menu_tourn ( self ):
-        self.menu_tourn = Menu ( self.g_menubar )
-        self.menu_tourn.add_command ( label = "List Tournament", command = self.action_listTournaments )
-        self.menu_tourn.add_separator ()
-        self.menu_tourn.add_command ( label = "Create Tournament", command = self.action_createTournament )
+        menu_tourn = Menu ( self.g_menubar )
+        menu_tourn.add_command ( label = "List Tournament", command = self.action_listTournaments )
+        menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
 
-        self.topdict = tr_api.listTournaments(None,None)
-        if ( self.topdict.keys() == True ) and ( self.topdict.get('rows')[0].get('num_players') != 0 ):
-            self.menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
+        menu_tourn.add_separator ()
 
-        self.g_menubar.add_cascade ( label = "Tournaments", menu = self.menu_tourn )
+        menu_tourn.add_command ( label = "Create Tournament", command = self.action_createTournament )
+
+        self.g_menubar.add_cascade ( label = "Tournaments", menu = menu_tourn )
 
     def create_menu_players ( self ) :
-        self.menu_players = Menu ( self.g_menubar )
-        self.menu_players.add_command ( label = "List Player", command = self.action_listPlayers )
-        self.menu_players.add_separator ()
-        self.menu_players.add_command ( label = "Create Player", command = self.action_createPlayer )
-        self.menu_players.add_command ( label = "Add Player", command = self.action_addPlayer )
+        menu_players = Menu ( self.g_menubar )
+        menu_players.add_command ( label = "List Player", command = self.action_listPlayers )
+        menu_players.add_command ( label = "List Active Player", command = self.action_listActivePlayers )
+        menu_players.add_separator ()
+        menu_players.add_command ( label = "Create Player", command = self.action_createPlayer )
+        # menu_players.add_command ( label = "Add Player", command = self.action_addPlayer )
 
-        self.g_menubar.add_cascade ( label = "Players", menu = self.menu_players )
+        self.g_menubar.add_cascade ( label = "Players", menu = menu_players )
 
     def action_listTournaments ( self ) :
         '''
         creates a new window to submit results of a match.
         '''
 
-        print("Listing Tournaments")
-
-        global input_player1Wins
-        global input_player2Wins
-        global input_matchDraws
-        global win_listTourn
-
-        global text_matchResult_failMsg
-
         self.win_listTourn = Tk()  # create the new window
-        self.win_listTourn.title("Match")  # set the title of window
-        self.win_listTourn.minsize(400, 400)  # set the minimum (default) size
-        lbl_listTourn = Label(self.win_listTourn, text="Tournaments").pack()
+        self.win_listTourn.title ( "Tournaments" )  # set the title of window
+        Label ( self.win_listTourn, text="Tournaments", font = ( "Helvetica", 16 ) ).pack ( )
 
-        frame_tournList = Frame(self.win_listTourn)  # create a frame
-        frame_tournList.pack(side="top")  # and place it on the top
+        frame_tournList = Frame ( self.win_listTourn )  # create a frame
+        frame_tournList.pack ( side = "top", padx = 20, pady = 20 )  # and place it on the top
 
         # create the labels that define what each input box is used for, and align them
-        Label(frame_tournList, text="Tournament Name").grid(row=0, column=0, sticky=W)
-        Label(frame_tournList, text="# of PLayers").grid(row=0, column=1, sticky=W)
+        Label ( frame_tournList, text = "Tournament Name" ).grid ( row = 0, column = 0, sticky = W )
+        Label ( frame_tournList, text = "# of PLayers" ).grid ( row = 0, column = 1, sticky = W )
 
-        tournaments = tr_api.listTournaments(None, None)
-        row_num = 0;
-        if "rows" not in tournaments.keys():
-            messagebox.showerror(
+        tournaments = tr_api.listTournaments ( None, None )
+        row_num = 0
+        if "rows" not in tournaments.keys ( ):
+            messagebox.showerror (
                 "List Tournaments",
                 "Database Communication Error"
             )
             return
-        elif len(tournaments["rows"]) > 0:
+        elif len ( tournaments["rows"] ) > 0:
             tourn_list = tournaments["rows"]
-            for i in range(0, len(tourn_list)):
+            for i in range ( 0, len ( tourn_list ) ):
                 row_num = i+1
-                Label(frame_tournList, text=tourn_list[i]["name"]).grid(row=row_num, column=0)
-                Label(frame_tournList, text=tourn_list[i]["num_players"]).grid(row=row_num, column=1)
-                Button(frame_tournList, text="List Matches", command= lambda j=i: print("List matches for " + tourn_list[j]["name"])).grid(row=row_num, column=2)
+                Label ( frame_tournList, text = tourn_list[i]["name"] ).grid ( row = row_num, column = 0)
+                Label ( frame_tournList, text = tourn_list[i]["num_players"] ).grid ( row = row_num, column = 1 )
+                # Button(frame_tournList, text="Select", command= lambda j=i: print("List matches for " + str(tourn_list[j]["id"]))).grid(row=row_num, column=2)
+                Button ( frame_tournList, text = "Select", command = lambda j=i: self.action_selectTournament ( tourn_list[j]["id"] ) ).grid ( row = row_num, column = 2 )
 
         # create the submit and cancel buttons
         btn_listTourn_close = Button(frame_tournList, text="Cancel", command=self.win_listTourn.destroy)
 
         # align the buttons
-        btn_listTourn_close.grid(row=row_num+1, column=0)
-
-        # create the error message text label
-        self.text_listTourn_failMsg = StringVar()
-        lbl_listTourn_fail = Label(self.win_listTourn, textvariable=self.text_listTourn_failMsg).pack()
+        btn_listTourn_close.grid(row=row_num+1, column=1)
 
         # bind these keystrokes
         self.win_listTourn.bind('<Escape>', self.win_listTourn.destroy)
 
         self.win_listTourn.mainloop()
 
+    def action_selectTournament ( self, tourn_id ) :
+        global activeTourn
+
+        print ( "Selected Tournament " + str ( tourn_id ) )
+
+        self.activeTourn = tourn_id
+        self.win_listTourn.destroy ( )
+        self.action_listPlayers ( )
+        self.action_listActivePlayers ( )
+
     def action_startTournament ( self ) :
+        if ( self.activeTourn is None ) :
+            messagebox.showerror(
+                "Tournament",
+                "Invalid selected tournament"
+            )
+            return
         print ( "Starting Tournament" )
+        tr_api.startTournament ( self.activeTourn )
 
     def action_createTournament ( self ) :
         '''
@@ -140,12 +143,10 @@ class clientApp ( Tk ) :
         global input_tournMaxRounds
         global win_createTourn
 
-        global text_createTourn_failMsg
-
         self.win_createTourn = Tk ()                            # create the new window
         self.win_createTourn.title ( "Tournament Creation" )    # set the title of window
         self.win_createTourn.minsize ( 200, 100 )               # set the minimum (default) size
-        lbl_createTourn = Label ( self.win_createTourn, text="Create a new Tournament" ).pack ()
+        Label ( self.win_createTourn, text="Create a new Tournament" ).pack ()
 
         frame_tournForm = Frame ( self.win_createTourn )        # create a frame
         frame_tournForm.pack ( side = "top" )                   #   and place it on the top
@@ -167,10 +168,6 @@ class clientApp ( Tk ) :
         # align the buttons
         btn_createTourn_submit.grid ( row = 2, column = 0 )
         btn_createTourn_cancel.grid ( row = 2, column = 1 )
-
-        # create the error message text label
-        self.text_createTourn_failMsg = StringVar ()
-        lbl_createTourn_fail = Label ( self.win_createTourn, textvariable = self.text_createTourn_failMsg ).pack ()
 
         # bind these keystrokes
         self.win_createTourn.bind ( '<Return>', self.event_createTourn_submit )
@@ -198,12 +195,22 @@ class clientApp ( Tk ) :
         else : # values are not valid, check what failed
             print ( "create tournament failed" )
             if ( len ( tournName ) < 4 ) :
-                self.text_createTourn_failMsg.set ( "tournament name length must be greater that 4" )
+                messagebox.showerror(
+                    "Create Tournaments",
+                    "tournament name length must be greater that 4"
+                )
                 print ( "Error: tournName length < 4" )
 
+                return
+
             if ( not tournMaxRounds.isdigit () ) :
-                self.text_createTourn_failMsg.set ( "max rounds must be a number at least 1" )
+                messagebox.showerror(
+                    "Create Tournaments",
+                    "tournament max rounds must be greater than 1"
+                )
                 print ( "Error: tourn max rounds < 1" )
+
+                return
 
         print ( "tournName: " + tournName )
         print ( "tournMaxRounds: " + tournMaxRounds )
@@ -215,14 +222,16 @@ class clientApp ( Tk ) :
         print ( "Listing Players" )
 
         self.win_listPlayer = Tk ()
-        self.win_listPlayer.title ( "Players Viewer" )
-        self.win_listPlayer.minsize ( 600, 400 )
-        lbl_listPlayer = Label ( self.win_listPlayer, text = "Players Viewer" ).pack ()
+        self.win_listPlayer.title ( "Players Finder" )
+        self.win_listPlayer.minsize ( 600, 300 )
+        Label ( self.win_listPlayer, text = "Players Finder" ).pack ()
 
         frame_playerFind = Frame ( self.win_listPlayer )
         frame_playerFind.pack ( side = "top" )
-        frame_playerList = Frame ( self.win_listPlayer )
-        frame_playerList.pack ( expand = True, side = "left")
+        self.frame_playerList = Frame ( self.win_listPlayer )
+        self.frame_playerList.pack ( expand = True, side = "left")
+        frame_playerFooter = Frame ( self.win_listPlayer )
+        frame_playerFooter.pack ( side = "right" )
 
         Label ( frame_playerFind, text = "Search For:" ).grid ( row = 0 )
         self.input_playerList_searchName = Entry ( frame_playerFind )
@@ -230,50 +239,68 @@ class clientApp ( Tk ) :
 
         btn_playerFind_find = Button ( frame_playerFind, text = "Find", command = self.event_findPlayer ).grid ( row = 0, column = 2 )
 
-        lbl_playerEntry_id = Label ( frame_playerList, fg = "blue", text = "DCI #" ).grid ( row = 0, column = 0 )
-        lbl_playerEntry_name = Label ( frame_playerList, fg = "blue", text = "Player Name" ).grid ( row = 0, column = 1 )
-        lbl_playerEntry_name = Label ( frame_playerList, fg = "blue", text = "----" ).grid ( row = 0, column = 2 )
-
-        playerList = tr_api.listPlayers ( ) ['rows']
-
-        row_count = 1
-        for player in playerList :
-            lbl_playerEntry_id = Label ( frame_playerList, text = player["id"] ).grid ( row = int(row_count), column = 0 )
-            lbl_playerEntry_name = Label ( frame_playerList, text = player["name"] ).grid ( row = int(row_count), column = 1 )
-            btn_playerEntry_add = Button ( frame_playerList, text = "Add" )
-            btn_playerEntry_add.grid ( row = row_count, column = 2 )
-            row_count += 1
-
-        # scroll_playerList = Scrollbar ( frame_playerList )
-        # scroll_playerList.pack ( side = "right", fill = "y" )
-        # scroll_playerList.config ( command = win_listPlayer.yview )
-
-    def event_findPlayer ( self ) :
-        '''
-            create the findPlayer window
-        '''
-
-        print ( "Finding player" )
-
-        self.win_findPlayer = Tk ()
-        self.win_findPlayer.title ( "Player Finder" )
-        self.win_findPlayer.minsize ( 600, 400 )
-        lbl_listPlayer = Label ( self.win_findPlayer, text = "Players Finder" ).pack ()
-
-        scroll_playerList = Scrollbar ( self.win_findPlayer )
+        scroll_playerList = Scrollbar ( self.frame_playerList )
         scroll_playerList.pack ( side = "right", fill = "y" )
 
-        list_playerList = Listbox ( self.win_findPlayer, yscrollcommand = scroll_playerList.set )
-        list_playerList.config ( width = "95" )
-        list_playerList.pack ( side = "left", fill = "both" )
+        self.list_playerList = Listbox ( self.frame_playerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple" )
+        self.list_playerList.config ( width = "95" )
+        self.list_playerList.pack ( side = "left", fill = "both" )
 
-        scroll_playerList.config ( command = list_playerList.yview )
+        scroll_playerList.config ( command = self.list_playerList.yview )
 
         playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
 
+        row_count = 1
         for player in playerList :
-            entry = str ( player["id"] ) + "\t" + player["name"]
-            list_playerList.insert ( END, entry )
+            entry = str ( player["id"] ) + " " + player["name"]
+            self.list_playerList.insert ( END, entry )
+
+        btn_addPlayer_add = Button ( frame_playerFooter, text = "Add to Active", command = self.event_addPlayer ).pack ()
+        btn_addPlayer_cancel = Button ( frame_playerFooter, text = "Cancel", command = self.win_listPlayer.destroy ).pack ()
+
+    def action_listActivePlayers ( self ) :
+        '''
+            creates a new window to view active player data.
+        '''
+        if ( self.activeTourn is None ) :
+            messagebox.showerror (
+                "Active Players",
+                "Usage: active tournament must be selected "
+            )
+            print ( "error: invalid conditions" )
+            return
+        print ( "Listing Active Players" )
+
+        self.win_listActivePlayers = Tk ()
+        self.win_listActivePlayers.title ( "Players Viewer" )
+        self.win_listActivePlayers.minsize ( 600, 200 )
+        Label ( self.win_listActivePlayers, text = "Players Viewer" ).pack ()
+
+        self.frame_activePlayerList = Frame ( self.win_listActivePlayers )
+        self.frame_activePlayerList.pack ( expand = True, side = "left")
+        frame_playerFooter = Frame ( self.win_listActivePlayers )
+        frame_playerFooter.pack ( side = "right" )
+
+        scroll_playerList = Scrollbar ( self.frame_activePlayerList )
+        scroll_playerList.pack ( side = "right", fill = "y" )
+
+        self.list_activePlayerList = Listbox ( self.frame_activePlayerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple" )
+        self.list_activePlayerList.config ( width = "95" )
+        self.list_activePlayerList.pack ( side = "left", fill = "both" )
+
+        scroll_playerList.config ( command = self.list_activePlayerList.yview )
+
+        playerList = tr_api.listTournamentPlayers ( self.activeTourn ) ['rows']
+
+        row_count = 1
+        for player in playerList :
+            entry = str(player["id"]) + " " + player["name"]
+            self.list_activePlayerList.insert ( END, entry )
+
+        # playerList.update_idletasks ()
+
+        Button ( frame_playerFooter, text = "Remove Player(s)", command = self.event_removeTournPlayer ).grid ( row = 0, column = 0 ) # create remove button
+        Button ( frame_playerFooter, text = "Cancel", command = self.win_listActivePlayers.destroy ).grid ( row = 1, column = 0 ) # create cancel button
 
     def action_createPlayer ( self ) :
         '''
@@ -290,7 +317,7 @@ class clientApp ( Tk ) :
         self.win_createPlayer = Tk ()                       # create the new window
         self.win_createPlayer.title ( "Create Player" )     # set the title of window
         self.win_createPlayer.minsize ( 200, 100 )          # set the minimum (default) size
-        lbl_createPlayer = Label ( self.win_createPlayer, text="Create a new Player" ).pack ()
+        Label ( self.win_createPlayer, text="Create a new Player" ).pack ()
 
         frame_playerForm = Frame ( self.win_createPlayer )   # create a frame
         frame_playerForm.pack ( side = "top" )               #   and place it on the top
@@ -312,10 +339,6 @@ class clientApp ( Tk ) :
         # align the buttons
         btn_createPlayer_submit.grid ( row = 2, column = 0 )
         btn_createPlayer_cancel.grid ( row = 2, column = 1 )
-
-        # create the error message text label
-        self.text_createPlayer_failMsg = StringVar ()
-        lbl_createPlayer_fail = Label ( self.win_createPlayer, textvariable = self.text_createPlayer_failMsg ).pack ()
 
         # bind these keystrokes
         self.win_createPlayer.bind ( '<Return>', self.event_createPlayer_submit )
@@ -353,9 +376,57 @@ class clientApp ( Tk ) :
         print ( "playerDCI: " + playerDCI )
         print ( "playerName: " + playerName )
 
-    def action_addPlayer ( self ) :
-        self.menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
+        tr_api.createPlayer ( playerDCI, playerName )
+
+    def event_findPlayer ( self ) :
+        '''
+            create the findPlayer window
+        '''
+
+        print ( "Finding player" )
+
+        playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
+        self.list_playerList.delete ( 0, END )
+        for player in playerList :
+            entry = str ( player["id"] ) + " " + player["name"]
+            self.list_playerList.insert ( END, entry )
+
+    def event_addPlayer ( self ) :
+        if ( self.activeTourn is None ) :
+            messagebox.showerror (
+                "Start Tournament",
+                "Invalid selected tournament"
+            )
+            print ( "error: invalid conditions" )
+            return
         print ( "Adding Player" )
+
+        items = self.list_playerList.curselection ( ) # returns a tuple
+        selected = []
+        for i in items :
+            selected.append ( self.list_playerList.get ( i ) )
+
+        print ( selected )
+
+        for e in selected :
+            tr_api.addPlayer ( int(e.split ( )[0]), self.activeTourn )
+
+        self.win_listPlayer.quit ( )
+
+    def event_removeTournPlayer ( self ) :
+        print ( "Removing selected players from tourn" )
+        items = self.list_activePlayerList.curselection ( ) # returns a tuple
+        selected = []
+
+        for i in items :
+            selected.append ( self.list_activePlayerList.get ( i ) )
+
+        print ( selected )
+
+        for e in selected :
+            tr_api.removePlayer ( e.split ( )[0], self.activeTourn )
+
+        self.win_listActivePlayers.destroy ( )
 
     def action_match_results ( self ) :
         '''
@@ -374,7 +445,7 @@ class clientApp ( Tk ) :
         self.win_matchResult = Tk ()                   # create the new window
         self.win_matchResult.title ( "Match" )        # set the title of window
         self.win_matchResult.minsize ( 200, 100 )      # set the minimum (default) size
-        lbl_matchResult = Label ( self.win_matchResult, text="Input Match Results" ).pack ()
+        Label ( self.win_matchResult, text="Input Match Results" ).pack ()
 
         frame_matchForm = Frame ( self.win_matchResult )   # create a frame
         frame_matchForm.pack ( side = "top" )               # and place it on the top
@@ -400,18 +471,14 @@ class clientApp ( Tk ) :
         btn_matchResult_submit.grid ( row = 3, column = 0 )
         btn_matchResult_cancel.grid ( row = 3, column = 1 )
 
-        # create the error message text label
-        self.text_matchResult_failMsg = StringVar ()
-        lbl_matchResult_fail = Label ( self.win_matchResult, textvariable = self.text_matchResult_failMsg ).pack ()
-
         # bind these keystrokes
         self.win_matchResult.bind ( '<Return>', self.event_matchResult_submit )
         self.win_matchResult.bind ( '<Escape>', self.win_matchResult.destroy )
 
         self.win_matchResult.mainloop ()
 
-
 if ( __name__ == "__main__" ) :
     g_client = Tk ( )
     g_clientGUI = clientApp ( g_client )
+    g_client.update ( )
     g_client.mainloop ()
