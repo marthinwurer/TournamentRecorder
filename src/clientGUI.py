@@ -14,7 +14,9 @@ class clientApp ( Tk ) :
     input_playerName = None
 
     activeTourn = None
-    started = False
+    startedTourn = None
+
+    activeRound = None
 
     def __init__  ( self, master ) :
         global g_master
@@ -38,6 +40,7 @@ class clientApp ( Tk ) :
         global g_menubar
         self.create_menu_file ( )
         self.create_menu_tourn ( )
+        self.create_menu_rounds ( )
         self.create_menu_players ( )
 
     def create_menu_file ( self ) :
@@ -51,8 +54,10 @@ class clientApp ( Tk ) :
     def create_menu_tourn ( self ):
         menu_tourn = Menu ( self.g_menubar )
         menu_tourn.add_command ( label = "List Tournament", command = self.action_listTournaments )
-        menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
+        menu_tourn.add_separator ()
 
+        menu_tourn.add_command ( label = "Start Tournament", command = self.action_startTournament )
+        menu_tourn.add_command ( label = "Force End Tournament" )
         menu_tourn.add_separator ()
 
         menu_tourn.add_command ( label = "Create Tournament", command = self.action_createTournament )
@@ -68,6 +73,14 @@ class clientApp ( Tk ) :
         # menu_players.add_command ( label = "Add Player", command = self.action_addPlayer )
 
         self.g_menubar.add_cascade ( label = "Players", menu = menu_players )
+
+    def create_menu_rounds ( self ) :
+        menu_rounds = Menu ( self.g_menubar )
+        menu_rounds.add_command ( label = "List Rounds", command = self.action_listRounds )
+        menu_rounds.add_separator ()
+        menu_rounds.add_command ( label = "Finish Round" )
+
+        self.g_menubar.add_cascade ( label = "Rounds", menu = menu_rounds )
 
     def action_listTournaments ( self ) :
         '''
@@ -100,7 +113,7 @@ class clientApp ( Tk ) :
                 Label ( frame_tournList, text = tourn_list[i]["name"] ).grid ( row = row_num, column = 0)
                 Label ( frame_tournList, text = tourn_list[i]["num_players"] ).grid ( row = row_num, column = 1 )
                 # Button(frame_tournList, text="Select", command= lambda j=i: print("List matches for " + str(tourn_list[j]["id"]))).grid(row=row_num, column=2)
-                Button ( frame_tournList, text = "Select", command = lambda j=i: self.action_selectTournament ( tourn_list[j]["id"] ) ).grid ( row = row_num, column = 2 )
+                Button ( frame_tournList, text = "Select", command = lambda j=i: self.event_selectTournament ( tourn_list[j]["id"] ) ).grid ( row = row_num, column = 2 )
 
         # create the submit and cancel buttons
         btn_listTourn_close = Button(frame_tournList, text="Cancel", command=self.win_listTourn.destroy)
@@ -113,7 +126,7 @@ class clientApp ( Tk ) :
 
         self.win_listTourn.mainloop()
 
-    def action_selectTournament ( self, tourn_id ) :
+    def event_selectTournament ( self, tourn_id ) :
         global activeTourn
 
         print ( "Selected Tournament " + str ( tourn_id ) )
@@ -131,7 +144,16 @@ class clientApp ( Tk ) :
             )
             return
         print ( "Starting Tournament" )
-        tr_api.startTournament ( self.activeTourn )
+        result = tr_api.startTournament ( self.activeTourn )
+        if ( result["outcome"] is False ) : # failed to start
+            messagebox.showerror (
+                "Tournament",
+                "Selected Tournament has already been started"
+            )
+            return
+        else :
+            print ( "successfully started tournament")
+            self.startedTourn = self.activeTourn
 
     def action_createTournament ( self ) :
         '''
@@ -215,6 +237,116 @@ class clientApp ( Tk ) :
         print ( "tournName: " + tournName )
         print ( "tournMaxRounds: " + tournMaxRounds )
 
+    def action_listRounds ( self ) :
+        '''
+        creates a new window to submit results of a match.
+        '''
+
+        if ( self.startedTourn is None and self.activeTourn is None ) :
+            messagebox.showerror (
+                "List Round",
+                "no known tournament satisfied"
+            )
+            print ( "Error: invalid tournament satisfied" )
+
+            return
+
+        self.win_listRound = Tk()                       # create the new window
+        self.win_listRound.title ( "Round Viewer" )     # set the title of window
+        self.win_listRound.minsize ( 600, 400 )         # set the minimum (default) size
+        Label ( self.win_listRound, text="Round Viewer", font = ( "Helvetica", 16 ) ).pack ( )
+
+        frame_roundList = Frame ( self.win_listRound )  # create a frame
+        frame_roundList.pack ( side = "top", padx = 20, pady = 20 )  # and place it on the top
+
+        # create the labels that define what each input box is used for, and align them
+        Label ( frame_roundList, text = "Rounds" ).grid ( row = 0, column = 0, sticky = W )
+        Label ( frame_roundList, text = "----" ).grid ( row = 0, column = 1, sticky = W )
+
+        rounds = tr_api.roundList ( self.activeTourn )
+        row_num = 0
+        if "rows" not in rounds.keys ( ):
+            messagebox.showerror (
+                "List Rounds",
+                "Database Communication Error"
+            )
+            return
+        elif len ( rounds["rows"] ) > 0:
+            round_list = rounds["rows"]
+            for i in range ( 0, len ( round_list ) ):
+                row_num = i+1
+                Label ( frame_roundList, text = round_list[i]["id"] ).grid ( row = row_num, column = 0)
+                Button ( frame_roundList, text = "Select", command = lambda j=i: self.event_selectRound ( round_list[j]["id"] ) ).grid ( row = row_num, column = 1 )
+
+        # create cancel buttons
+        Button ( frame_roundList, text = "Cancel", command = self.win_listRound.destroy ).grid ( row = row_num + 1, column = 1)
+
+        # bind these keystrokes
+        self.win_listRound.bind ( '<Escape>', self.win_listRound.destroy )
+
+    def event_selectRound ( self, r_id ) :
+        global activeRound
+
+        self.activeRound = r_id
+
+        self.action_MatchViewer ( )
+
+
+    def action_MatchViewer ( self ) :
+        '''
+        creates a new window to submit results of a match.
+        '''
+
+        if ( self.activeRound is None ) :
+            messagebox.showerror (
+                "Match List",
+                "no known round selected"
+            )
+            print ( "Error: invalid tournament satisfied" )
+
+            return
+
+        self.win_listMatches = Tk()  # create the new window
+        self.win_listMatches.title ( "Match Viewer" )  # set the title of window
+        Label ( self.win_listMatches, text = "Match Viewer", font = ( "Helvetica", 16 ) ).pack ( )
+
+        frame_matchList = Frame ( self.win_listMatches )  # create a frame
+        frame_matchList.pack ( side = "top", padx = 20, pady = 20 )  # and place it on the top
+
+        # create the labels that define what each input box is used for, and align them
+        Label ( frame_matchList, text = "Matches" ).grid ( row = 0, column = 0, sticky = W )
+        Label ( frame_matchList, text = "Player 1" ).grid ( row = 0, column = 1, sticky = W )
+        Label ( frame_matchList, text = "Player 2" ).grid ( row = 0, column = 2, sticky = W )
+        Label ( frame_matchList, text = "Table Location" ).grid ( row = 0, column = 3, sticky = W )
+        Label ( frame_matchList, text = "Player 1 Wins" ).grid ( row = 0, column = 4, sticky = W )
+        Label ( frame_matchList, text = "Player 2 Wins" ).grid ( row = 0, column = 5, sticky = W )
+        Label ( frame_matchList, text = "Draws" ).grid ( row = 0, column = 6, sticky = W )
+        Label ( frame_matchList, text = "----" ).grid ( row = 0, column = 7, sticky = W )
+
+        matches = tr_api.matchList ( self.activeRound )
+        row_num = 0
+        if "rows" not in matches.keys ( ):
+            messagebox.showerror (
+                "List Matches",
+                "Database Communication Error"
+            )
+            return
+        elif len ( matches["rows"] ) > 0:
+            match_list = matches["rows"]
+            for i in range ( 0, len ( match_list ) ):
+                row_num = i+1
+                Label ( frame_matchList, text = match_list[i]["id"] ).grid ( row = row_num, column = 0 )
+                Label ( frame_matchList, text = match_list[i]["p1_id"] ).grid ( row = row_num, column = 1 )
+                Label ( frame_matchList, text = match_list[i]["p2_id"] ).grid ( row = row_num, column = 2 )
+                Label ( frame_matchList, text = match_list[i]["table_number"] ).grid ( row = row_num, column = 3 )
+                Label ( frame_matchList, text = match_list[i]["p1_wins"] ).grid ( row = row_num, column = 4 )
+                Label ( frame_matchList, text = match_list[i]["p2_wins"] ).grid ( row = row_num, column = 5 )
+                Label ( frame_matchList, text = match_list[i]["draws"] ).grid ( row = row_num, column = 6 )
+                Button ( frame_matchList, text = "Select", command = lambda j=i: self.event_selectMatch ( match_list[j]["id"] ) ).grid ( row = row_num, column = 7 )
+
+        # bind these keystrokes
+        self.win_listMatches.bind ( '<Escape>', self.win_listMatches.destroy )
+
     def action_listPlayers ( self ) :
         '''
             creates a new window to view player data.
@@ -290,7 +422,8 @@ class clientApp ( Tk ) :
 
         scroll_playerList.config ( command = self.list_activePlayerList.yview )
 
-        playerList = tr_api.listTournamentPlayers ( self.activeTourn ) ['rows']
+        playerList = tr_api.listActiveTournamentPlayers ( self.activeTourn ) ['rows']
+        print ( playerList )
 
         row_count = 1
         for player in playerList :
