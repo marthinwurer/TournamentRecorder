@@ -408,6 +408,13 @@ def removePlayer(p_id, t_id):
                         WHERE p_id = %s AND t_id = %s;""", [p_id, t_id])
     tp_id = curs.fetchone()['id']
 
+    # if the tournament has not been started, then delete the tournament player
+    if t_status == "not started":
+        curs.execute("""DELETE FROM tournament_player WHERE id = %s;"""
+                        [tp_id])
+        db.commit()
+        return '{"outcome":true}'
+
 
     # check the number of ongoing matches the player is in.
     curs.execute("""SELECT COUNT(*) AS count FROM t_match 
