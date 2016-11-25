@@ -41,6 +41,7 @@ class clientApp ( Tk ) :
         self.create_menu_file ( )
         self.create_menu_tourn ( )
         self.create_menu_rounds ( )
+        self.create_menu_matches ( )
         self.create_menu_players ( )
 
     def create_menu_file ( self ) :
@@ -92,12 +93,19 @@ class clientApp ( Tk ) :
 
         menu_rounds.add_separator ()
 
-        menu_rounds.add_command ( label = "Finish Round"
-                                  )
+        menu_rounds.add_command ( label = "Finish Round",
+                                  command = self.action_finishRound )
 
         self.g_menubar.add_cascade ( label = "Rounds",
                                      menu = menu_rounds )
 
+    def create_menu_matches ( self ) :
+        menu_matches = Menu ( self.g_menubar )
+        menu_matches.add_command ( label = "List Matches",
+                                   command = self.action_MatchViewer )
+
+        self.g_menubar.add_cascade ( label = "Matches",
+                                     menu = menu_matches )
     def action_listTournaments ( self ) :
         '''
         creates a new window to submit results of a match.
@@ -322,6 +330,9 @@ class clientApp ( Tk ) :
         self.activeRound = r_id
 
         self.action_MatchViewer ( )
+
+    def action_finishRound ( self ) :
+        print ( "finishing round " + str(self.activeRound) )
 
     def action_MatchViewer ( self ) :
         '''
