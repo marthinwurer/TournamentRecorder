@@ -100,6 +100,9 @@ def main():
             elif command[0].lower() == 'genpairings':
                 result = tr_api.generatePairings(int(command[1]))
                 table_print(result)
+            elif command[0].lower() == 'gtp':
+                result = tr_api.getTournamentPlayer(int(command[1]))
+                print(result)
             elif command[0].lower() == 'gp':
                 result = tr_api.getPlayer(int(command[1]))
                 player_print(result)

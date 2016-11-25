@@ -29,6 +29,8 @@ def recieve(function):
             return generatePairings(json['t_id'])
         elif function == 'getPlayer':
             return getPlayer(json['p_id'])
+        elif function == 'getTournamentPlayer':
+            return getTournamentPlayer(json['tp_id'])
         elif function == 'listPlayers':
             return listPlayers()
         elif function == 'listTournaments':
