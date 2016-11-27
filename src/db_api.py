@@ -384,7 +384,7 @@ def matchList(r_id):
     
     return json.dumps(output)
 
-def removePlayer(p_id, t_id):
+def removePlayer(tp_id, t_id):
     """
         Only do this if the player has no outstanding match results.
 
@@ -393,7 +393,7 @@ def removePlayer(p_id, t_id):
 
         :returns outcome
     """
-    print( p_id, t_id)
+    print( tp_id, t_id)
     curs = db.cursor()
     
     # get the status of the current tournament
@@ -402,11 +402,6 @@ def removePlayer(p_id, t_id):
     # if the tournament is finsihed, then nothing happens. fail.
     if t_status == "finished":
         return '{"outcome":false, "reason": "Tournament finished"}'
-
-    # get the player's tp_id 
-    curs.execute("""SELECT id FROM tournament_player 
-                        WHERE p_id = %s AND t_id = %s;""", [p_id, t_id])
-    tp_id = curs.fetchone()['id']
 
     # if the tournament has not been started, then delete the tournament player
     if t_status == "not started":
