@@ -86,4 +86,4 @@ To reboot the database server, log in to the database server, and run:
 
 	$ screen -R
 
-to attatch to the screen session. Then restart the server. (Ctrl-C to stop it, ./run.sh to restart it). Then hit Ctrl-a then d to disconnect from the screen session.
+to attatch to the screen session. Then restart the server (Ctrl-C to stop it, ./run.sh to restart it). After the server has been restarted, hit Ctrl-a then d to disconnect from the screen session and leave the server running in the background.
