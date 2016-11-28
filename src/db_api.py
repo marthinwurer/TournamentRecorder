@@ -405,7 +405,7 @@ def removePlayer(tp_id, t_id):
 
     # if the tournament has not been started, then delete the tournament player
     if t_status == "not started":
-        curs.execute("""DELETE FROM tournament_player WHERE id = %s;"""
+        curs.execute("""DELETE FROM tournament_player WHERE id = %s;""",
                         [tp_id])
         db.commit()
         return '{"outcome":true}'
