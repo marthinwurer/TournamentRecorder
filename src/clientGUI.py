@@ -19,7 +19,7 @@ class clientApp ( Tk ) :
     activeRound             = None
 
     def __init__(self, master):
-        super().__init__()
+        # super().__init__()
         global g_master
         global g_menubar
 
@@ -96,6 +96,8 @@ class clientApp ( Tk ) :
 
         menu_rounds.add_command ( label = "Finish Round",
                                   command = self.action_finishRound )
+        menu_rounds.add_command ( label = "Generate Pairings",
+                                  command = self.action_generatePairings )
 
         self.g_menubar.add_cascade ( label = "Rounds",
                                      menu = menu_rounds )
@@ -316,7 +318,7 @@ class clientApp ( Tk ) :
             round_list = rounds["rows"]
             for i in range ( 0, len ( round_list ) ):
                 row_num = i+1
-                Label ( frame_roundList, text = round_list[i]["id"] ).grid ( row = row_num, column = 0)
+                Label ( frame_roundList, text = round_list[i]["number"] ).grid ( row = row_num, column = 0)
                 Button ( frame_roundList, text = "Select", command = lambda j=i: self.event_selectRound ( round_list[j]["id"] ) ).grid ( row = row_num, column = 1 )
 
         # create cancel buttons
@@ -324,6 +326,21 @@ class clientApp ( Tk ) :
 
         # bind these keystrokes
         self.win_listRound.bind ( '<Escape>', self.win_listRound.destroy )
+
+    def displayError(self, result, title):
+        try:
+            if result['outcome'] == False:
+                messagebox.showerror (
+                    title,
+                    "Failure: " + result['reason']
+                )
+        except:
+            if result['outcome'] == False:
+                messagebox.showerror (
+                    title,
+                    "Failure"
+                )
+
 
     def event_selectRound ( self, r_id ) :
         global activeRound
@@ -334,6 +351,49 @@ class clientApp ( Tk ) :
 
     def action_finishRound ( self ) :
         print ( "finishing round " + str(self.activeRound) )
+
+        if ( self.activeRound is None ) :
+            messagebox.showerror (
+                "Finish Round",
+                "no known round selected"
+            )
+            print ( "Error: invalid tournament satisfied" )
+
+            return
+
+        result =  tr_api.finishRound(self.activeRound)
+        print( result)
+
+        self.displayError(result, "Finish Round")
+
+        if 'done' in result:
+            messagebox.showinfo (
+                "Tournament Finished",
+                "no known round selected"
+            )
+
+
+    def action_generatePairings(self):
+        title = "Generate Pairings"
+        if ( self.activeRound is None ) :
+            messagebox.showerror (
+                title,
+                "no known round selected"
+            )
+            print ( "Error: invalid tournament satisfied" )
+
+            return
+
+        result = tr_api.generatePairings( self.activeTourn)
+
+        if result['outcome'] == False:
+            messagebox.showerror (
+                "Match List",
+                "Failure: " + result['reason']
+            )
+
+        self.displayError(result, title)
+
 
     def action_MatchViewer ( self ) :
         """

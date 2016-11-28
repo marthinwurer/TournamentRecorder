@@ -54,13 +54,13 @@ def recieve(function):
         else:
             print(function + "not found")
 
-            return '{"outcome":false}' # return false if nothing found
+            return '{"outcome":false, "reason": "function not found"}' # return false if nothing found
 
     except :
         traceback.print_exc()
         db.rollback()
         print("         an error occurred")
-        return '{"outcome":false}' # return false if it failed
+        return '{"outcome":false, "reason": "Database Error"}' # return false if it failed
     print(json)
 
     return result

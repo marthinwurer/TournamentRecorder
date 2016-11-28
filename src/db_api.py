@@ -117,6 +117,7 @@ def finishRound(r_id):
     Finishes the given round
     Fails if the round does not exist, if the round is already finished, or if
     there are matches in progress.
+    has a done field if the tournament has finished
     :param r_id:
     :returns outcome
     """
@@ -146,6 +147,8 @@ def finishRound(r_id):
                         SET end_date=NOW()
                         WHERE id=%s; """, [r_id])
 
+    outcome = {'outcome': True}
+
     # if the round is the last, finish the tournament
     # Get the max rounds of the current tournament
     curs.execute("""SELECT max_rounds 
@@ -157,9 +160,10 @@ def finishRound(r_id):
         curs.execute("""UPDATE tournament
                             SET end_date=CURDATE()
                             WHERE id=%s; """, [t_id])
+        outcome['done'] = True
     
     db.commit()
-    return '{"outcome":true}'
+    return json.dumps(outcome)
 
 def generatePairings(t_id):
     """
