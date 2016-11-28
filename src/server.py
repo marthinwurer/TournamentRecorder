@@ -42,7 +42,7 @@ def recieve(function):
         elif function == 'matchList':
             return matchList(json['r_id'])
         elif function == 'removePlayer':
-            return removePlayer(json['p_id'], json['t_id'])
+            return removePlayer(json['tp_id'], json['t_id'])
         elif function == 'roundList':
             return roundList(json['t_id'])
         elif function == 'searchPlayers':

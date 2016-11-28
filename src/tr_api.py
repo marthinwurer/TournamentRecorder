@@ -131,7 +131,7 @@ def matchList(r_id):
     """
     return sendRequest('matchList', {'r_id': r_id})
 
-def removePlayer(p_id, t_id):
+def removePlayer(tp_id, t_id):
     """
         Only do this if the player has no outstanding match results.
 
@@ -140,7 +140,7 @@ def removePlayer(p_id, t_id):
 
         :returns outcome
     """
-    return sendRequest('removePlayer', {'p_id': p_id, 't_id': t_id})
+    return sendRequest('removePlayer', {'tp_id': tp_id, 't_id': t_id})
 
 def roundList(t_id):
     """

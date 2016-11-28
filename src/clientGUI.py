@@ -18,7 +18,8 @@ class clientApp ( Tk ) :
 
     activeRound             = None
 
-    def __init__  ( self, master ) :
+    def __init__(self, master):
+        super().__init__()
         global g_master
         global g_menubar
 
@@ -107,9 +108,9 @@ class clientApp ( Tk ) :
         self.g_menubar.add_cascade ( label = "Matches",
                                      menu = menu_matches )
     def action_listTournaments ( self ) :
-        '''
+        """
         creates a new window to submit results of a match.
-        '''
+        """
 
         self.win_listTourn = Tk()  # create the new window
         self.win_listTourn.title ( "Tournaments" )  # set the title of window
@@ -196,9 +197,9 @@ class clientApp ( Tk ) :
             self.startedTourn = self.activeTourn
 
     def action_createTournament ( self ) :
-        '''
+        """
             creates a new to submit tournament data.
-        '''
+        """
         print ( "Creating Tournament" )
 
         global input_tournName
@@ -238,9 +239,9 @@ class clientApp ( Tk ) :
         self.win_createTourn.mainloop ()
 
     def event_createTourn_submit ( self ) :
-        '''
+        """
             used to handle creation of tournament
-        '''
+        """
         global input_tournName
         global input_tournMaxRounds
 
@@ -278,9 +279,9 @@ class clientApp ( Tk ) :
         print ( "tournMaxRounds: " + tournMaxRounds )
 
     def action_listRounds ( self ) :
-        '''
+        """
         creates a new window to submit results of a match.
-        '''
+        """
 
         if ( self.startedTourn is None and self.activeTourn is None ) :
             messagebox.showerror (
@@ -335,9 +336,9 @@ class clientApp ( Tk ) :
         print ( "finishing round " + str(self.activeRound) )
 
     def action_MatchViewer ( self ) :
-        '''
+        """
         creates a new window to submit results of a match.
-        '''
+        """
 
         if ( self.activeRound is None ) :
             messagebox.showerror (
@@ -422,9 +423,9 @@ class clientApp ( Tk ) :
         self.win_listMatches.bind ( '<Escape>', self.win_listMatches.destroy )
 
     def action_listPlayers ( self ) :
-        '''
+        """
             creates a new window to view player data.
-        '''
+        """
         print ( "Listing Players" )
 
         self.win_listPlayer = Tk ()
@@ -465,10 +466,10 @@ class clientApp ( Tk ) :
         btn_addPlayer_cancel = Button ( frame_playerFooter, text = "Cancel", command = self.win_listPlayer.destroy ).pack ()
 
     def action_listActivePlayers ( self ) :
-        '''
+        """
             creates a new window to view active player data.
-        '''
-        if ( self.activeTourn is None ) :
+        """
+        if self.activeTourn is None :
             messagebox.showerror (
                 "Active Players",
                 "Usage: active tournament must be selected "
@@ -506,13 +507,14 @@ class clientApp ( Tk ) :
 
         # playerList.update_idletasks ()
 
-        Button ( frame_playerFooter, text = "Remove Player(s)", command = self.event_removeTournPlayer ).grid ( row = 0, column = 0 ) # create remove button
-        Button ( frame_playerFooter, text = "Cancel", command = self.win_listActivePlayers.destroy ).grid ( row = 1, column = 0 ) # create cancel button
+        #Button ( frame_playerFooter, text = "Refresh Player List", command = self.event_refreshTournPlayer ).grid ( row = 0, column = 0 ) # create remove button
+        Button ( frame_playerFooter, text = "Remove Player(s)", command = self.event_removeTournPlayer ).grid ( row = 1, column = 0 ) # create remove button
+        Button ( frame_playerFooter, text = "Cancel", command = self.win_listActivePlayers.destroy ).grid ( row = 2, column = 0 ) # create cancel button
 
     def action_createPlayer ( self ) :
-        '''
+        """
             creates a new window to submit new player data.
-        '''
+        """
         print ( "Creating Player" )
 
         global input_playerDCI
@@ -554,9 +556,9 @@ class clientApp ( Tk ) :
         self.win_createPlayer.mainloop ()
 
     def event_createPlayer_submit ( self ) :
-        '''
+        """
             used to handle creation of tournament
-        '''
+        """
         global input_playerDCI
         global input_playerName
 
@@ -586,9 +588,9 @@ class clientApp ( Tk ) :
         tr_api.createPlayer ( playerDCI, playerName )
 
     def event_findPlayer ( self ) :
-        '''
+        """
             create the findPlayer window
-        '''
+        """
 
         print ( "Finding player" )
 
@@ -643,9 +645,9 @@ class clientApp ( Tk ) :
         self.win_listActivePlayers.destroy ( )
 
     def action_match_results ( self, m_id ) :
-        '''
+        """
             creates a new window to submit results of a match.
-        '''
+        """
         print ( "Match Results" )
 
         global input_player1Wins
@@ -689,9 +691,9 @@ class clientApp ( Tk ) :
         self.win_matchResult.mainloop ()
 
     def event_matchResult_submit ( self ) :
-        '''
+        """
             used to submit match information
-        '''
+        """
         global input_player1Wins
         global input_player2Wins
         global input_matchDraws
