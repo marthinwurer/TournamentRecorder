@@ -18,6 +18,8 @@ class Test_Rp(unittest.TestCase):
     def setUp(self):
         if done is False:
             setUpHelper(self)
+            print(tr_api.generatePairings(3))
 
     def tearDown(self):
         pass
+
