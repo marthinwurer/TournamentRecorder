@@ -81,3 +81,9 @@ To run the client, modify the connection address, and then run the client.
 The list of commands for the client can be found by running the command 'help' in the shell. 
 
 Don't worry, our final release will have a GUI client. This is just a proof of concept for our API and server. We stil have some core business logic that needs to be implemented.
+
+To reboot the database server, log in to the database server, and run:
+
+	$ screen -R
+
+to attatch to the screen session. Then restart the server. (Ctrl-C to stop it, ./run.sh to restart it). Then hit Ctrl-a then d to disconnect from the screen session.
