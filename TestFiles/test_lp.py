@@ -20,6 +20,9 @@ class TestLp(unittest.TestCase):
     def test_key_in_dict(self):
         self.assertTrue(self.topdict.keys())
 
+    def test_number_of_players(self):
+        self.assertEqual(len(self.topdict.get('rows')), 5)
+
     def test_player1_id(self):
         self.assertEqual(self.topdict.get('rows')[0].get('id'), 1)
 
