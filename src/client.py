@@ -147,6 +147,7 @@ def table_print(result):
         except IndexError:
             print("No results found")
             return
+        print(result['rows'])
         values = []
         output = ''
         length = 0
