@@ -53,7 +53,7 @@ def tournament_status(t_id):
 def addPlayer(p_id, t_id):
     """
         Add a player to the given tournament. Only works if the tournament has not been 
-        started.
+        started and the player is not in the tournament
         :returns {outcome}
     """
     curs = db.cursor()
@@ -64,6 +64,12 @@ def addPlayer(p_id, t_id):
     # if the tournament is started or finsihed, then nothing happens. fail.
     if t_status != "not started":
         return '{"outcome":false, "reason": "Tournament started"}'
+
+    # check if the player is in the tournament already
+    curs.execute("""SELECT COUNT(*) FROM tournament_player WHERE p_id=%s;""", [p_id])
+
+    if curs.fetchone() is None:
+        return '{"outcome":false, "reason": "Player already registered"}'
 
     curs.execute("""INSERT INTO tournament_player
                         (p_id, t_id) VALUES
@@ -372,7 +378,9 @@ def matchList(r_id):
     }
     """
     curs = db.cursor()
-    curs.execute("""SELECT id, table_number, p1_id, p2_id, p1_wins, p2_wins, draws
+    curs.execute("""SELECT id, table_number, p1_id, p2_id, p1_wins, p2_wins, draws,
+                        (SELECT p.name FROM player AS p WHERE p.id=(SELECT p_id FROM tournament_player WHERE id=p1_id)) AS p1_name,
+                        (SELECT p.name FROM player AS p WHERE p.id=(SELECT p_id FROM tournament_player WHERE id=p2_id)) AS p2_name
                         FROM t_match
                         WHERE r_id = %s; """, [r_id])
     db.commit()

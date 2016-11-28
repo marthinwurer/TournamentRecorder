@@ -379,25 +379,19 @@ class clientApp ( Tk ) :
             # print ( match_list )
             for i in range ( 0, len ( match_list ) ):
                 row_num = i+1
+                print(match_list[i])
 
                 Label ( self.frame_matchList, text = match_list[i]["id"] ).grid ( row = row_num, column = 0 )
 
                 if (  match_list[i]["p1_id"] is None) :
                     Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 1 )
                 else :
-                    result = tr_api.getTournamentPlayer ( match_list[i]["p1_id"] )
-                    print ( "p1:" + str(match_list[i]["p1_id"]))
-                    print (result )
-
-                    Label ( self.frame_matchList, text = result["p_id"] ).grid ( row = row_num, column = 1 )
+                    Label ( self.frame_matchList, text = match_list[i]["p1_name"]).grid ( row = row_num, column = 1 )
 
                 if (  match_list[i]["p2_id"] is None ) :
                     Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 2 )
                 else :
-                    result = tr_api.getTournamentPlayer ( match_list[i]["p2_id"] )
-                    print ( "p2: " + str(match_list[i]["p2_id"]) )
-                    print ( result )
-                    Label ( self.frame_matchList, text = result["p_id"] ).grid ( row = row_num, column = 2 )
+                    Label ( self.frame_matchList, text = match_list[i]["p2_name"]).grid ( row = row_num, column = 2 )
 
                 Label ( self.frame_matchList, text = match_list[i]["table_number"] ).grid ( row = row_num, column = 3 )
 
