@@ -30,7 +30,7 @@ class clientApp ( Tk ) :
         label = Label ( self.g_master, text = "" )
         label.pack ()
 
-        self.g_master.minsize ( 500,500 )
+        self.g_master.minsize ( 400,200 )
 
         self.g_menubar = Menu ( self. g_master )
 
@@ -793,16 +793,16 @@ class clientApp ( Tk ) :
 
         # create the labels that define what each input box is used for, and align them
         Label ( frame_matchForm, text = "Player 1 wins:" ).grid ( row = 0, column = 0, sticky = W )
-        Label ( frame_matchForm, text = "Draws:" ).grid ( row = 1, column = 0, sticky = W )
-        Label ( frame_matchForm, text = "Player 2 Wins:" ).grid ( row = 2, column = 0, sticky = W )
+        Label ( frame_matchForm, text = "Player 2 Wins:" ).grid ( row = 1, column = 0, sticky = W )
+        Label ( frame_matchForm, text = "Draws:" ).grid ( row = 2, column = 0, sticky = W )
 
         # create the entry boxes and align them
         self.input_player1Wins = Entry ( frame_matchForm )
         self.input_player1Wins.grid ( row = 0, column = 1 )
-        self.input_matchDraws = Entry ( frame_matchForm )
-        self.input_matchDraws.grid (row = 1, column = 1)
         self.input_player2Wins = Entry ( frame_matchForm )
-        self.input_player2Wins.grid ( row = 2, column = 1 )
+        self.input_player2Wins.grid ( row = 1, column = 1 )
+        self.input_matchDraws = Entry ( frame_matchForm )
+        self.input_matchDraws.grid (row = 2, column = 1)
 
         # create the submit and cancel buttons
         btn_matchResult_submit = Button ( frame_matchForm, text = "Submit", command = lambda: self.event_matchResult_submit(match) ).grid ( row = 4, column = 0 )
