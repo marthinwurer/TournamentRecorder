@@ -47,6 +47,9 @@ class clientApp ( Tk ) :
         else:
             self.fixed_font = tkinter.font.Font(family='Arial')
 
+    def set_activeTourn(self, tourn):
+        self.activeTourn = tourn
+
 
     def action_createMenu ( self ) :
         global g_menubar
