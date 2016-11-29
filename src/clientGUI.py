@@ -30,7 +30,7 @@ class clientApp ( Tk ) :
         label = Label ( self.g_master, text = "" )
         label.pack ()
 
-        self.g_master.minsize ( 400,200 )
+        self.g_master.minsize ( 300, 0 )
 
         self.g_menubar = Menu ( self. g_master )
 
@@ -46,6 +46,9 @@ class clientApp ( Tk ) :
             self.fixed_font = ('Ubuntu Mono', 11)#tkinter.font.Font(family='Ubuntu Mono')
         else:
             self.fixed_font = tkinter.font.Font(family='Arial')
+
+    def set_activeTourn(self, tourn):
+        self.activeTourn = tourn
 
 
     def action_createMenu ( self ) :
@@ -70,10 +73,7 @@ class clientApp ( Tk ) :
         menu_tourn = Menu ( self.g_menubar )
         menu_tourn.add_command ( label = "List Tournament",
                                  command = self.action_listTournaments )
-        menu_tourn.add_separator ( )
 
-        menu_tourn.add_command ( label = "Start Tournament",
-                                 command = self.action_startTournament )
         menu_tourn.add_separator ()
 
         menu_tourn.add_command ( label = "Create Tournament",
@@ -144,12 +144,30 @@ class clientApp ( Tk ) :
                 row = 0,
                 column = 0,
                 sticky = W )
+        Label(
+            frame_tournList,
+            text="# of Rounds").grid(
+            row=0,
+            column=1,
+            sticky=W)
         Label (
             frame_tournList,
-            text = "# of PLayers" ).grid (
+            text = "# of Players" ).grid (
                 row = 0,
-                column = 1,
+                column = 2,
                 sticky = W )
+        Label(
+            frame_tournList,
+            text="Start Date").grid(
+            row=0,
+            column=3,
+            sticky=W)
+        Label(
+            frame_tournList,
+            text="End Date").grid(
+            row=0,
+            column=4,
+            sticky=W)
 
         tournaments = tr_api.listTournaments ( None, None )
         row_num = 0
@@ -164,9 +182,15 @@ class clientApp ( Tk ) :
             for i in range ( 0, len ( tourn_list ) ):
                 row_num = i+1
                 Label ( frame_tournList, text = tourn_list[i]["name"] ).grid ( row = row_num, column = 0)
-                Label ( frame_tournList, text = tourn_list[i]["num_players"] ).grid ( row = row_num, column = 1 )
-                # Button(frame_tournList, text="Select", command= lambda j=i: print("List matches for " + str(tourn_list[j]["id"]))).grid(row=row_num, column=2)
-                Button ( frame_tournList, text = "Select", command = lambda j=i: self.event_selectTournament ( tourn_list[j]["id"] ) ).grid ( row = row_num, column = 2 )
+                Label(frame_tournList, text=tourn_list[i]["max_rounds"]).grid(row=row_num, column=1)
+                Label ( frame_tournList, text = tourn_list[i]["num_players"] ).grid ( row = row_num, column = 2 )
+                Label(frame_tournList, text=tourn_list[i]["start_date"]).grid(row=row_num, column=3)
+                Label(frame_tournList, text=tourn_list[i]["end_date"]).grid(row=row_num, column=4)
+                Button ( frame_tournList, text = "Select", command = lambda j=i: self.event_selectTournament ( tourn_list[j]["id"] ) ).grid ( row = row_num, column = 5 )
+                if tourn_list[i]["start_date"] is None:
+                    Button(frame_tournList, text="Start", command=lambda j=i: self.action_startTournament_from_list (tourn_list[j]["id"])).grid(row=row_num, column=6, padx=5)
+                elif tourn_list[i]["end_date"] is None:
+                    Button(frame_tournList, text="Round Select", command=lambda j=i: self.action_listRuonds_from_list(tourn_list[j]["id"])).grid(row=row_num, column=6, padx=5)
 
         # create the submit and cancel buttons
         btn_listTourn_close = Button(frame_tournList, text="Cancel", command=self.win_listTourn.destroy)
@@ -182,21 +206,20 @@ class clientApp ( Tk ) :
     def event_selectTournament ( self, tourn_id ) :
         global activeTourn
 
-        print ( "Selected Tournament " + str ( tourn_id ) )
-
         self.activeTourn = tourn_id
-        self.win_listTourn.destroy ( )
         self.action_listPlayers ( )
         self.action_listActivePlayers ( )
 
-    def action_startTournament ( self ) :
+    def action_startTournament_from_list ( self, tourn_id ) :
+        global activeTourn
+        self.activeTourn = tourn_id
+
         if ( self.activeTourn is None ) :
             messagebox.showerror(
                 "Tournament",
                 "Invalid selected tournament"
             )
             return
-        print ( "Starting Tournament" )
         result = tr_api.startTournament ( self.activeTourn )
         if ( result["outcome"] is False ) : # failed to start
             messagebox.showerror (
@@ -205,14 +228,14 @@ class clientApp ( Tk ) :
             )
             return
         else :
-            print ( "successfully started tournament")
             self.startedTourn = self.activeTourn
+            self.action_listRounds()
+
 
     def action_createTournament ( self ) :
         """
             creates a new to submit tournament data.
         """
-        print ( "Creating Tournament" )
 
         global input_tournName
         global input_tournMaxRounds
@@ -264,31 +287,29 @@ class clientApp ( Tk ) :
         tournMaxRounds = self.input_tournMaxRounds.get ( )
 
         if ( len ( tournName ) >= 4 and tournMaxRounds.isdigit () ) :   # check values
-            print ( "create tournament success" )
             tr_api.createTournament(tournName, tournMaxRounds)
             self.win_createTourn.destroy ( )    # destroy window on db submission
         else : # values are not valid, check what failed
-            print ( "create tournament failed" )
             if ( len ( tournName ) < 4 ) :
                 messagebox.showerror(
                     "Create Tournaments",
-                    "tournament name length must be greater that 4"
+                    "Tournament name length must be greater that 4"
                 )
-                print ( "Error: tournName length < 4" )
 
                 return
 
             if ( not tournMaxRounds.isdigit () ) :
                 messagebox.showerror(
                     "Create Tournaments",
-                    "tournament max rounds must be greater than 1"
+                    "Tournament max rounds must be greater than 0"
                 )
-                print ( "Error: tourn max rounds < 1" )
 
                 return
 
-        print ( "tournName: " + tournName )
-        print ( "tournMaxRounds: " + tournMaxRounds )
+    def action_listRuonds_from_list(self, tourn_id):
+        global activeTourn
+        self.activeTourn = tourn_id
+        self.action_listRounds()
 
     def action_listRounds ( self ) :
         """
@@ -298,15 +319,13 @@ class clientApp ( Tk ) :
         if ( self.startedTourn is None and self.activeTourn is None ) :
             messagebox.showerror (
                 "List Round",
-                "no known tournament satisfied"
+                "No known tournament selected."
             )
-            print ( "Error: invalid tournament satisfied" )
-
             return
 
         self.win_listRound = Tk()                       # create the new window
         self.win_listRound.title ( "Round Viewer" )     # set the title of window
-        self.win_listRound.minsize ( 400, 200 )         # set the minimum (default) size
+        self.win_listRound.minsize ( 175, 50 )         # set the minimum (default) size
         Label ( self.win_listRound, text="Round Viewer", font = ( "Helvetica", 16 ) ).pack ( )
 
         frame_roundList = Frame ( self.win_listRound )  # create a frame
@@ -360,19 +379,14 @@ class clientApp ( Tk ) :
         self.action_MatchViewer ( )
 
     def action_finishRound ( self ) :
-        print ( "finishing round " + str(self.activeRound) )
-
         if ( self.activeRound is None ) :
             messagebox.showerror (
                 "Finish Round",
-                "no known round selected"
+                "No known round selected."
             )
-            print ( "Error: invalid tournament satisfied" )
-
             return
 
         result =  tr_api.finishRound(self.activeRound)
-        print( result)
 
         self.displayError(result, "Finish Round")
 
@@ -388,10 +402,8 @@ class clientApp ( Tk ) :
         if ( self.activeRound is None ) :
             messagebox.showerror (
                 title,
-                "no known round selected"
+                "No known round selected."
             )
-            print ( "Error: invalid tournament satisfied" )
-
             return
 
         result = tr_api.generatePairings( self.activeTourn)
@@ -447,10 +459,8 @@ class clientApp ( Tk ) :
         if ( self.activeRound is None ) :
             messagebox.showerror (
                 "Match List",
-                "no known round selected"
+                "No known round selected."
             )
-            print ( "Error: invalid tournament satisfied" )
-
             return
 
         self.win_listMatches = Tk()  # create the new window
@@ -482,11 +492,8 @@ class clientApp ( Tk ) :
             return
         elif len ( matches["rows"] ) > 0:
             match_list = matches["rows"]
-            # print ( match_list )
             for i in range ( 0, len ( match_list ) ):
                 row_num = i+1
-                print(match_list[i])
-
                 self.matchframeupdate(match_list, row_num)
 
         # bind these keystrokes
@@ -504,7 +511,6 @@ class clientApp ( Tk ) :
             return
         elif len ( matches["rows"] ) > 0:
             match_list = matches["rows"]
-            # print ( match_list )
             for i in range ( 0, len ( match_list ) ):
                 if match_list[i]["id"] == match:
 
@@ -522,11 +528,10 @@ class clientApp ( Tk ) :
         """
             creates a new window to view player data.
         """
-        print ( "Listing Players" )
 
         self.win_listPlayer = Tk ()
         self.win_listPlayer.title ( "Players Finder" )
-        self.win_listPlayer.minsize ( 600, 300 )
+        self.win_listPlayer.minsize ( 300, 300 )
         Label ( self.win_listPlayer, text = "Players Finder" ).pack ()
 
         frame_playerFind = Frame ( self.win_listPlayer )
@@ -546,7 +551,7 @@ class clientApp ( Tk ) :
         scroll_playerList.pack ( side = "right", fill = "y" )
 
         self.list_playerList = Listbox ( self.frame_playerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple" )
-        self.list_playerList.config ( width = "95", font=self.fixed_font )
+        self.list_playerList.config ( width = "50", font=self.fixed_font )
         self.list_playerList.pack ( side = "left", fill = "both" )
 
         scroll_playerList.config ( command = self.list_playerList.yview )
@@ -579,11 +584,9 @@ class clientApp ( Tk ) :
         if self.activeTourn is None :
             messagebox.showerror (
                 "Active Players",
-                "Usage: active tournament must be selected "
+                "No known tournament selected "
             )
-            print ( "error: invalid conditions" )
             return
-        print ( "Listing Active Players" )
 
         self.win_listActivePlayers = Tk ()
         self.win_listActivePlayers.title ( "Players Viewer" )
@@ -599,13 +602,12 @@ class clientApp ( Tk ) :
         scroll_playerList.pack ( side = "right", fill = "y" )
 
         self.list_activePlayerList = Listbox ( self.frame_activePlayerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple")
-        self.list_activePlayerList.config ( width = "95", font=self.fixed_font )
+        self.list_activePlayerList.config ( width = "50", font=self.fixed_font )
         self.list_activePlayerList.pack ( side = "left", fill = "both" )
 
         scroll_playerList.config ( command = self.list_activePlayerList.yview )
 
         playerList = tr_api.listActiveTournamentPlayers ( self.activeTourn ) ['rows']
-        # print ( playerList )
 
         self.addtoplayerlist(playerList)
 
@@ -617,7 +619,6 @@ class clientApp ( Tk ) :
 
     def event_refreshTournPlayer(self):
         playerList = tr_api.listActiveTournamentPlayers ( self.activeTourn ) ['rows']
-        # print ( playerList )
 
         self.list_activePlayerList.delete(0, END)
 
@@ -629,7 +630,6 @@ class clientApp ( Tk ) :
         """
             creates a new window to submit new player data.
         """
-        print ( "Creating Player" )
 
         global input_playerDCI
         global input_playerName
@@ -683,21 +683,12 @@ class clientApp ( Tk ) :
         playerName = self.input_playerName.get ( )
 
         if ( playerDCI.isdigit () and len ( playerName ) >= 3 ) :   # check values
-            print ( "create player success" )
-
             self.win_createPlayer.destroy ( )    # destroy window on db submission
         else : # values are not valid, check what failed
-            print ( "create player failed" )
             if ( len ( playerName ) < 3 ) :
                 self.text_createPlayer_failMsg.set ( "player name length must be at least 3" )
-                print ( "Error: tournName length < 4" )
-
             if ( not playerDCI.isdigit () ) :
                 self.text_createPlayer_failMsg.set ( "max rounds must be a number" )
-                print ( "Error: tourn max rounds not int" )
-
-        print ( "playerDCI: " + playerDCI )
-        print ( "playerName: " + playerName )
 
         tr_api.createPlayer ( playerDCI, playerName )
 
@@ -706,13 +697,11 @@ class clientApp ( Tk ) :
             create the findPlayer window
         """
 
-        print ( "Finding player" )
-
         playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
         self.list_playerList.delete ( 0, END )
-        for player in playerList :
-            entry = str ( player["id"] ) + " " + player["name"]
-            self.list_playerList.insert ( END, entry )
+
+        self.addtoplayerlist(playerList)
+        self.list_activePlayerList.update_idletasks()
 
     def event_addPlayer ( self ) :
         if ( self.activeTourn is None ) :
@@ -720,16 +709,12 @@ class clientApp ( Tk ) :
                 "Start Tournament",
                 "Invalid selected tournament"
             )
-            print ( "error: invalid conditions" )
             return
-        print ( "Adding Player" )
 
         items = self.list_playerList.curselection ( ) # returns a tuple
         selected = []
         for i in items :
             selected.append ( self.list_playerList.get ( i ) )
-
-        print ( selected )
 
         for e in selected :
             e = e.split()
@@ -744,7 +729,6 @@ class clientApp ( Tk ) :
             exists = True
         else:
             exists = False
-        print(exists)
 
         if exists:
             self.event_refreshTournPlayer()
@@ -755,14 +739,11 @@ class clientApp ( Tk ) :
         # self.win_listPlayer.quit ( )
 
     def event_removeTournPlayer ( self ) :
-        print ( "Removing selected players from tourn" )
         items = self.list_activePlayerList.curselection ( ) # returns a tuple
         selected = []
 
         for i in items :
             selected.append ( self.list_activePlayerList.get ( i ) )
-
-        print ( selected )
 
         for e in selected :
             result = tr_api.removePlayer ( e.split ( )[0], self.activeTourn )
@@ -772,7 +753,6 @@ class clientApp ( Tk ) :
         """
             creates a new window to submit results of a match.
         """
-        print ( "Match Results" )
 
         global input_player1Wins
         global input_player2Wins

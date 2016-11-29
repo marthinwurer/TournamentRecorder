@@ -6,6 +6,7 @@ DiTullio, Richard
 Frey, Will
     GUI development
     GUI testing
+    QA
 
 Lo, Jonathan
     GUI development
