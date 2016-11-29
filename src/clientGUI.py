@@ -459,6 +459,8 @@ class clientApp ( Tk ) :
 
         self.frame_matchList = Frame ( self.win_listMatches )  # create a frame
         self.frame_matchList.pack ( side = "top", padx = 20, pady = 20 )  # and place it on the top
+        frame_playerFooter = Frame ( self.win_listMatches )
+        frame_playerFooter.pack ( side = "bottom" )
 
         # create the labels that define what each input box is used for, and align them
         Label ( self.frame_matchList, fg = "blue", text = "Matches" ).grid ( row = 0, column = 0, sticky = W )
@@ -488,7 +490,7 @@ class clientApp ( Tk ) :
                 self.matchframeupdate(match_list, row_num)
 
         # bind these keystrokes
-        self.win_listMatches.bind ( '<Escape>', self.win_listMatches.destroy )
+        btn_addPlayer_cancel = Button ( frame_playerFooter, text = "Cancel", command = self.win_listMatches.destroy ).grid (row = 0, column = 0, sticky = W)
 
     def update_matches(self, match):
 
@@ -765,8 +767,6 @@ class clientApp ( Tk ) :
         for e in selected :
             result = tr_api.removePlayer ( e.split ( )[0], self.activeTourn )
             self.displayError(result, "Remove Player")
-
-
 
     def action_match_results ( self, m_id , match) :
         """
