@@ -66,9 +66,9 @@ def addPlayer(p_id, t_id):
         return '{"outcome":false, "reason": "Tournament started"}'
 
     # check if the player is in the tournament already
-    curs.execute("""SELECT COUNT(*) FROM tournament_player WHERE p_id=%s;""", [p_id])
+    curs.execute("""SELECT COUNT(*) AS count FROM tournament_player WHERE p_id=%s;""", [p_id])
 
-    if curs.fetchone() is None:
+    if curs.fetchone()['count'] > 0:
         return '{"outcome":false, "reason": "Player already registered"}'
 
     curs.execute("""INSERT INTO tournament_player
