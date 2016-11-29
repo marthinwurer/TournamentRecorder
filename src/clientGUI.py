@@ -809,7 +809,7 @@ class clientApp ( Tk ) :
         btn_matchResult_cancel = Button ( frame_matchForm, text = "Cancel", command = self.win_matchResult.destroy ).grid ( row = 4, column = 1 )
 
         # bind these keystrokes
-        self.win_matchResult.bind ( '<Return>', self.event_matchResult_submit )
+        self.win_matchResult.bind ( '<Return>', lambda: self.event_matchResult_submit(match))
         self.win_matchResult.bind ( '<Escape>', self.win_matchResult.destroy )
 
         self.win_matchResult.mainloop ()
@@ -827,10 +827,10 @@ class clientApp ( Tk ) :
         player2Wins = self.input_player2Wins.get ( )
         draws       = self.input_matchDraws.get ( )
 
-        if ( not player1Wins.isdigit ( ) and not player2Wins.isdigit ( ) and not draws.isdigit ( ) ) :
+        if ( not player1Wins.isdigit ( ) or not player2Wins.isdigit ( ) or not draws.isdigit ( ) ) :
             messagebox.showerror ( "Match Results",
-                                   "Invalid match result. unrecognized input format" )
-        elif ( int(player1Wins) > 2 or int(player2Wins) > 2 or (int(player2Wins) + int(player2Wins) + int(draws)) == 0 ) :
+                                   "Invalid match result. Unrecognized input format" )
+        elif ( int(player1Wins) > 2 or int(player2Wins) > 2 or (int(player1Wins) + int(player2Wins) + int(draws)) == 0 ) :
             messagebox.showerror ( "Match Results",
                                    "Invalid match result. Invalid number of games" )
         else :
