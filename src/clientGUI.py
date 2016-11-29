@@ -699,9 +699,9 @@ class clientApp ( Tk ) :
 
         playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
         self.list_playerList.delete ( 0, END )
-        for player in playerList :
-            entry = str ( player["id"] ) + " " + player["name"]
-            self.list_playerList.insert ( END, entry )
+
+        self.addtoplayerlist(playerList)
+        self.list_activePlayerList.update_idletasks()
 
     def event_addPlayer ( self ) :
         if ( self.activeTourn is None ) :
