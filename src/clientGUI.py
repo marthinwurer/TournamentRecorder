@@ -798,9 +798,10 @@ class clientApp ( Tk ) :
         print ( selected )
 
         for e in selected :
-            tr_api.removePlayer ( e.split ( )[0], self.activeTourn )
+            result = tr_api.removePlayer ( e.split ( )[0], self.activeTourn )
+            self.displayError(result, "Remove Player")
 
-        self.win_listActivePlayers.destroy ( )
+
 
     def action_match_results ( self, m_id , match) :
         """
