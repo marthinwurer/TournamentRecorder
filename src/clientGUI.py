@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
+import tkinter.font
 import tr_api
 
 class clientApp ( Tk ) :
@@ -36,6 +37,16 @@ class clientApp ( Tk ) :
         self.g_master.config ( menu = self.g_menubar )
 
         self.action_createMenu ()
+
+        # find a fixed width font for the player lists.
+        font_tuple = tkinter.font.families()
+        if 'Courier New' in font_tuple:
+            self.fixed_font = ('Courier New', 11)#tkinter.font.Font(family='Courier New')
+        elif 'Ubuntu Mono' in font_tuple:
+            self.fixed_font = ('Ubuntu Mono', 11)#tkinter.font.Font(family='Ubuntu Mono')
+        else:
+            self.fixed_font = tkinter.font.Font(family='Arial')
+
 
     def action_createMenu ( self ) :
         global g_menubar
@@ -567,16 +578,19 @@ class clientApp ( Tk ) :
         scroll_playerList.pack ( side = "right", fill = "y" )
 
         self.list_playerList = Listbox ( self.frame_playerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple" )
-        self.list_playerList.config ( width = "95" )
+        self.list_playerList.config ( width = "95", font=self.fixed_font )
         self.list_playerList.pack ( side = "left", fill = "both" )
 
         scroll_playerList.config ( command = self.list_playerList.yview )
 
         playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
 
+        # build the formatter string
+        output =" {:>10} {:>30}"
+
         row_count = 1
         for player in playerList :
-            entry = str ( player["id"] ) + " " + player["name"]
+            entry = output.format(str ( player["id"] ), player["name"])
             self.list_playerList.insert ( END, entry )
 
         btn_addPlayer_add = Button ( frame_playerFooter, text = "Add to Active", command = self.event_addPlayer ).pack ()
@@ -608,8 +622,8 @@ class clientApp ( Tk ) :
         scroll_playerList = Scrollbar ( self.frame_activePlayerList )
         scroll_playerList.pack ( side = "right", fill = "y" )
 
-        self.list_activePlayerList = Listbox ( self.frame_activePlayerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple" )
-        self.list_activePlayerList.config ( width = "95" )
+        self.list_activePlayerList = Listbox ( self.frame_activePlayerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple")
+        self.list_activePlayerList.config ( width = "95", font=self.fixed_font )
         self.list_activePlayerList.pack ( side = "left", fill = "both" )
 
         scroll_playerList.config ( command = self.list_activePlayerList.yview )
@@ -617,9 +631,11 @@ class clientApp ( Tk ) :
         playerList = tr_api.listActiveTournamentPlayers ( self.activeTourn ) ['rows']
         # print ( playerList )
 
+        output =" {:>10} {:>30} {:>3}"
+
         row_count = 1
         for player in playerList :
-            entry = str(player["id"]) + " " + player["name"]
+            entry = output.format(str ( player["id"] ), player["name"], player['standing'])
             self.list_activePlayerList.insert ( END, entry )
 
         # playerList.update_idletasks ()
