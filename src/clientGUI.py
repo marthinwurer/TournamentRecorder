@@ -379,7 +379,7 @@ class clientApp ( Tk ) :
         if 'done' in result:
             messagebox.showinfo (
                 "Tournament Finished",
-                "no known round selected"
+                "This tournament has finished"
             )
 
 
@@ -834,14 +834,11 @@ class clientApp ( Tk ) :
             messagebox.showerror ( "Match Results",
                                    "Invalid match result. Invalid number of games" )
         else :
-            tr_api.setMatchResults ( self.activeMatch, player1Wins, player2Wins, draws )
+            result = tr_api.setMatchResults ( self.activeMatch, player1Wins, player2Wins, draws )
             self.win_matchResult.destroy ( )    # destroy window on db submission
+            self.displayError(result, "Submit Results")
 
             self.update_matches(match)
-
-            print ( "player1 wins: " + player1Wins )
-            print ( "player2 wins: " + player2Wins )
-            print ( "matchDraws: " + draws )
 
 
 if ( __name__ == "__main__" ) :
