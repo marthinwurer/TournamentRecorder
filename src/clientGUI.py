@@ -404,6 +404,40 @@ class clientApp ( Tk ) :
 
         self.displayError(result, title)
 
+    def matchframeupdate(self, match_list, row_num):
+        i = row_num - 1
+        Label ( self.frame_matchList, text = match_list[i]["id"] ).grid ( row = row_num, column = 0 )
+
+        if (  match_list[i]["p1_id"] is None) :
+            Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 1 )
+        else :
+            Label ( self.frame_matchList, text = match_list[i]["p1_name"]).grid ( row = row_num, column = 1 )
+
+        if (  match_list[i]["p2_id"] is None ) :
+            Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 2 )
+        else :
+            Label ( self.frame_matchList, text = match_list[i]["p2_name"]).grid ( row = row_num, column = 2 )
+
+        Label ( self.frame_matchList, text = match_list[i]["table_number"] ).grid ( row = row_num, column = 3 )
+
+        if ( match_list[i]["p1_wins"] is None ) :
+            Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 4 )
+        else :
+            Label ( self.frame_matchList, text = match_list[i]["p1_wins"] ).grid ( row = row_num, column = 4 )
+
+        if ( match_list[i]["p2_wins"] is None ) :
+            Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 5 )
+        else :
+            Label ( self.frame_matchList, text = match_list[i]["p2_wins"] ).grid ( row = row_num, column = 5 )
+
+        if ( match_list[i]["draws"] is None ) :
+            Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 6 )
+
+        else :
+            Label ( self.frame_matchList, text = match_list[i]["draws"] ).grid ( row = row_num, column = 6 )
+
+        Button ( self.frame_matchList, text = "Select", command = lambda j=i: self.action_match_results ( match_list[j]["id"] , match_list[j]["id"]) ).grid ( row = row_num, column = 7 )
+
 
     def action_MatchViewer ( self ) :
         """
@@ -451,37 +485,7 @@ class clientApp ( Tk ) :
                 row_num = i+1
                 print(match_list[i])
 
-                Label ( self.frame_matchList, text = match_list[i]["id"] ).grid ( row = row_num, column = 0 )
-
-                if (  match_list[i]["p1_id"] is None) :
-                    Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 1 )
-                else :
-                    Label ( self.frame_matchList, text = match_list[i]["p1_name"]).grid ( row = row_num, column = 1 )
-
-                if (  match_list[i]["p2_id"] is None ) :
-                    Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 2 )
-                else :
-                    Label ( self.frame_matchList, text = match_list[i]["p2_name"]).grid ( row = row_num, column = 2 )
-
-                Label ( self.frame_matchList, text = match_list[i]["table_number"] ).grid ( row = row_num, column = 3 )
-
-                if ( match_list[i]["p1_wins"] is None ) :
-                    Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 4 )
-                else :
-                    Label ( self.frame_matchList, text = match_list[i]["p1_wins"] ).grid ( row = row_num, column = 4 )
-
-                if ( match_list[i]["p2_wins"] is None ) :
-                    Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 5 )
-                else :
-                    Label ( self.frame_matchList, text = match_list[i]["p2_wins"] ).grid ( row = row_num, column = 5 )
-
-                if ( match_list[i]["draws"] is None ) :
-                    Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 6 )
-
-                else :
-                    Label ( self.frame_matchList, text = match_list[i]["draws"] ).grid ( row = row_num, column = 6 )
-
-                Button ( self.frame_matchList, text = "Select", command = lambda j=i: self.action_match_results ( match_list[j]["id"] , match_list[j]["id"]) ).grid ( row = row_num, column = 7 )
+                self.matchframeupdate(match_list, row_num)
 
         # bind these keystrokes
         self.win_listMatches.bind ( '<Escape>', self.win_listMatches.destroy )
@@ -509,44 +513,7 @@ class clientApp ( Tk ) :
                         row.grid_forget()
                         row.destroy()
 
-                    Label ( self.frame_matchList, text = match_list[i]["id"] ).grid ( row = row_num, column = 0 )
-
-                    if (  match_list[i]["p1_id"] is None) :
-                        Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 1 )
-                    else :
-                        result = tr_api.getTournamentPlayer ( match_list[i]["p1_id"] )
-                        print ( "p1:" + str(match_list[i]["p1_id"]))
-                        print (result )
-
-                        Label ( self.frame_matchList, text = result["p_id"] ).grid ( row = row_num, column = 1 )
-
-                    if (  match_list[i]["p2_id"] is None ) :
-                        Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 2 )
-                    else :
-                        result = tr_api.getTournamentPlayer ( match_list[i]["p2_id"] )
-                        print ( "p2: " + str(match_list[i]["p2_id"]) )
-                        print ( result )
-                        Label ( self.frame_matchList, text = result["p_id"] ).grid ( row = row_num, column = 2 )
-
-                    Label ( self.frame_matchList, text = match_list[i]["table_number"] ).grid ( row = row_num, column = 3 )
-
-                    if ( match_list[i]["p1_wins"] is None ) :
-                        Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 4 )
-                    else :
-                        Label ( self.frame_matchList, text = match_list[i]["p1_wins"] ).grid ( row = row_num, column = 4 )
-
-                    if ( match_list[i]["p2_wins"] is None ) :
-                        Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 5 )
-                    else :
-                        Label ( self.frame_matchList, text = match_list[i]["p2_wins"] ).grid ( row = row_num, column = 5 )
-
-                    if ( match_list[i]["draws"] is None ) :
-                        Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 6 )
-
-                    else :
-                        Label ( self.frame_matchList, text = match_list[i]["draws"] ).grid ( row = row_num, column = 6 )
-
-                    Button ( self.frame_matchList, text = "Select", command = lambda j=i: self.action_match_results ( match_list[j]["id"] ) ).grid ( row = row_num, column = 7 )
+                    self.matchframeupdate(match_list, row_num)
                     self.frame_matchList.update_idletasks()
 
     def action_listPlayers ( self ) :
@@ -865,7 +832,7 @@ class clientApp ( Tk ) :
         if ( not player1Wins.isdigit ( ) and not player2Wins.isdigit ( ) and not draws.isdigit ( ) ) :
             messagebox.showerror ( "Match Results",
                                    "Invalid match result. unrecognized input format" )
-        elif ( int(player1Wins) > 2 or int(player2Wins) > 2 or (int(player2Wins) + int(player2Wins) + int(draws)) > 0 ) :
+        elif ( int(player1Wins) > 2 or int(player2Wins) > 2 or (int(player2Wins) + int(player2Wins) + int(draws)) == 0 ) :
             messagebox.showerror ( "Match Results",
                                    "Invalid match result. Invalid number of games" )
         else :
