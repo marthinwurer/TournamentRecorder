@@ -11,7 +11,7 @@ Follow this sequence of test file execution to properly run a set of regression 
 10. test_st.py
 11. test_lt.py
 12. test_ltp.py
-13. genpairings.py
+13. test_genpairings.py
 14. test_smr.py
 15. test_lm.py
 16. test_fr.py
