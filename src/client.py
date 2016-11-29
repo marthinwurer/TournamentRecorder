@@ -1,6 +1,6 @@
 """
 This python program runs a simple shell to query the database remotely.
-Autor: TangentTally
+Autor: TangentTally 37
 """
 import json
 
