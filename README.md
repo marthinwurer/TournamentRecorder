@@ -89,4 +89,20 @@ To reboot the database server, log in to the database server, and run:
 to attatch to the screen session. Then restart the server (Ctrl-C to stop it, ./run.sh to restart it). After the server has been restarted, hit Ctrl-a then d to disconnect from the screen session and leave the server running in the background.
 
 To run unit tests on the program use localhost as the server and follow the order listed in Testing.txt
+
     $ python -m unittest test_(filename).py
+
+# GUI Client
+
+You can run the GUI client by running the following command when the virtual environment is set up.
+
+    python ./src/clientGUI.py
+
+To create a tournament, go under Tournament -> Create Tournament
+To create a player, go under Players -> Create Player
+To list the tournaments, go under Tournament -> List Tournament
+To add players to a tournament, select a tournament from the list and then select players to add from the menus that appear. You may need to refresh the list of active players.
+To start a tournament, select start tournament from the list of tournaments.
+To view a round's matches, select the round in the round window.
+To finish the round, go under Rounds -> Finish Round.
+To generate pairings for the next round, go under Rounds -> Generate Pairings
