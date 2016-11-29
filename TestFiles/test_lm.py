@@ -1,5 +1,5 @@
 """
-This file tests the finishRound (fr) method of the API
+This file tests the listMatches (lm) method of the API
 Author: TangentTally
 """
 import unittest

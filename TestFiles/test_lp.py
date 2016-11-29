@@ -4,7 +4,7 @@ Author: TangentTally
 """
 import unittest
 import sys
-sys.path.insert(0, '/home/red1717/PycharmProjects/TournamentRecorder/src')
+sys.path.insert(0, "../src")
 import tr_api
 
 
@@ -16,8 +16,12 @@ class TestLp(unittest.TestCase):
     def tearDown(self):
         pass
 
+    #checks to see if theyre are players returned
     def test_key_in_dict(self):
-        self.assertFalse(not self.topdict.keys())
+        self.assertTrue(self.topdict.keys())
+
+    def test_number_of_players(self):
+        self.assertEqual(len(self.topdict.get('rows')), 5)
 
     def test_player1_id(self):
         self.assertEqual(self.topdict.get('rows')[0].get('id'), 1)

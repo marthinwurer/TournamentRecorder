@@ -276,6 +276,7 @@ def getTournamentPlayer(tp_id):
     db.commit()
 
     result = curs.fetchone()
+    print(result)
     if result == None:
         return '{"outcome":false, "reason": "Player does not exist"}'
     result['outcome'] = True
