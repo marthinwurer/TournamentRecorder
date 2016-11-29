@@ -19,4 +19,4 @@ Follow this sequence of test file execution to properly run a set of regression 
 
 When testing ltp the id's of the tournament players their id's do not represent
 incremental growth but rather jump or skip indexes. This could be due to how the
-previouse test files execute.
+previouse test files execute
