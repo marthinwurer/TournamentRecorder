@@ -37,9 +37,6 @@ class Test_Gp(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_temp(self):
-        self.assertTrue(True)
-
     def test_success(self):
         self.assertTrue(self.topdict.get('outcome'))
 
