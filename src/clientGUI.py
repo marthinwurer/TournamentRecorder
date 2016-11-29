@@ -462,8 +462,8 @@ class clientApp ( Tk ) :
 
         # create the labels that define what each input box is used for, and align them
         Label ( self.frame_matchList, fg = "blue", text = "Matches" ).grid ( row = 0, column = 0, sticky = W )
-        Label ( self.frame_matchList, fg = "blue", text = "Player 1" ).grid ( row = 0, column = 1, sticky = W )
-        Label ( self.frame_matchList, fg = "blue", text = "Player 2" ).grid ( row = 0, column = 2, sticky = W )
+        Label ( self.frame_matchList, fg = "blue", text = "Player 1" ).grid ( row = 0, column = 1)
+        Label ( self.frame_matchList, fg = "blue", text = "Player 2" ).grid ( row = 0, column = 2)
         Label ( self.frame_matchList, fg = "blue", text = "Table Location" ).grid ( row = 0, column = 3, sticky = W )
         Label ( self.frame_matchList, fg = "blue", text = "Player 1 Wins" ).grid ( row = 0, column = 4, sticky = W )
         Label ( self.frame_matchList, fg = "blue", text = "Player 2 Wins" ).grid ( row = 0, column = 5, sticky = W )
@@ -730,14 +730,10 @@ class clientApp ( Tk ) :
         print ( selected )
 
         for e in selected :
-            e = e.split ( " ",
-                          maxsplit = 1 )
+            e = e.split()
             result = tr_api.addPlayer ( int(e[0]),
                                         self.activeTourn )
-            if ( result["outcome"] is False ) :
-                messagebox.showerror ( "Add Player",
-                                       "Active Tournament selected is in start state, did not add "
-                                       + e[1] )
+            self.displayError(result, "Add Player")
 
         # once added, refresh the player list if it exists
         try:
@@ -750,6 +746,8 @@ class clientApp ( Tk ) :
 
         if exists:
             self.event_refreshTournPlayer()
+
+        self.list_playerList.selection_clear(0, END)
 
 
         # self.win_listPlayer.quit ( )
