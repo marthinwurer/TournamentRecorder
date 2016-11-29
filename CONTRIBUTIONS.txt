@@ -1,0 +1,18 @@
+DiTullio, Richard
+    Test script development
+    backend testing
+    console app testing
+
+Frey, Will
+    GUI development
+    GUI testing
+
+Lo, Jonathan
+    GUI development
+    Documentation
+
+Maitland, Benjamin
+    backend development
+    GUI development
+    configured server
+    configured development environment

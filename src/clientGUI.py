@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
+import tkinter.font
 import tr_api
 
 class clientApp ( Tk ) :
@@ -19,7 +20,7 @@ class clientApp ( Tk ) :
     activeRound             = None
 
     def __init__(self, master):
-        super().__init__()
+        # super().__init__()
         global g_master
         global g_menubar
 
@@ -29,13 +30,23 @@ class clientApp ( Tk ) :
         label = Label ( self.g_master, text = "" )
         label.pack ()
 
-        self.g_master.minsize ( 500,500 )
+        self.g_master.minsize ( 400,200 )
 
         self.g_menubar = Menu ( self. g_master )
 
         self.g_master.config ( menu = self.g_menubar )
 
         self.action_createMenu ()
+
+        # find a fixed width font for the player lists.
+        font_tuple = tkinter.font.families()
+        if 'Courier New' in font_tuple:
+            self.fixed_font = ('Courier New', 11)#tkinter.font.Font(family='Courier New')
+        elif 'Ubuntu Mono' in font_tuple:
+            self.fixed_font = ('Ubuntu Mono', 11)#tkinter.font.Font(family='Ubuntu Mono')
+        else:
+            self.fixed_font = tkinter.font.Font(family='Arial')
+
 
     def action_createMenu ( self ) :
         global g_menubar
@@ -50,7 +61,7 @@ class clientApp ( Tk ) :
 
         menu_file = Menu ( self.g_menubar )
         menu_file.add_command ( label = "Exit",
-                                command = self.g_master.quit )
+                                command = quit )
 
         self.g_menubar.add_cascade ( label = "File",
                                      menu = menu_file )
@@ -63,7 +74,6 @@ class clientApp ( Tk ) :
 
         menu_tourn.add_command ( label = "Start Tournament",
                                  command = self.action_startTournament )
-        menu_tourn.add_command ( label = "Force End Tournament" )
         menu_tourn.add_separator ()
 
         menu_tourn.add_command ( label = "Create Tournament",
@@ -96,6 +106,8 @@ class clientApp ( Tk ) :
 
         menu_rounds.add_command ( label = "Finish Round",
                                   command = self.action_finishRound )
+        menu_rounds.add_command ( label = "Generate Pairings",
+                                  command = self.action_generatePairings )
 
         self.g_menubar.add_cascade ( label = "Rounds",
                                      menu = menu_rounds )
@@ -316,7 +328,7 @@ class clientApp ( Tk ) :
             round_list = rounds["rows"]
             for i in range ( 0, len ( round_list ) ):
                 row_num = i+1
-                Label ( frame_roundList, text = round_list[i]["id"] ).grid ( row = row_num, column = 0)
+                Label ( frame_roundList, text = round_list[i]["number"] ).grid ( row = row_num, column = 0)
                 Button ( frame_roundList, text = "Select", command = lambda j=i: self.event_selectRound ( round_list[j]["id"] ) ).grid ( row = row_num, column = 1 )
 
         # create cancel buttons
@@ -324,6 +336,21 @@ class clientApp ( Tk ) :
 
         # bind these keystrokes
         self.win_listRound.bind ( '<Escape>', self.win_listRound.destroy )
+
+    def displayError(self, result, title):
+        try:
+            if result['outcome'] == False:
+                messagebox.showerror (
+                    title,
+                    "Failure: " + result['reason']
+                )
+        except:
+            if result['outcome'] == False:
+                messagebox.showerror (
+                    title,
+                    "Failure"
+                )
+
 
     def event_selectRound ( self, r_id ) :
         global activeRound
@@ -334,6 +361,83 @@ class clientApp ( Tk ) :
 
     def action_finishRound ( self ) :
         print ( "finishing round " + str(self.activeRound) )
+
+        if ( self.activeRound is None ) :
+            messagebox.showerror (
+                "Finish Round",
+                "no known round selected"
+            )
+            print ( "Error: invalid tournament satisfied" )
+
+            return
+
+        result =  tr_api.finishRound(self.activeRound)
+        print( result)
+
+        self.displayError(result, "Finish Round")
+
+        if 'done' in result:
+            messagebox.showinfo (
+                "Tournament Finished",
+                "This tournament has finished"
+            )
+
+
+    def action_generatePairings(self):
+        title = "Generate Pairings"
+        if ( self.activeRound is None ) :
+            messagebox.showerror (
+                title,
+                "no known round selected"
+            )
+            print ( "Error: invalid tournament satisfied" )
+
+            return
+
+        result = tr_api.generatePairings( self.activeTourn)
+
+        if result['outcome'] == False:
+            messagebox.showerror (
+                "Match List",
+                "Failure: " + result['reason']
+            )
+
+        self.displayError(result, title)
+
+    def matchframeupdate(self, match_list, row_num):
+        i = row_num - 1
+        Label ( self.frame_matchList, text = match_list[i]["id"] ).grid ( row = row_num, column = 0 )
+
+        if (  match_list[i]["p1_id"] is None) :
+            Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 1 )
+        else :
+            Label ( self.frame_matchList, text = match_list[i]["p1_name"]).grid ( row = row_num, column = 1 )
+
+        if (  match_list[i]["p2_id"] is None ) :
+            Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 2 )
+        else :
+            Label ( self.frame_matchList, text = match_list[i]["p2_name"]).grid ( row = row_num, column = 2 )
+
+        Label ( self.frame_matchList, text = match_list[i]["table_number"] ).grid ( row = row_num, column = 3 )
+
+        if ( match_list[i]["p1_wins"] is None ) :
+            Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 4 )
+        else :
+            Label ( self.frame_matchList, text = match_list[i]["p1_wins"] ).grid ( row = row_num, column = 4 )
+
+        if ( match_list[i]["p2_wins"] is None ) :
+            Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 5 )
+        else :
+            Label ( self.frame_matchList, text = match_list[i]["p2_wins"] ).grid ( row = row_num, column = 5 )
+
+        if ( match_list[i]["draws"] is None ) :
+            Label ( self.frame_matchList, text = "-" ).grid ( row = row_num, column = 6 )
+
+        else :
+            Label ( self.frame_matchList, text = match_list[i]["draws"] ).grid ( row = row_num, column = 6 )
+
+        Button ( self.frame_matchList, text = "Select", command = lambda j=i: self.action_match_results ( match_list[j]["id"] , match_list[j]["id"]) ).grid ( row = row_num, column = 7 )
+
 
     def action_MatchViewer ( self ) :
         """
@@ -355,11 +459,13 @@ class clientApp ( Tk ) :
 
         self.frame_matchList = Frame ( self.win_listMatches )  # create a frame
         self.frame_matchList.pack ( side = "top", padx = 20, pady = 20 )  # and place it on the top
+        frame_playerFooter = Frame ( self.win_listMatches )
+        frame_playerFooter.pack ( side = "bottom" )
 
         # create the labels that define what each input box is used for, and align them
         Label ( self.frame_matchList, fg = "blue", text = "Matches" ).grid ( row = 0, column = 0, sticky = W )
-        Label ( self.frame_matchList, fg = "blue", text = "Player 1" ).grid ( row = 0, column = 1, sticky = W )
-        Label ( self.frame_matchList, fg = "blue", text = "Player 2" ).grid ( row = 0, column = 2, sticky = W )
+        Label ( self.frame_matchList, fg = "blue", text = "Player 1" ).grid ( row = 0, column = 1)
+        Label ( self.frame_matchList, fg = "blue", text = "Player 2" ).grid ( row = 0, column = 2)
         Label ( self.frame_matchList, fg = "blue", text = "Table Location" ).grid ( row = 0, column = 3, sticky = W )
         Label ( self.frame_matchList, fg = "blue", text = "Player 1 Wins" ).grid ( row = 0, column = 4, sticky = W )
         Label ( self.frame_matchList, fg = "blue", text = "Player 2 Wins" ).grid ( row = 0, column = 5, sticky = W )
@@ -381,40 +487,10 @@ class clientApp ( Tk ) :
                 row_num = i+1
                 print(match_list[i])
 
-                Label ( self.frame_matchList, text = match_list[i]["id"] ).grid ( row = row_num, column = 0 )
-
-                if (  match_list[i]["p1_id"] is None) :
-                    Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 1 )
-                else :
-                    Label ( self.frame_matchList, text = match_list[i]["p1_name"]).grid ( row = row_num, column = 1 )
-
-                if (  match_list[i]["p2_id"] is None ) :
-                    Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 2 )
-                else :
-                    Label ( self.frame_matchList, text = match_list[i]["p2_name"]).grid ( row = row_num, column = 2 )
-
-                Label ( self.frame_matchList, text = match_list[i]["table_number"] ).grid ( row = row_num, column = 3 )
-
-                if ( match_list[i]["p1_wins"] is None ) :
-                    Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 4 )
-                else :
-                    Label ( self.frame_matchList, text = match_list[i]["p1_wins"] ).grid ( row = row_num, column = 4 )
-
-                if ( match_list[i]["p2_wins"] is None ) :
-                    Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 5 )
-                else :
-                    Label ( self.frame_matchList, text = match_list[i]["p2_wins"] ).grid ( row = row_num, column = 5 )
-
-                if ( match_list[i]["draws"] is None ) :
-                    Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 6 )
-
-                else :
-                    Label ( self.frame_matchList, text = match_list[i]["draws"] ).grid ( row = row_num, column = 6 )
-
-                Button ( self.frame_matchList, text = "Select", command = lambda j=i: self.action_match_results ( match_list[j]["id"] , match_list[j]["id"]) ).grid ( row = row_num, column = 7 )
+                self.matchframeupdate(match_list, row_num)
 
         # bind these keystrokes
-        self.win_listMatches.bind ( '<Escape>', self.win_listMatches.destroy )
+        btn_addPlayer_cancel = Button ( frame_playerFooter, text = "Cancel", command = self.win_listMatches.destroy ).grid (row = 0, column = 0, sticky = W)
 
     def update_matches(self, match):
 
@@ -439,44 +515,7 @@ class clientApp ( Tk ) :
                         row.grid_forget()
                         row.destroy()
 
-                    Label ( self.frame_matchList, text = match_list[i]["id"] ).grid ( row = row_num, column = 0 )
-
-                    if (  match_list[i]["p1_id"] is None) :
-                        Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 1 )
-                    else :
-                        result = tr_api.getTournamentPlayer ( match_list[i]["p1_id"] )
-                        print ( "p1:" + str(match_list[i]["p1_id"]))
-                        print (result )
-
-                        Label ( self.frame_matchList, text = result["p_id"] ).grid ( row = row_num, column = 1 )
-
-                    if (  match_list[i]["p2_id"] is None ) :
-                        Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 2 )
-                    else :
-                        result = tr_api.getTournamentPlayer ( match_list[i]["p2_id"] )
-                        print ( "p2: " + str(match_list[i]["p2_id"]) )
-                        print ( result )
-                        Label ( self.frame_matchList, text = result["p_id"] ).grid ( row = row_num, column = 2 )
-
-                    Label ( self.frame_matchList, text = match_list[i]["table_number"] ).grid ( row = row_num, column = 3 )
-
-                    if ( match_list[i]["p1_wins"] is None ) :
-                        Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 4 )
-                    else :
-                        Label ( self.frame_matchList, text = match_list[i]["p1_wins"] ).grid ( row = row_num, column = 4 )
-
-                    if ( match_list[i]["p2_wins"] is None ) :
-                        Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 5 )
-                    else :
-                        Label ( self.frame_matchList, text = match_list[i]["p2_wins"] ).grid ( row = row_num, column = 5 )
-
-                    if ( match_list[i]["draws"] is None ) :
-                        Label ( self.frame_matchList, text = "N/A" ).grid ( row = row_num, column = 6 )
-
-                    else :
-                        Label ( self.frame_matchList, text = match_list[i]["draws"] ).grid ( row = row_num, column = 6 )
-
-                    Button ( self.frame_matchList, text = "Select", command = lambda j=i: self.action_match_results ( match_list[j]["id"] ) ).grid ( row = row_num, column = 7 )
+                    self.matchframeupdate(match_list, row_num)
                     self.frame_matchList.update_idletasks()
 
     def action_listPlayers ( self ) :
@@ -507,20 +546,31 @@ class clientApp ( Tk ) :
         scroll_playerList.pack ( side = "right", fill = "y" )
 
         self.list_playerList = Listbox ( self.frame_playerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple" )
-        self.list_playerList.config ( width = "95" )
+        self.list_playerList.config ( width = "95", font=self.fixed_font )
         self.list_playerList.pack ( side = "left", fill = "both" )
 
         scroll_playerList.config ( command = self.list_playerList.yview )
 
         playerList = tr_api.searchPlayers ( self.input_playerList_searchName.get () ) ['rows']
 
+        # build the formatter string
+        output =" {:>10} {:>30}"
+
         row_count = 1
         for player in playerList :
-            entry = str ( player["id"] ) + " " + player["name"]
+            entry = output.format(str ( player["id"] ), player["name"])
             self.list_playerList.insert ( END, entry )
 
         btn_addPlayer_add = Button ( frame_playerFooter, text = "Add to Active", command = self.event_addPlayer ).pack ()
         btn_addPlayer_cancel = Button ( frame_playerFooter, text = "Cancel", command = self.win_listPlayer.destroy ).pack ()
+
+    def addtoplayerlist(self, playerList):
+        output =" {:>10} {:>30} {:>3}"
+
+        row_count = 1
+        for player in playerList :
+            entry = output.format(str ( player["id"] ), player["name"], player['standing'])
+            self.list_activePlayerList.insert ( END, entry )
 
     def action_listActivePlayers ( self ) :
         """
@@ -548,8 +598,8 @@ class clientApp ( Tk ) :
         scroll_playerList = Scrollbar ( self.frame_activePlayerList )
         scroll_playerList.pack ( side = "right", fill = "y" )
 
-        self.list_activePlayerList = Listbox ( self.frame_activePlayerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple" )
-        self.list_activePlayerList.config ( width = "95" )
+        self.list_activePlayerList = Listbox ( self.frame_activePlayerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple")
+        self.list_activePlayerList.config ( width = "95", font=self.fixed_font )
         self.list_activePlayerList.pack ( side = "left", fill = "both" )
 
         scroll_playerList.config ( command = self.list_activePlayerList.yview )
@@ -557,10 +607,7 @@ class clientApp ( Tk ) :
         playerList = tr_api.listActiveTournamentPlayers ( self.activeTourn ) ['rows']
         # print ( playerList )
 
-        row_count = 1
-        for player in playerList :
-            entry = str(player["id"]) + " " + player["name"]
-            self.list_activePlayerList.insert ( END, entry )
+        self.addtoplayerlist(playerList)
 
         # playerList.update_idletasks ()
 
@@ -574,10 +621,7 @@ class clientApp ( Tk ) :
 
         self.list_activePlayerList.delete(0, END)
 
-        row_count = 1
-        for player in playerList :
-            entry = str(player["id"]) + " " + player["name"]
-            self.list_activePlayerList.insert ( END, entry )
+        self.addtoplayerlist(playerList)
 
         self.list_activePlayerList.update_idletasks()
 
@@ -688,14 +732,10 @@ class clientApp ( Tk ) :
         print ( selected )
 
         for e in selected :
-            e = e.split ( " ",
-                          maxsplit = 1 )
+            e = e.split()
             result = tr_api.addPlayer ( int(e[0]),
                                         self.activeTourn )
-            if ( result["outcome"] is False ) :
-                messagebox.showerror ( "Add Player",
-                                       "Active Tournament selected is in start state, did not add "
-                                       + e[1] )
+            self.displayError(result, "Add Player")
 
         # once added, refresh the player list if it exists
         try:
@@ -708,6 +748,8 @@ class clientApp ( Tk ) :
 
         if exists:
             self.event_refreshTournPlayer()
+
+        self.list_playerList.selection_clear(0, END)
 
 
         # self.win_listPlayer.quit ( )
@@ -723,9 +765,8 @@ class clientApp ( Tk ) :
         print ( selected )
 
         for e in selected :
-            tr_api.removePlayer ( e.split ( )[0], self.activeTourn )
-
-        self.win_listActivePlayers.destroy ( )
+            result = tr_api.removePlayer ( e.split ( )[0], self.activeTourn )
+            self.displayError(result, "Remove Player")
 
     def action_match_results ( self, m_id , match) :
         """
@@ -752,23 +793,23 @@ class clientApp ( Tk ) :
 
         # create the labels that define what each input box is used for, and align them
         Label ( frame_matchForm, text = "Player 1 wins:" ).grid ( row = 0, column = 0, sticky = W )
-        Label ( frame_matchForm, text = "Draws:" ).grid ( row = 1, column = 0, sticky = W )
-        Label ( frame_matchForm, text = "Player 2 Wins:" ).grid ( row = 2, column = 0, sticky = W )
+        Label ( frame_matchForm, text = "Player 2 Wins:" ).grid ( row = 1, column = 0, sticky = W )
+        Label ( frame_matchForm, text = "Draws:" ).grid ( row = 2, column = 0, sticky = W )
 
         # create the entry boxes and align them
         self.input_player1Wins = Entry ( frame_matchForm )
         self.input_player1Wins.grid ( row = 0, column = 1 )
-        self.input_matchDraws = Entry ( frame_matchForm )
-        self.input_matchDraws.grid (row = 1, column = 1)
         self.input_player2Wins = Entry ( frame_matchForm )
-        self.input_player2Wins.grid ( row = 2, column = 1 )
+        self.input_player2Wins.grid ( row = 1, column = 1 )
+        self.input_matchDraws = Entry ( frame_matchForm )
+        self.input_matchDraws.grid (row = 2, column = 1)
 
         # create the submit and cancel buttons
         btn_matchResult_submit = Button ( frame_matchForm, text = "Submit", command = lambda: self.event_matchResult_submit(match) ).grid ( row = 4, column = 0 )
         btn_matchResult_cancel = Button ( frame_matchForm, text = "Cancel", command = self.win_matchResult.destroy ).grid ( row = 4, column = 1 )
 
         # bind these keystrokes
-        self.win_matchResult.bind ( '<Return>', self.event_matchResult_submit )
+        self.win_matchResult.bind ( '<Return>', lambda: self.event_matchResult_submit(match))
         self.win_matchResult.bind ( '<Escape>', self.win_matchResult.destroy )
 
         self.win_matchResult.mainloop ()
@@ -786,21 +827,18 @@ class clientApp ( Tk ) :
         player2Wins = self.input_player2Wins.get ( )
         draws       = self.input_matchDraws.get ( )
 
-        if ( not player1Wins.isdigit ( ) and not player2Wins.isdigit ( ) and not draws.isdigit ( ) ) :
+        if ( not player1Wins.isdigit ( ) or not player2Wins.isdigit ( ) or not draws.isdigit ( ) ) :
             messagebox.showerror ( "Match Results",
-                                   "Invalid match result. unrecognized input format" )
-        elif ( int(player1Wins) is not 2 and int(player2Wins) is not 2 ) :
+                                   "Invalid match result. Unrecognized input format" )
+        elif ( int(player1Wins) > 2 or int(player2Wins) > 2 or (int(player1Wins) + int(player2Wins) + int(draws)) == 0 ) :
             messagebox.showerror ( "Match Results",
-                                   "Invalid match result. There must be a winner" )
+                                   "Invalid match result. Invalid number of games" )
         else :
-            tr_api.setMatchResults ( self.activeMatch, player1Wins, player2Wins, draws )
+            result = tr_api.setMatchResults ( self.activeMatch, player1Wins, player2Wins, draws )
             self.win_matchResult.destroy ( )    # destroy window on db submission
+            self.displayError(result, "Submit Results")
 
             self.update_matches(match)
-
-            print ( "player1 wins: " + player1Wins )
-            print ( "player2 wins: " + player2Wins )
-            print ( "matchDraws: " + draws )
 
 
 if ( __name__ == "__main__" ) :

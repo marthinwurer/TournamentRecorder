@@ -66,9 +66,9 @@ def addPlayer(p_id, t_id):
         return '{"outcome":false, "reason": "Tournament started"}'
 
     # check if the player is in the tournament already
-    curs.execute("""SELECT COUNT(*) FROM tournament_player WHERE p_id=%s;""", [p_id])
+    curs.execute("""SELECT COUNT(*) AS count FROM tournament_player WHERE p_id=%s AND t_id=%s;""", [p_id, t_id])
 
-    if curs.fetchone() is None:
+    if curs.fetchone()['count'] > 0:
         return '{"outcome":false, "reason": "Player already registered"}'
 
     curs.execute("""INSERT INTO tournament_player
@@ -117,6 +117,7 @@ def finishRound(r_id):
     Finishes the given round
     Fails if the round does not exist, if the round is already finished, or if
     there are matches in progress.
+    has a done field if the tournament has finished
     :param r_id:
     :returns outcome
     """
@@ -146,6 +147,8 @@ def finishRound(r_id):
                         SET end_date=NOW()
                         WHERE id=%s; """, [r_id])
 
+    outcome = {'outcome': True}
+
     # if the round is the last, finish the tournament
     # Get the max rounds of the current tournament
     curs.execute("""SELECT max_rounds 
@@ -157,9 +160,10 @@ def finishRound(r_id):
         curs.execute("""UPDATE tournament
                             SET end_date=CURDATE()
                             WHERE id=%s; """, [t_id])
+        outcome['done'] = True
     
     db.commit()
-    return '{"outcome":true}'
+    return json.dumps(outcome)
 
 def generatePairings(t_id):
     """
@@ -301,14 +305,14 @@ def listTournaments(sort_on, filter_types):
     Returns a list of tournaments sorted by sort on and filtered by the types in filter types
     :returns:
     {outcome: true/false,
-     rows:[{id, name, num_players, start_date, end_date}]}
+     rows:[{id, name, num_players, start_date, end_date, max_rounds}]}
     """
     curs = db.cursor()
     curs.execute("""SELECT t.id, t.name, (
                         SELECT COUNT(*)
                         FROM tournament_player as p
                         WHERE p.t_id=t.id) as num_players,
-                        t.start_date, t.end_date
+                        t.start_date, t.end_date, max_rounds
                     FROM tournament as t; """, [])
     db.commit()
     
