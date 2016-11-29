@@ -89,6 +89,7 @@ To reboot the database server, log in to the database server, and run:
 to attatch to the screen session. Then restart the server (Ctrl-C to stop it, ./run.sh to restart it). After the server has been restarted, hit Ctrl-a then d to disconnect from the screen session and leave the server running in the background.
 
 To run unit tests on the program use localhost as the server and follow the order listed in Testing.txt
+
     $ python -m unittest test_(filename).py
 
 # GUI Client
