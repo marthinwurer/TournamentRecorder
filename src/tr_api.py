@@ -93,7 +93,7 @@ def listTournaments(sort_on, filter_types):
     """
     :returns:
     {outcome: true/false,
-     rows:[{id, name, num_players, start_date, end_date}]}
+     rows:[{id, name, num_players, start_date, end_date, max_rounds}]}
     """
     return sendRequest('listTournaments', {'sort_on': sort_on, 'filter_types': filter_types})
 

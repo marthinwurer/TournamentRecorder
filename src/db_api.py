@@ -304,14 +304,14 @@ def listTournaments(sort_on, filter_types):
     Returns a list of tournaments sorted by sort on and filtered by the types in filter types
     :returns:
     {outcome: true/false,
-     rows:[{id, name, num_players, start_date, end_date}]}
+     rows:[{id, name, num_players, start_date, end_date, max_rounds}]}
     """
     curs = db.cursor()
     curs.execute("""SELECT t.id, t.name, (
                         SELECT COUNT(*)
                         FROM tournament_player as p
                         WHERE p.t_id=t.id) as num_players,
-                        t.start_date, t.end_date
+                        t.start_date, t.end_date, max_rounds
                     FROM tournament as t; """, [])
     db.commit()
     
