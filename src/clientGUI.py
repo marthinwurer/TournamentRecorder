@@ -61,7 +61,7 @@ class clientApp ( Tk ) :
 
         menu_file = Menu ( self.g_menubar )
         menu_file.add_command ( label = "Exit",
-                                command = self.g_master.quit )
+                                command = quit )
 
         self.g_menubar.add_cascade ( label = "File",
                                      menu = menu_file )
