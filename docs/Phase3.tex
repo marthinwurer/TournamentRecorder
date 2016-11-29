@@ -1,0 +1,957 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=.80in]{geometry}
+\usepackage{tabulary}
+\usepackage{verbatim}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{lineno}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{fancyhdr}
+\usepackage{imakeidx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{color}
+
+\setlength\parskip{\baselineskip}
+\setlength\parindent{0pt}
+
+\newcommand{\mtg}{\textit{Magic$\colon$ the Gathering\textsuperscript{TM}} }
+\newcommand{\rheadDetails}{\textbf{Version C}: Updated \textit{\today}}
+
+\linenumbers
+% \pagenumbering{}
+\makeindex
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+
+\begin{document}
+    \title{\textbf{\mtg Tournament Recorder}}
+    \author{Team Tangent Tally}
+    \date{\textbf{November 2016}}
+
+    \begin{titlepage}
+        \LARGE
+        \maketitle
+        \begin{center}
+            \normalsize
+                \textbf{Change History}\\
+            \small
+                \rheadDetails\\
+                \textbf{Verion B}: Updated \textit{October 28, 2016}\\
+                \textbf{Verion A}: Updated \textit{September 30, 2016}\\
+        \end{center}
+    \end{titlepage}
+
+    \pagestyle{fancy}
+    \fancyhf{}
+    \fancyhead[LE,RO]{\rheadDetails}
+    \fancyhead[RE,LO]{Tangent Tally}
+    \fancyfoot[CE,CO]{\leftmark}
+    \fancyfoot[LE,RO]{\thepage}
+
+    \tableofcontents
+    \newpage
+
+    \section{Overview}
+
+        \subsection{Product Intentions}
+        This application allows Tournament coordinators to record and track tournament data for a typical \mtg tournament.
+
+        \subsection{Team Tangent Tally Members}
+        \begin{center}
+            \begin{tabular}{|l|l|}
+                \hline
+                \textbf{Roles} & \textbf{Name}\\
+                \hline
+                Team Leader & Benjamin Maitland\\
+                \hline
+                Design Engineer & Jonathan Lo\\
+                \hline
+                Test Engineer & Richard Ditullio\\
+                \hline
+                UI Engineer & William Frey\\
+                \hline
+            \end{tabular}
+        \end{center}
+
+        \newpage
+
+    \section{Introduction}
+        This section will discuss generic and detailed information about \mtg tournaments. The following definitions will be utilized later in the document.
+
+        \subsection{Tournament Overview}
+        \mtg tournaments are run as a multiple round Swiss tournament with a cut to a single elimination top 8. Pairing for each round is determined by player's current standings, where players with similar standings are paired to play against each other. At the end of a certain number of rounds, usually determined by the tournament's size, the top eight players by standing take part in a single-elimination finals bracket.
+
+
+        \subsection{Definitions}
+        \begin{table*}[h!]
+            \centering
+            \begin{tabulary}{\textwidth}{|p{10em}|p{30em}|}
+                \hline
+                \textbf{Terms} & \textbf{Definitions} \\
+                \hline
+                Game & A single play of the \mtg consisting of one or two players. A game is part of a \textit{Match}. A game results in a single winner.\\
+                \hline
+                Game Winner & A single player that is deemed to be the victor of the game.\\
+                \hline
+                Match & A series of games between at most two players. Matches will result in a winner or loser (in cases of a draw, no losers).\\
+                \hline
+                Match Pairing & A system to define the member(s) of the match. Match Pairings are calculated using the player's standings.\\
+                \hline
+                Match Score & The points given to the winner and loser, or in the case of a draw, both players.\\
+                \hline
+                Match Winner & The player that is first to win two games in a match. A match score of 3 is given to the player.\\
+                \hline
+                Match Loser & The player that was unable to win the match. A match score of 0 is given to the player.\\
+                \hline
+                Bye & A match with one player. The player is automatically declared the winner. A player can only play in one bye per tournament.\\
+                \hline
+                Round & A collection of matches. Rounds are defined as swiss or bracket.\\
+                \hline
+                Swiss Round & A subset of \textit{Round}. A Swiss Round is in which matches do not eliminate individuals from the proceeding rounds.\\
+                \hline
+                Bracket Round& A subset of \textit{Round}. A Bracket Round is in which matches eliminate individuals from the proceeding rounds.\\
+                \hline
+                Tournament & A collection of rounds, declaring a single winner.\\
+                \hline
+                Player Standing & A measurement of a player's comparative score amongst other players in the current tournament.\\
+                \hline
+                \end{tabulary}
+            \caption{Terminology}
+        \end{table*}
+
+    \newpage
+
+    \newpage
+
+    \section{Software Design}
+        This section outlines the product design, infrastructure design and software architecture.
+        \subsection{Software Design}
+            \begin{figure}[H]
+                \fbox{\includegraphics[width=\textwidth]{HLR-State_Trans}}
+                \caption{State Transition Diagram}
+            \end{figure}
+            \subsection{Database Architecture}
+            \begin{figure}[H]
+                \fbox{\includegraphics[width=\textwidth]{HLR-Database_Struct}}
+                \caption{Database Design}
+            \end{figure}
+            \subsection{Software Architecture}
+             \begin{figure}[H]
+                \fbox{\includegraphics[width=\textwidth]{HLR-UML_Diagram}}
+                \caption{UML Diagram}
+            \end{figure}
+
+    \newpage
+
+    \newpage
+
+    \section{Requirements}
+    \subsection{Software Requirements}
+    \begin{itemize}
+        \item The application shall be executable from a Windows or Linux operating system.
+        \item The application shall be implemented using Python 3.5.
+        \item The application shall be implemented using Tkinter 8.6.
+        \item The application shall utilize a MySQL-compatible Database to store, update, and access tournament records.
+        \item The application shall implement the standard \mtg tournament structure and procedures.
+    \end{itemize}
+
+    \subsection{Software Design Requirements}
+    \begin{itemize}
+        \item The application shall implement an appropriate and usable interface for users.
+        \item The application shall interface with the database, accessing and retrieving live tournament data and records.
+        \item The application shall compute the necessary pairings for each round.
+        \item The application shall require users to update necessary data, upon completion of a major state, such as match scores.
+        \item The application shall compute necessary logic utilizing updated data within the database before an explicit state, such as match pairing for the next round.
+        \item The application shall be testable with an automated and/or manual test(s).
+        \item The application shall utilize appropriate design patterns, such as the Model-View-Controller design pattern.
+    \end{itemize}
+
+    \newpage
+
+    \subsection{Software Implementation Requirements}
+        \subsubsection{Database Implementation Requirements}
+            The \textbf{Table: \texttt{player}} shall be utilized for:
+            \begin{itemize}
+                \item tracking Player information
+                \item tracking historical details of a Player entry.
+            \end{itemize}
+
+            The \textbf{Table: \texttt{tournament}} shall be utilized for:
+            \begin{itemize}
+                \item tracking tournament information
+                \item providing reference for other table links.
+            \end{itemize}
+
+            The \textbf{Table: \texttt{round}} shall be utilized for:
+            \begin{itemize}
+                \item tracking Round information
+                \item providing reference to other tables
+            \end{itemize}
+
+
+            The \textbf{Table: \texttt{t\_match}} shall be utilized for:
+            \begin{itemize}
+                \item tracking Match information for rounds.
+                \item providing reference to other tables
+            \end{itemize}
+
+            The \textbf{Table: tournament\_player} shall be utilized for:
+            \begin{itemize}
+                \item tracking Tournament Players information.
+                \item tracking historical details of a Tournament Players entry.
+            \end{itemize}
+
+        \subsubsection{System Implementation Requirements}
+            There are no known system implementation requirements.
+
+        \newpage
+
+        \subsubsection{Software Use Case Requirements}
+            \begin{itemize}
+            % insert use case tables
+            \item Tournament Use Cases:
+            \begin{itemize}
+                \item The software shall allow a user to see a list of all tournaments.
+                \item The software shall allow a user to create a new tournament.
+                \item The software shall allow a user to view a list of players registered in a tournament.
+                \item The software shall allow a user to register a player for a tournament.
+                \item The software shall allow a user to remove a player from a tournament.
+                \item The software shall allow a user to start a tournament.
+                \item The software shall allow a user to view a list of rounds in a tournament.
+                \item The software shall allow a user to end a tournament.
+                \item The software shall allow a user to view tournaments that have finished.
+            \end{itemize}
+
+            % insert use case tables
+
+            \item Round Use Cases:
+            \begin{itemize}
+                \item The software shall allow a user to start a round in a tournament.
+                \item The software shall allow a user to end a round in a tournament.
+                \item The software shall allow a user to generate pairings for a new round in the tournament.
+                \item The software shall allow a user to view a list of matches in a round.
+            \end{itemize}
+
+            \item Match Use Cases:
+            \begin{itemize}
+                \item The software shall allow a user to report the results of a match.
+                \item The software shall allow a user to change the results of a match.
+                \item The software shall allow a user to view the results of a match.
+            \end{itemize}
+
+            \item Player Use Cases:
+            \begin{itemize}
+                \item The software shall allow a user to view the information of a player registered in a tournament.
+                \item Te software shall allow a user to view a list of all players.
+                \item The software shall allow a user to add a player.
+                \item The software shall allow a user to view the information of a player.
+            \end{itemize}
+        \end{itemize}
+
+    \newpage
+
+    \section {Implementation}
+        \subsection{Database Implementation}
+        \begin{table*}[!hp]
+            \centering
+            \begin{tabulary}{0.9\textwidth}{|p{6em}|p{6em}|p{6em}|p{23em}|}
+                \hline
+                \multicolumn{4}{|l|}{\textbf{Table}: \textbf{\texttt{player}}}\\
+                \hline
+                \textbf{Attribute}  & \textbf{Data Type}    & \textbf{Descriptor}   & \textbf{Comments}\\
+                \hline
+                \texttt{id}         & \texttt{BIGINT(20)}   & \texttt{PRIMARY KEY}  & An unique identifier generated by the database.\\
+                \hline
+                \texttt{name}       & \texttt{VARCHAR(30)}  & \texttt{PROVIDED}     & A given name of the player.\\
+                \hline
+                \texttt{wins}       & \texttt{INT(11)}      & \texttt{GENERATED}    & Number of total wins by the player.\\
+                \hline
+                \texttt{losses}     & \texttt{INT(11)}      & \texttt{GENERATED}    & Number of total losses by the player.\\
+                \hline
+                \texttt{draws}      & \texttt{INT(11)}      & \texttt{GENERATED}    & Number of total draws by the player.\\
+                \hline
+            \end{tabulary}
+            \caption{Database Table: \texttt{player}}
+        \end{table*}
+
+        \begin{table*}[!hp]
+            \centering
+            \begin{tabulary}{0.9\textwidth}{|p{6em}|p{6em}|p{6em}|p{23em}|}
+                \hline
+                \multicolumn{4}{|l|}{\textbf{Table}: \textbf{\texttt{round}}}\\
+                \hline
+                \textbf{Attribute}      & \textbf{Data Type}    & \textbf{Descriptor}   & \textbf{Comments}\\
+                \hline
+                \texttt{id}             & \texttt{INT(11)}      & \texttt{PRIMARY KEY}  & Auto incremented identifier generated by the database.\\
+                \hline
+                \texttt{t\_id}          & \texttt{INT(11)}      & \texttt{FOREIGN KEY}  & References to \texttt{tournament(id)}.\\
+                \hline
+                \texttt{number}         & \texttt{INT(11)}      & \texttt{GENERATED}    & sequential number of round in tournament.\\
+                \hline
+                \texttt{start\_date}    & \texttt{DATETIME}     & \texttt{GENERATED}    & A time for the round to begin.\\
+                \hline
+                \texttt{end\_time}      & \texttt{DATETIME}     & \texttt{GENERATED}    & A time for the round to end.\\
+                \hline
+            \end{tabulary}
+            \caption{Database Table: \texttt{round}}
+        \end{table*}
+
+        \begin{table*}[!hp]
+            \centering
+            \begin{tabulary}{0.9\textwidth}{|p{6em}|p{6em}|p{6em}|p{23em}|}
+                \hline
+                \multicolumn{4}{|l|}{\textbf{Table}: \textbf{\texttt{t\_match}}}\\
+                \hline
+                \textbf{Attribute}      & \textbf{Data Type}    & \textbf{Descriptor}   & \textbf{Comments}\\
+                \hline
+                \texttt{id}             & \texttt{INT(11)}      & \texttt{PRIMARY KEY}  & Auto incremented identifier generated by the database.\\
+                \hline
+                \texttt{r\_id}          & \texttt{INT(11)}      & \texttt{FOREIGN KEY}  & Reference to \texttt{round(id)}.\\
+                \hline
+                \texttt{p1\_id}         & \texttt{INT(11)}      & \texttt{FOREIGN KEY}  & Reference to \texttt{tournament\_player(id)}.\\
+                \hline
+                \texttt{p2\_id}         & \texttt{INT(11)}      & \texttt{FOREIGN KEY}  & Reference to \texttt{tournament\_player(id)}.\\
+                \hline
+                \texttt{table\_number}  & \texttt{INT(11)}      & \texttt{PROVIDED}     & assigned table number for the match.\\
+                \hline
+                \texttt{p1\_wins}       & \texttt{INT(11)}      & \texttt{PROVIDED}     & player 1 wins.\\
+                \hline
+                \texttt{p2\_wins}       & \texttt{INT(11)}      & \texttt{PROVIDED}     & player 2 wins.\\
+                \hline
+                \texttt{draws}          & \texttt{INT(11)}      & \texttt{PROVIDED}     & number of draws in the match.\\
+                \hline
+            \end{tabulary}
+            \caption{Database Table: \texttt{t\_match}}
+        \end{table*}
+
+        \begin{table*}[!hp]
+            \centering
+            \begin{tabulary}{\textwidth}{|p{6em}|p{6em}|p{6em}|p{23em}|}
+                \hline
+                \multicolumn{4}{|l|}{\textbf{Table}: \textbf{\texttt{tournament}}}\\
+                \hline
+                \textbf{Attribute}      & \textbf{Data Type}    & \textbf{Descriptor}   & \textbf{Comments}\\
+                \hline
+                \texttt{id}             & \texttt{INT(11)}      & \texttt{PRIMARY KEY}  & Auto incremented identifier generated by the database.\\
+                \hline
+                \texttt{name}           & \texttt{VARCHAR(20)}  & \texttt{PROVIDED}     & An identifier provided by the user, the name of the tournament.\\
+                \hline
+                \texttt{max\_rounds}    & \texttt{INT(11)}      & \texttt{PROVIDED}     & number of rounds in the tournament.\\
+                \hline
+                \texttt{start\_date}    & \texttt{DATE}         & \texttt{PROVIDED}     & Start date of tournament.\\
+                \hline
+                \texttt{end\_date}      & \texttt{DATE}         & \texttt{PROVIDED}     & End date of tournament.\\
+                \hline
+            \end{tabulary}
+            \caption{Database Table: \texttt{tournament}}
+        \end{table*}
+
+        \newpage
+
+        \begin{table*}[!hp]
+            \centering
+            \begin{tabulary}{0.9\textwidth}{|p{6em}|p{6em}|p{6em}|p{23em}|}
+                \hline
+                \multicolumn{4}{|l|}{\textbf{Table}: \textbf{\texttt{tournament\_player}}}\\
+                \hline
+                \textbf{Attribute}  & \textbf{Data Type}    & \textbf{Descriptor}   & \textbf{Comments}\\
+                \hline
+                \texttt{id}         & \texttt{INT(11)}      & \texttt{PRIMARY KEY}  & An unique identifier generated by the database.\\
+                \hline
+                \texttt{t\_id}      & \texttt{INT(11)}      & \texttt{FOREIGN KEY}  & Reference to \texttt{tournament(id)}.\\
+                \hline
+                \texttt{p\_id}      & \texttt{BIGINT(20)}   & \texttt{FOREIGN KEY}  & Reference to \texttt{tournament\_player(id)}.\\
+                \hline
+                \texttt{dropped}    & \texttt{INT(11)}      & \texttt{GENERATED}    & Indicates if the player was dropped from the tournament.\\
+                \hline
+            \end{tabulary}
+            \caption{Database Table: \texttt{tournament\_player}}
+        \end{table*}
+
+        \subsection {API Implementation}
+            \subsubsection{Method Summary}
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{27em}|p{16em}|}
+                        \hline
+                        \textbf{Method Name} & \textbf{Description}\\
+                        \hline
+                        \texttt{addPlayer (Player ID, Tournament ID)}                   & adds a player to the tournament.\\
+                        \hline
+                        \texttt{createPlayer (DCI Number, Player Name)}                 & creates a player.\\
+                        \hline
+                        \texttt{createTournament (Name, Max Rounds)}                    & creates a tournament.\\
+                        \hline
+                        \texttt{finishRound (Round ID)}                                 & finishes a round.\\
+                        \hline
+                        \texttt{generatePairing (Tournament ID)}                        & generates a new round and matches between players.\\
+                        \hline
+                        \texttt{getPlayer (Player ID)}                                  & gets the specified player from Table: \texttt{Players}.\\
+                        \hline
+                        \texttt{getTournamentPlayer (tourn. player ID)}                 & get the specified player from Table: \texttt{Tournament Players}.\\
+                        \hline
+                        \texttt{listActiveTournamentPlayers (Tournament ID)}            & list all players actively participating in the tournament.\\
+                        \hline
+                        \texttt{listPlayers ()}                                         & gets the list of all players.\\
+                        \hline
+                        \texttt{listTournamentPlayers (Tournament ID)}                  & list all the players in the tournament.\\
+                        \hline
+                        \texttt{listTournaments (Sort By Field, Filter Types)}          & gets a list of tournaments.\\
+                        \hline
+                        \texttt{matchList (Round ID)}                                   & returns a list of matches for the current round.\\
+                        \hline
+                        \texttt{removePlayer (Tourn. Player ID, Tournament ID)}         & removes the player from the database.\\
+                        \hline
+                        \texttt{roundList (Tournament ID)}                              & returns list of rounds.\\
+                        \hline
+                        \texttt{searchPlayers (Partial Player Name)}                    & returns the player name of the ID.\\
+                        \hline
+                        \texttt{setMatchResults (Match ID, P1 Wins, P2 Wins, Draws)}    & sets the match resu!hplt.\\
+                        \hline
+                        \texttt{startTournament (Tournament ID)}                        & initiates the tournament.\\
+                        \hline
+                    \end{tabulary}
+                    \caption{Method Summary}
+                \end{table*}
+
+            \newpage
+
+            \subsubsection {Method Details}
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{addPlayer ( p\_id, t\_id )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{p\_id} & \texttt{Integer} & the official given id of the player.\\
+                        \hline
+                        \texttt{t\_id} & \texttt{Integer} & the tournament ID.\\
+                        \hline
+                        \multicolumn{3}{|l|}{adds the player of \texttt{p\_id} to the tournament \texttt{t\_id}}.\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True\}} on success.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{addPlayer()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{createPlayer ( DCI, name )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{DCI} & \texttt{Integer} & the Player's DCI number (Unique Identifier).\\
+                        \hline
+                        \texttt{name} & \texttt{String} & the name of the player.\\
+                        \hline
+                        \multicolumn{3}{|l|}{creates a player with the given \texttt{name} and \texttt{DCI}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True\}} on success.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{createPlayer()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{createTournament ( name, max\_rounds )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{name} & \texttt{String} & name of the tournament.\\
+                        \hline
+                        \texttt{max\_rounds} & \texttt{Integer} & the maximum number of rounds in the tournament.\\
+                        \hline
+                        \multicolumn{3}{|l|}{creates a tournament with the given \texttt{name} and \texttt{max\_rounds}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True\}} on success.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{createTournament()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{finishRound ( r\_id )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{r\_id} & \texttt{Integer} & the round ID.\\
+                        \hline
+                        \multicolumn{3}{|l|}{sets the round as completed.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True\}} on success.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{finishRound()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{generatePairing ( t\_id )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{t\_id} & \texttt{Integer} & the tournament ID.\\
+                        \hline
+                        \multicolumn{3}{|l|}{generates a round and the matches of the round.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True\}} on success.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{generatePairing()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{getPlayers ( p\_id )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{p\_id} & \texttt{Integer} & the id of the player.\\
+                        \hline
+                        \multicolumn{3}{|l|}{returns the player object of the given \texttt{p\_id}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True, "rows": \{\dots\}\}} on success. \texttt{"rows"} contains player attributes and the paired}\\
+                        \multicolumn{3}{|l|}{values for the specified player.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{getPlayer()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{listActiveTournamentPlayers ( t\_id )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{t\_id} & \texttt{Integer} & the tournament ID.\\
+                        \hline
+                        \multicolumn{3}{|l|}{returns a list of player objects that are currently participating in the tournament.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True, "rows": [ \{\dots\}, \{\dots\}, \dots, \{\dots\} ]\}} on success. \texttt{"rows"} contains }\\
+                        \multicolumn{3}{|l|}{player attributes and the paired values. Returns a list of dictionaries.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{listActiveTournamentPlayers()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{listPlayers ( )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{----} & \texttt{----} & \texttt{----}\\
+                        \hline
+                        \multicolumn{3}{|l|}{returns a list of player objects that exist in the system.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True, "rows": [ \{\dots\}, \{\dots\}, \dots, \{\dots\} ]\}} on success. \texttt{"rows"} contains }\\
+                        \multicolumn{3}{|l|}{player attributes and the paired values. Returns a list of dictionaries.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{listPlayers()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{listTournament ( sort\_on, filter\_types )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{sort\_on} & \texttt{List} & a list of attributes to sort on.\\
+                        \hline
+                        \texttt{filter\_types} & \texttt{Character} & flags to filter the returning list by. Flags consist of waiting, started and finished.\\
+                        \hline
+                        \multicolumn{3}{|l|}{returns a list of tournaments objects with defined attributes}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True, "rows": [ \{\dots\}, \{\dots\}, \dots, \{\dots\} ]\}} on success. \texttt{"rows"} contains }\\
+                        \multicolumn{3}{|l|}{tournament attributes and the paired values. Returns a list of dictionaries.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{listTournament()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{listTournamentPlayers ( t\_id )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{t\_id} & \texttt{Integer} & the tournament id.\\
+                        \hline
+                        \multicolumn{3}{|l|}{returns a list of tournaments players}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True, "rows": [ \{\dots\}, \{\dots\}, \dots, \{\dots\} ]\}} on success. \texttt{"rows"} contains all }\\
+                        \multicolumn{3}{|l|}{ players that are currently or in the past existed for that tournament. Returns a list of dictionaries.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{listTournamentPlayers()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{matchList ( r\_id )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{r\_id} & \texttt{Integer} & the round ID.\\
+                        \hline
+                        \multicolumn{3}{|l|}{returns a list of matches for the current round..}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True, "rows": [ \{\dots\}, \{\dots\}, \dots, \{\dots\} ]\}} on success. \texttt{"rows"} contains }\\
+                        \multicolumn{3}{|l|}{match attributes and the paired values. Returns a list of dictionaries.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{matchList()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{removePlayer ( p\_id, t\_id )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{p\_id} & \texttt{Integer} & the player id.\\
+                        \hline
+                        \texttt{t\_id} & \texttt{Integer} & the tournament ID.\\
+                        \hline
+                        \multicolumn{3}{|l|}{adds the player of \texttt{p\_id} to the tournament \texttt{t\_id}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True\}} on success.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{removePlayer()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{roundList ( t\_id )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{t\_id} & \texttt{Integer} & the tournament ID.\\
+                        \hline
+                        \multicolumn{3}{|l|}{gets the list of rounds part of the tournament.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True\}} on success.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{roundList()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{searchPlayers ( partial\_name )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{partial\_name} & \texttt{String} & partial string name.\\
+                        \hline
+                        \multicolumn{3}{|l|}{searches for a player with the given \texttt{partial\_name} and returns players name}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True, "rows" : [ \{\dots\}, \{\dots\}, \dots, \{\dots\} ]\}} on success. \texttt{"rows"} contains a list}\\
+                        \multicolumn{3}{|l|}{of dictionaries, containing player with names that match the given string.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{searchPlayers()} method }
+                \end{table*}
+
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{setMatchTournament ( m\_id, p1\_wins, p2\_wins, draws )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{m\_id} & \texttt{Integer} & the match id.\\
+                        \hline
+                        \texttt{p1\_wins} & \texttt{Integer} & player 1's wins.\\
+                        \hline
+                        \texttt{p2\_wins} & \texttt{Integer} & player 2's wins.\\
+                        \hline
+                        \texttt{draws} & \texttt{Integer} & number of draws.\\
+                        \hline
+                        \multicolumn{3}{|l|}{sets the scoring for the match between player 1 and player 2.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True\}} on success.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{setMatchTournament()} method }
+                \end{table*}
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{0.9\textwidth}{|p{8em}|p{8em}|p{28em}|}
+                        \hline
+                        \multicolumn{3}{|l|}{ \texttt{startTournament ( t\_id )}}\\
+                        \hline
+                        \textbf{Parameter} & \textbf{Data Type} & \textbf{Descriptor}\\
+                        \hline
+                        \texttt{t\_id} & \texttt{Integer} & the tournament ID.\\
+                        \hline
+                        \multicolumn{3}{|l|}{starts the specified tournament. This enables processing of the tournament.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\textbf{Returns:}}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : True\}} on success.}\\
+                        \hline
+                        \multicolumn{3}{|l|}{\texttt{\{"outcome" : False, "reason" : \dots\}} on failure.}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{startTournament()} method }
+                \end{table*}
+
+        \newpage
+
+        \subsection{GUI Implementation}
+            \subsubsection{GUI Modules}
+                \begin{figure}[H]
+                    \fbox{\includegraphics[width=\textwidth]{HLR-GUI_State_Trans}}
+                    \caption{GUI Interaction Diagram}
+                \end{figure}
+                \newpage
+            \subsubsection{GUI Module}
+                The GUI has been logically divided into modules. Communication between each module is through a interface that stores the current state, allowing other states and modules to interact with the stored state.
+                \begin{table*}[h!]
+                    \centering
+                    \begin{tabulary}{\textwidth}{|p{12em}|p{32em}|}
+                        \hline
+                        \textbf{State}                      & \textbf{Description} \\
+                        \hline
+                        \texttt{Start}                      & Initial entry. This is the initial entry window that is displayed on execution.\\
+                        \hline
+                        \texttt{End}                        & Terminal Exit. This results the application terminating.\\
+                        \hline
+                        \texttt{Match Module}               & Handles match updates and interactions.\\
+                        \hline
+                        \texttt{Player Module}              & Handles player creations, removals, and interactions.\\
+                        \hline
+                        \texttt{Round Module}               & Handles round interactions.\\
+                        \hline
+                        \texttt{Tournament Module}          & Handles tournament creations, selection, and interactions.\\
+                        \hline
+                        \end{tabulary}
+                    \caption{GUI Interaction Description}
+                \end{table*}
+    \newpage
+
+    \section{User Guide}
+        The following section introduces the necessary steps to install and initialize the environment and application. This has also been dictated in the \texttt{readme}.
+        \subsection{Development Environment Configuration and Usage}
+            \subsubsection{Database Server Configuration}
+                A public server has been set up for easy access and configuration.
+                \newline
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{\textwidth}{|c|}
+                        \hline
+                        \texttt{ttdbserver.student.rit.edu:5000}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{Public Server Connection}}
+                \end{table*}
+            \subsubsection{Environment Installation}
+                The following section defines all necessary steps and requirements to executing the application.
+                \newline
+                The following list defines required software that must be installed by the user before continuing.
+                \begin{table*}[!hp]
+                    \centering
+                    \begin{tabulary}{\textwidth}{|c|}
+                        \hline
+                        \texttt{Software}\\
+                        \hline
+                        \texttt{\href{https://virtualenv.pypa.io/en/stable/installation/}{Virtual Environment}}\\
+                        \hline
+                        \texttt{\href{https://docs.python.org/3/library/tkinter.html}{TKinter 8.6}}\\
+                        \hline
+                        \texttt{\href{https://www.python.org/downloads/release/python-350/}{Python 3.5}}\\
+                        \hline
+                    \end{tabulary}
+                    \caption{\texttt{Required Environment Software}}
+                \end{table*}
+                \newline
+                Once the required software has been installed, one may refer to the \texttt{readme} for the specific installation process of the environment. Windows and Linux machines will have slightly different instructions.
+            \subsubsection{Environment Configuration}
+                Database connection can be configured within \texttt{config.json}. The configuration must be configured prior to usage.
+
+        \subsection{Application Usage}
+            The following section introduces the necessary steps to run the application. This has also been dictated in the \texttt{readme}.
+            \newline
+            Two separate applications are provided, a console-based application (for development and testing) and a graphic user interface. Both must be run with \texttt{virtual environment}.
+            \subsubsection{Console Application}
+            The console application can be executed through the terminal or terminal-variant with the following command.
+                \begin{lstlisting}[language=sh, caption=client console application usage]
+                python ./src/client.py
+                \end{lstlisting}
+            \subsubsection{GUI Application}
+            The GUI application can be executed through the terminal or terminal-variant with the following command.
+                \begin{lstlisting}[language=sh,caption=client GUI application usage ]
+                python ./src/clientGUI.py
+                \end{lstlisting}
+            \subsubsection{Application States}
+
+        \subsection{Console Application Manual}
+            The following section introduces operating and handling the application.
+            \subsubsection{Commands}
+                All operations can be viewed by using the \texttt{help} command.
+        \newpage
+
+        \subsection{GUI Interaction Overview}
+            The following section describes application interaction.
+            \subsubsection{GUI Interaction Overview}
+                \begin{table*}[h!]
+                    \centering
+                    \begin{tabulary}{\textwidth}{|p{12em}|p{32em}|}
+                        \hline
+                        \textbf{State}                      & \textbf{Description} \\
+                        \hline
+                        \texttt{Start}                      & Initial entry. This is the initial entry window that is displayed on execution.\\
+                        \hline
+                        \texttt{End}                        & Terminal Exit. This results the application terminating.\\
+                        \hline
+                        \texttt{Player Creation}            & Player creation.\\
+                        \hline
+                        \texttt{Tournament Selection}       & Select an active tournament.\\
+                        \texttt{Tournament Creation}        & Creates a new tournament.\\
+                        \hline
+                        \texttt{Add Player}                 & Adds the player(s) to the tournament.\\
+                        \hline
+                        \texttt{Remove Player}              & Remove the player(s) to the tournament.\\
+                        \hline
+                        \texttt{Round Selection}            & Select a round to view.\\
+                        \hline
+                        \texttt{Finish Round}               & Finish the round.\\
+                        \hline
+                        \texttt{Match Selection}            & Select a match for update.\\
+                        \hline
+                        \texttt{Update Match}               & Update a match.\\
+                        \hline
+                        \end{tabulary}
+                    \caption{GUI Interaction Description}
+                \end{table*}
+                \newpage
+            \subsubsection{GUI Usage}
+                \begin{figure}[H]
+                    \fbox{\includegraphics[height=21cm]{HLR-GUI_Interactions}}
+                    \centering
+                    \caption{GUI Interaction Diagram}
+                \end{figure}
+                \newpage
+
+    \section{Appendices}
+        \subsection{Figures}
+            \listoffigures
+
+        \newpage
+
+        \subsection{Tables}
+            \listoftables
+
+        \newpage
+
+        \subsection{Listings}
+            \lstlistoflistings
+        % \subsection{Index}
+            % \printindex
+\end{document}
