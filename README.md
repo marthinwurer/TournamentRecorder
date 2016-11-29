@@ -1,5 +1,5 @@
 # TournamentRecorder
-By Team TangentTally
+By Team TangentTally 37
 
 The first step for installation is to download the client from the git repo. If you can see this message locally, you're good.
 

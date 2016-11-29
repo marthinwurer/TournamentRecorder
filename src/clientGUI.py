@@ -30,7 +30,7 @@ class clientApp ( Tk ) :
         label = Label ( self.g_master, text = "" )
         label.pack ()
 
-        self.g_master.minsize ( 400,200 )
+        self.g_master.minsize ( 300, 0 )
 
         self.g_menubar = Menu ( self. g_master )
 
@@ -293,7 +293,7 @@ class clientApp ( Tk ) :
             if ( len ( tournName ) < 4 ) :
                 messagebox.showerror(
                     "Create Tournaments",
-                    "tournament name length must be greater that 4"
+                    "Tournament name length must be greater that 4"
                 )
 
                 return
@@ -301,7 +301,7 @@ class clientApp ( Tk ) :
             if ( not tournMaxRounds.isdigit () ) :
                 messagebox.showerror(
                     "Create Tournaments",
-                    "tournament max rounds must be greater than 1"
+                    "Tournament max rounds must be greater than 0"
                 )
 
                 return
@@ -382,7 +382,7 @@ class clientApp ( Tk ) :
         if ( self.activeRound is None ) :
             messagebox.showerror (
                 "Finish Round",
-                "no known round selected"
+                "No known round selected."
             )
             return
 
@@ -531,7 +531,7 @@ class clientApp ( Tk ) :
 
         self.win_listPlayer = Tk ()
         self.win_listPlayer.title ( "Players Finder" )
-        self.win_listPlayer.minsize ( 600, 300 )
+        self.win_listPlayer.minsize ( 300, 300 )
         Label ( self.win_listPlayer, text = "Players Finder" ).pack ()
 
         frame_playerFind = Frame ( self.win_listPlayer )
@@ -551,7 +551,7 @@ class clientApp ( Tk ) :
         scroll_playerList.pack ( side = "right", fill = "y" )
 
         self.list_playerList = Listbox ( self.frame_playerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple" )
-        self.list_playerList.config ( width = "95", font=self.fixed_font )
+        self.list_playerList.config ( width = "50", font=self.fixed_font )
         self.list_playerList.pack ( side = "left", fill = "both" )
 
         scroll_playerList.config ( command = self.list_playerList.yview )
@@ -584,7 +584,7 @@ class clientApp ( Tk ) :
         if self.activeTourn is None :
             messagebox.showerror (
                 "Active Players",
-                "Usage: active tournament must be selected "
+                "No known tournament selected "
             )
             return
 
@@ -602,7 +602,7 @@ class clientApp ( Tk ) :
         scroll_playerList.pack ( side = "right", fill = "y" )
 
         self.list_activePlayerList = Listbox ( self.frame_activePlayerList, yscrollcommand = scroll_playerList.set, selectmode = "multiple")
-        self.list_activePlayerList.config ( width = "95", font=self.fixed_font )
+        self.list_activePlayerList.config ( width = "50", font=self.fixed_font )
         self.list_activePlayerList.pack ( side = "left", fill = "both" )
 
         scroll_playerList.config ( command = self.list_activePlayerList.yview )
