@@ -595,6 +595,14 @@ class clientApp ( Tk ) :
         btn_addPlayer_add = Button ( frame_playerFooter, text = "Add to Active", command = self.event_addPlayer ).pack ()
         btn_addPlayer_cancel = Button ( frame_playerFooter, text = "Cancel", command = self.win_listPlayer.destroy ).pack ()
 
+    def addtoplayerlist(self, playerList):
+        output =" {:>10} {:>30} {:>3}"
+
+        row_count = 1
+        for player in playerList :
+            entry = output.format(str ( player["id"] ), player["name"], player['standing'])
+            self.list_activePlayerList.insert ( END, entry )
+
     def action_listActivePlayers ( self ) :
         """
             creates a new window to view active player data.
@@ -630,12 +638,7 @@ class clientApp ( Tk ) :
         playerList = tr_api.listActiveTournamentPlayers ( self.activeTourn ) ['rows']
         # print ( playerList )
 
-        output =" {:>10} {:>30} {:>3}"
-
-        row_count = 1
-        for player in playerList :
-            entry = output.format(str ( player["id"] ), player["name"], player['standing'])
-            self.list_activePlayerList.insert ( END, entry )
+        self.addtoplayerlist(playerList)
 
         # playerList.update_idletasks ()
 
@@ -649,10 +652,7 @@ class clientApp ( Tk ) :
 
         self.list_activePlayerList.delete(0, END)
 
-        row_count = 1
-        for player in playerList :
-            entry = str(player["id"]) + " " + player["name"]
-            self.list_activePlayerList.insert ( END, entry )
+        self.addtoplayerlist(playerList)
 
         self.list_activePlayerList.update_idletasks()
 
